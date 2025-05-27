@@ -1,8 +1,6 @@
-// theme_provider.dart
 import 'package:flutter/material.dart';
-import 'package:dynamic_color/dynamic_color.dart'; // Keep for platform adaptive colors
+import 'package:shared_preferences/shared_preferences.dart';
 
-// Your existing list
 final List<MaterialColor> seedColorList = [
   Colors.deepPurple,
   Colors.deepOrange,
@@ -12,70 +10,89 @@ final List<MaterialColor> seedColorList = [
   Colors.green
 ];
 
-enum ThemePreference {
-  dynamic,
-  custom,
-}
-
-
 class ThemeProvider with ChangeNotifier {
-  ThemePreference _themePreference = ThemePreference
-      .dynamic; // Default to dynamic
-  MaterialColor _customSeedColor = seedColorList[0]; // Default custom color
+  ThemeMode _themeMode = ThemeMode.system; // Default to system theme
+  Color? _selectedSeedColor = seedColorList[0]; // Default to the first seed color
+  bool _isDynamicColor = true; // Default to dynamic color
 
-  ThemePreference get themePreference => _themePreference;
+  static const String _themeModeKey = 'themeMode';
+  static const String _seedColorIndexKey = 'seedColorIndex';
+  static const String _isDynamicColorKey = 'isDynamicColor';
 
-  MaterialColor get customSeedColor => _customSeedColor;
-
-  // These will now be used by NextBusApp to get the final schemes
-  ColorScheme? _lightDynamicScheme;
-  ColorScheme? _darkDynamicScheme;
-
-  // Call this from NextBusApp after DynamicColorBuilder gives you the schemes
-  void setDynamicSchemes(ColorScheme? light, ColorScheme? dark) {
-    _lightDynamicScheme = light;
-    _darkDynamicScheme = dark;
-    // Notify if the preference is dynamic, as the theme might change
-    if (_themePreference == ThemePreference.dynamic) {
-      notifyListeners();
-    }
+  ThemeProvider() {
+    _loadThemeSettings();
   }
 
-  ColorScheme get lightColorScheme {
-    if (_themePreference == ThemePreference.dynamic &&
-        _lightDynamicScheme != null) {
-      return _lightDynamicScheme!;
-    }
-    // Fallback to custom or if dynamic is not available
-    return ColorScheme.fromSeed(seedColor: _customSeedColor);
+  ThemeMode get themeMode => _themeMode;
+
+  Color? get selectedSeedColor => _selectedSeedColor;
+
+  bool get isDynamicColor => _isDynamicColor;
+
+  void setThemeMode(ThemeMode mode) {
+    _themeMode = mode;
+    _saveThemeSettings();
+    notifyListeners();
   }
 
-  ColorScheme get darkColorScheme {
-    if (_themePreference == ThemePreference.dynamic &&
-        _darkDynamicScheme != null) {
-      return _darkDynamicScheme!;
-    }
-    // Fallback to custom or if dynamic is not available
-    return ColorScheme.fromSeed(
-      seedColor: _customSeedColor,
-      brightness: Brightness.dark,
-    );
+  void setSelectedSeedColor(Color? color) {
+    _selectedSeedColor = color;
+    _isDynamicColor = false; // When a seed color is chosen, dynamic is off
+    _saveThemeSettings();
+    notifyListeners();
   }
 
-  void setThemePreference(ThemePreference preference) {
-    if (_themePreference != preference) {
-      _themePreference = preference;
-      notifyListeners();
+  void setDynamicColor(bool isDynamic) {
+    _isDynamicColor = isDynamic;
+    if (isDynamic) {
+      _selectedSeedColor =
+      null; // If dynamic, no specific seed color is selected
+    } else if (_selectedSeedColor == null && seedColorList.isNotEmpty) {
+      // If turning off dynamic and no color was previously selected, default to first
+      _selectedSeedColor = seedColorList[0];
     }
+    _saveThemeSettings();
+    notifyListeners();
   }
 
-  void setCustomSeedColor(MaterialColor newColor) {
-    if (_customSeedColor != newColor) {
-      _customSeedColor = newColor;
-      if (_themePreference == ThemePreference.custom) {
-        // Only notify if custom is active, otherwise the change will apply when they switch
-        notifyListeners();
+  Future<void> _loadThemeSettings() async {
+    final prefs = await SharedPreferences.getInstance();
+    final themeModeIndex = prefs.getInt(_themeModeKey);
+    if (themeModeIndex != null) {
+      _themeMode = ThemeMode.values[themeModeIndex];
+    }
+
+    final isDynamic = prefs.getBool(_isDynamicColorKey);
+    if (isDynamic != null) {
+      _isDynamicColor = isDynamic;
+    }
+
+    final seedColorIndex = prefs.getInt(_seedColorIndexKey);
+    if (!_isDynamicColor && seedColorIndex != null &&
+        seedColorIndex < seedColorList.length) {
+      _selectedSeedColor = seedColorList[seedColorIndex];
+    } else if (!_isDynamicColor && seedColorList.isNotEmpty) {
+      // Fallback if saved index is invalid or no dynamic color
+      _selectedSeedColor = seedColorList[0];
+    } else {
+      _selectedSeedColor = null; // Dynamic color is active
+    }
+
+    notifyListeners();
+  }
+
+  Future<void> _saveThemeSettings() async {
+    final prefs = await SharedPreferences.getInstance();
+    await prefs.setInt(_themeModeKey, _themeMode.index);
+    await prefs.setBool(_isDynamicColorKey, _isDynamicColor);
+    if (_selectedSeedColor != null) {
+      final index = seedColorList.indexOf(_selectedSeedColor as MaterialColor);
+      if (index != -1) {
+        await prefs.setInt(_seedColorIndexKey, index);
       }
+    } else {
+      await prefs.remove(
+          _seedColorIndexKey); // Remove if no seed color (dynamic)
     }
   }
 }

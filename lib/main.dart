@@ -2,7 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart' show Brightness, DeviceOrientation, SystemChrome;
 import 'package:flutter/foundation.dart' show TargetPlatform, defaultTargetPlatform;
 import 'package:dynamic_color/dynamic_color.dart' show ColorSchemeHarmonization, DynamicColorBuilder;
-import 'package:provider/provider.dart' show ChangeNotifierProvider, MultiProvider;
+import 'package:provider/provider.dart' show ChangeNotifierProvider, Consumer, MultiProvider;
 import 'package:firebase_core/firebase_core.dart' show Firebase;
 import 'package:firebase_auth/firebase_auth.dart' show FirebaseAuth, User;
 
@@ -18,13 +18,9 @@ final Map<String, WidgetBuilder> routes = {
   '/route': (context) => AppLayout(selectedIndex: 1, child: RouteSelect()),
   '/entries': (context) => AppLayout(selectedIndex: 2, child: EntriesPage()),
   '/home': (context) => AppLayout(selectedIndex: 0, child: BusHomePage()),
-  '/setting': (context) => AppLayout(selectedIndex: 3, child: AdminPage()),
+  '/setting': (context) => AppLayout(selectedIndex: 3, child: SettingPage()),
 };
 
-final List<MaterialColor> seedColorList = [
-  Colors.deepPurple,
-  Colors.deepOrange
-];
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
@@ -53,6 +49,7 @@ void main() async {
         ChangeNotifierProvider(create: (context) => AuthService()),
         ChangeNotifierProvider(create: (context) => BusTimingList()),
         ChangeNotifierProvider(create: (context) => RouteProvider()),
+        ChangeNotifierProvider(create: (context) => ThemeProvider()),
       ],
       child: NextBusApp()
     ),
@@ -64,40 +61,64 @@ class NextBusApp extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return DynamicColorBuilder(
-      builder: (lightDynamic, darkDynamic) {
-        final lightScheme = lightDynamic?.harmonized() ??
-            ColorScheme.fromSeed(seedColor: seedColorList[1]);
-        final darkScheme = darkDynamic?.harmonized() ??
-            ColorScheme.fromSeed(
-              seedColor: seedColorList[1],
-              brightness: Brightness.dark,
-            );
+    return Consumer<ThemeProvider>(
+        builder: (context, themeProvider, child) {
+          return DynamicColorBuilder(
+              builder: (lightDynamic, darkDynamic) {
+                ColorScheme lightScheme;
+                ColorScheme darkScheme;
 
-        return MaterialApp(
-          title: 'Next Bus',
-          theme: ThemeData(colorScheme: lightScheme, useMaterial3: true),
-          darkTheme: ThemeData(colorScheme: darkScheme, useMaterial3: true),
-          themeMode: ThemeMode.system,
-          debugShowCheckedModeBanner: true,
-          routes: routes,
-          home: StreamBuilder<User?>(
-            stream: FirebaseAuth.instance.authStateChanges(),
-            builder: (context, snapshot) {
-              if (snapshot.connectionState == ConnectionState.waiting) {
-                return AppLayout(selectedIndex: 0, child: CircularProgressIndicator()) ; // Or a loading screen
+                if (themeProvider.isDynamicColor) {
+                  lightScheme = lightDynamic?.harmonized() ??
+                      ColorScheme.fromSeed(
+                          seedColor: seedColorList[0]); // Fallback
+                  darkScheme = darkDynamic?.harmonized() ??
+                      ColorScheme.fromSeed(
+                        seedColor: seedColorList[0], // Fallback
+                        brightness: Brightness.dark,
+                      );
+                } else {
+                  // Use the selected seed color or a default if null
+                  final seed = themeProvider.selectedSeedColor ??
+                      seedColorList[0];
+                  lightScheme = ColorScheme.fromSeed(seedColor: seed);
+                  darkScheme = ColorScheme.fromSeed(
+                    seedColor: seed,
+                    brightness: Brightness.dark,
+                  );
+                }
+
+                return MaterialApp(
+                  title: 'Next Bus',
+                  theme: ThemeData(
+                      colorScheme: lightScheme, useMaterial3: true),
+                  darkTheme: ThemeData(
+                      colorScheme: darkScheme, useMaterial3: true),
+                  themeMode: themeProvider.themeMode,
+                  // Use themeMode from provider
+                  debugShowCheckedModeBanner: true,
+                  routes: routes,
+                  home: StreamBuilder<User?>(
+                    stream: FirebaseAuth.instance.authStateChanges(),
+                    builder: (context, snapshot) {
+                      if (snapshot.connectionState == ConnectionState.waiting) {
+                        return AppLayout(selectedIndex: 0,
+                            child: CircularProgressIndicator()); // Or a loading screen
+                      }
+                      if (snapshot.hasData) {
+                        // User is logged in
+                        return AppLayout(selectedIndex: 0,
+                            child: Center(child: BusHomePage()));
+                      } else {
+                        // User is not logged in
+                        return const AuthScreen();
+                      }
+                    },
+                  ),
+                );
               }
-              if (snapshot.hasData) {
-                // User is logged in
-                return AppLayout(selectedIndex: 0, child: Center(child: BusHomePage())) ;
-              } else {
-                // User is not logged in
-                return const AuthScreen();
-              }
-            },
-          ),
-        );
-      },
+          );
+        }
     );
   }
 }

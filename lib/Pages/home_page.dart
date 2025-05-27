@@ -5,7 +5,7 @@ import 'package:nextbus/Pages/home_page_helper.dart';
 import 'package:nextbus/Providers/authentication.dart';
 import 'package:nextbus/Providers/route.dart';
 import 'package:nextbus/Pages/login.dart';
-import 'package:nextbus/Pages/admin_page.dart';
+import 'package:nextbus/Pages/setting_page.dart';
 
 class BusHomePage extends StatelessWidget {
   const BusHomePage({super.key});

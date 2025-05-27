@@ -7,7 +7,7 @@ import 'package:nextbus/Providers/bus_timing.dart';
 import 'package:nextbus/common.dart';
 import 'package:nextbus/Providers/authentication.dart';
 import 'package:nextbus/app_layout.dart';
-
+import 'package:nextbus/Providers/theme.dart';
 
 void _showAdminOptionsDialog(BuildContext context, User? user) {
   final routeProvider = Provider.of<RouteProvider>(context, listen: false);
@@ -18,7 +18,18 @@ void _showAdminOptionsDialog(BuildContext context, User? user) {
   void changeRoute(BuildContext context, RouteProvider routeProvider) {
     String selectedRoute = routeProvider.route;
     List<String> routes = [
-      "56", "102", "110", "205", "301", "402", "505", "606", "707", "808", "909", "1010"
+      "56",
+      "102",
+      "110",
+      "205",
+      "301",
+      "402",
+      "505",
+      "606",
+      "707",
+      "808",
+      "909",
+      "1010"
     ]; // Example routes
 
     showDialog(
@@ -96,7 +107,8 @@ void _showAdminOptionsDialog(BuildContext context, User? user) {
                 ),
                 TextField(
                   controller: timeController,
-                  decoration: const InputDecoration(labelText: "Timing (e.g., 10:00 AM)"),
+                  decoration: const InputDecoration(
+                      labelText: "Timing (e.g., 10:00 AM)"),
                 ),
               ],
             ),
@@ -147,7 +159,8 @@ void _showAdminOptionsDialog(BuildContext context, User? user) {
               child: const Text("Remove"),
               onPressed: () {
                 firestoreService.removeRoute(routeController.text, user!.uid);
-                customSnackBar(context, "Removed Route ${routeController.text}");
+                customSnackBar(
+                    context, "Removed Route ${routeController.text}");
                 Navigator.pop(context);
               },
             ),
@@ -182,7 +195,8 @@ void _showAdminOptionsDialog(BuildContext context, User? user) {
                 ),
                 TextField(
                   controller: timeController,
-                  decoration: const InputDecoration(labelText: "Timing (e.g., 10:00 AM)"),
+                  decoration: const InputDecoration(
+                      labelText: "Timing (e.g., 10:00 AM)"),
                 ),
               ],
             ),
@@ -200,7 +214,8 @@ void _showAdminOptionsDialog(BuildContext context, User? user) {
                   stopController.text,
                   timeController.text,
                 );
-                customSnackBar(context, "Added Timing for Route ${routeController.text}");
+                customSnackBar(
+                    context, "Added Timing for Route ${routeController.text}");
                 Navigator.pop(context);
               },
             ),
@@ -247,7 +262,8 @@ void _showAdminOptionsDialog(BuildContext context, User? user) {
                 title: const Text("View Timings"),
                 onTap: () {
                   busTimingProvider.getBusTimings(routeProvider.route);
-                  customSnackBar(context, "Fetching timings for Route ${routeProvider.route}");
+                  customSnackBar(context,
+                      "Fetching timings for Route ${routeProvider.route}");
                 },
               ),
               ListTile(
@@ -300,20 +316,118 @@ Widget adminFAB(BuildContext context, User? user) {
   );
 }
 
-class AdminPage extends StatelessWidget {
-  const AdminPage({super.key});
+class SettingPage extends StatelessWidget {
+  const SettingPage({super.key});
 
   @override
   Widget build(BuildContext context) {
     final authService = Provider.of<AuthService>(context);
     final User? user = authService.user;
     return Center(
-        child: Column(
-            mainAxisAlignment: MainAxisAlignment.center,
-            children: [
+        child: Padding(
+          padding: const EdgeInsets.all(16.0),
+          child:
+            Column(mainAxisAlignment: MainAxisAlignment.center, children: [
               adminFAB(context, user),
-              logoutButton(context, () => logoutUser(context))]
-        )
+              logoutButton(context, () => logoutUser(context)),
+              Expanded(child: theme_setting(context),),
+            ]
+            ),
+        ),
     );
   }
+}
+
+Widget theme_setting(BuildContext context) {
+  final themeProvider = Provider.of<ThemeProvider>(context);
+
+  return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        Text('Theme Mode', style: Theme.of(context).textTheme.titleLarge),
+        RadioListTile<ThemeMode>(
+          title: const Text('System Default'),
+          value: ThemeMode.system,
+          groupValue: themeProvider.themeMode,
+          onChanged: (value) {
+            if (value != null) {
+              themeProvider.setThemeMode(value);
+            }
+          },
+        ),
+        RadioListTile<ThemeMode>(
+          title: const Text('Light Mode'),
+          value: ThemeMode.light,
+          groupValue: themeProvider.themeMode,
+          onChanged: (value) {
+            if (value != null) {
+              themeProvider.setThemeMode(value);
+            }
+          },
+        ),
+        RadioListTile<ThemeMode>(
+          title: const Text('Dark Mode'),
+          value: ThemeMode.dark,
+          groupValue: themeProvider.themeMode,
+          onChanged: (value) {
+            if (value != null) {
+              themeProvider.setThemeMode(value);
+            }
+          },
+        ),
+        const Divider(),
+        Text('Color Scheme', style: Theme.of(context).textTheme.titleLarge),
+        SwitchListTile(
+          title: const Text('Use Dynamic Color (Android 12+)'),
+          value: themeProvider.isDynamicColor,
+          onChanged: (value) {
+            themeProvider.setDynamicColor(value);
+          },
+        ),
+        if (!themeProvider.isDynamicColor) ...[
+          const SizedBox(height: 16),
+          Text('Choose a Seed Color:',
+              style: Theme.of(context).textTheme.titleMedium),
+          Expanded(
+            // Use Expanded to make GridView scrollable if needed
+            child: GridView.builder(
+              gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
+                crossAxisCount: 4, // Adjust number of columns
+                crossAxisSpacing: 8.0,
+                mainAxisSpacing: 8.0,
+              ),
+              itemCount: seedColorList.length,
+              itemBuilder: (context, index) {
+                final color = seedColorList[index];
+                final isSelected = themeProvider.selectedSeedColor == color;
+                return GestureDetector(
+                  onTap: () {
+                    themeProvider.setSelectedSeedColor(color);
+                  },
+                  child: Container(
+                    decoration: BoxDecoration(
+                      color: color,
+                      borderRadius: BorderRadius.circular(8.0),
+                      border: isSelected
+                          ? Border.all(
+                              color: Theme.of(context).colorScheme.onSurface,
+                              width: 3.0,
+                            )
+                          : null,
+                    ),
+                    // Optional: Add a checkmark or other indicator for selection
+                    child: isSelected
+                        ? Icon(Icons.check,
+                            color: Theme.of(context)
+                                .colorScheme
+                                .onPrimaryContainer)
+                        : null,
+                  ),
+                );
+              },
+            ),
+          ),
+        ],
+      ],
+  );
 }
