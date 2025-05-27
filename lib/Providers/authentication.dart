@@ -29,10 +29,16 @@ class AuthService with ChangeNotifier {
   Future<User?> signInWithGoogle() async {
     try {
       // debugPrint("Hello0");
-      UserCredential userCredential;
+      UserCredential? userCredential; // Initialize with null
       if (kIsWeb) {
         GoogleAuthProvider googleProvider = GoogleAuthProvider();
-        userCredential = await _auth.signInWithPopup(googleProvider);
+        try {
+          userCredential = await _auth.signInWithPopup(googleProvider);
+        } on FirebaseAuthException catch (e) {
+          debugPrint("Popup sign-in failed, $e");
+          // Consider handling redirect flow if popup fails and it's not a user cancellation
+          if (e.code == 'popup-closed-by-user') return null;
+        }
       } else {
         final GoogleSignInAccount? googleUser = await _googleSignIn.signIn();
         if (googleUser == null) return null; // User canceled sign-in
@@ -50,11 +56,14 @@ class AuthService with ChangeNotifier {
         userCredential = await _auth.signInWithCredential(credential);
       }
 
-      _user = userCredential.user;
-      notifyListeners();
-      // debugPrint("Hello3");
-      debugPrint("Google Sign-In Successful: ${_user?.email}");
-      return _user;
+      if (userCredential != null) {
+        _user = userCredential.user;
+        notifyListeners();
+        // debugPrint("Hello3");
+        debugPrint("Google Sign-In Successful: ${_user?.email}");
+        return _user;
+      }
+      return null; // Return null if userCredential is still null (e.g., popup closed)
     } catch (e) {
       debugPrint("Google Sign-In Error: $e");
       return null;
