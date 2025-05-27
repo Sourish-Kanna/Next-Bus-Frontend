@@ -13,7 +13,7 @@ final List<_NavItem> _navItems = [
   _NavItem('Home', Icons.home, '/home'),
   _NavItem('Route', Icons.route, '/route'),
   _NavItem('Entries', Icons.bookmark, '/entries'),
-  _NavItem('Admin', Icons.settings, '/admin')
+  _NavItem('Setting', Icons.settings, '/setting')
 ];
 final List<Widget> navDrawerDestinations = _navItems.map((item) =>
     NavigationDrawerDestination(icon: Icon(item.icon), label: Text(item.label),)
