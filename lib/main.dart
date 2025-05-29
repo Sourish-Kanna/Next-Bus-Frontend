@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart' show Brightness, DeviceOrientation, SystemChrome;
-import 'package:flutter/foundation.dart' show TargetPlatform, defaultTargetPlatform;
+import 'dart:io' show Platform;
 import 'package:dynamic_color/dynamic_color.dart' show ColorSchemeHarmonization, DynamicColorBuilder;
 import 'package:provider/provider.dart' show ChangeNotifierProvider, Consumer, MultiProvider;
 import 'package:firebase_core/firebase_core.dart' show Firebase;
@@ -26,7 +26,7 @@ void main() async {
   WidgetsFlutterBinding.ensureInitialized();
 
   // Set app orientation to portrait mode only if platform is Android
-  if (TargetPlatform.android == defaultTargetPlatform) {
+  if (Platform.isAndroid) {
     await SystemChrome.setPreferredOrientations([
       DeviceOrientation.portraitUp,
       DeviceOrientation.portraitDown,
