@@ -13,11 +13,11 @@ class _RouteSelectState extends State<RouteSelect> {
 
   @override
   Widget build(BuildContext context) {
-    return Container(
-      // appBar: AppBar(
-      //   title: const Text("Select a Route"),
-      // ),
-      child: Padding(
+    return Scaffold(
+      appBar: AppBar(
+        title: const Text("Select a Route"),
+      ),
+      body: Padding(
         padding: const EdgeInsets.all(16.0),
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,

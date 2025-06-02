@@ -2,10 +2,8 @@ import 'package:flutter/material.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
 final List<MaterialColor> seedColorList = [
-  Colors.deepPurple,
   Colors.deepOrange,
-  Colors.teal,
-  Colors.cyan,
+  Colors.deepPurple,
   Colors.indigo,
   Colors.green
 ];

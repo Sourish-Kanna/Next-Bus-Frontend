@@ -12,7 +12,7 @@ class AuthScreen extends StatelessWidget {
     final AuthService authService = AuthService();
 
     return Scaffold(
-      appBar: AppBar(title: const Text("Next Bus Login"),),
+      appBar: AppBar(title: const Text("Next Bus Login"), automaticallyImplyLeading: false,),
       body: Center(
         child: Column(
           mainAxisAlignment: MainAxisAlignment.center,
@@ -50,4 +50,3 @@ class AuthScreen extends StatelessWidget {
     );
   }
 }
-

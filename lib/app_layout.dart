@@ -1,103 +1,148 @@
 import 'package:flutter/material.dart';
 import 'package:nextbus/common.dart';
 
-
-class _NavItem {
-  final String label;
-  final IconData icon;
-  final String? route;
-  const _NavItem(this.label, this.icon, this.route,);
-}
-
-final List<_NavItem> _navItems = [
-  _NavItem('Home', Icons.home, '/home'),
-  _NavItem('Route', Icons.route, '/route'),
-  _NavItem('Entries', Icons.bookmark, '/entries'),
-  _NavItem('Setting', Icons.settings, '/setting')
-];
-final List<Widget> navDrawerDestinations = _navItems.map((item) =>
-    NavigationDrawerDestination(icon: Icon(item.icon), label: Text(item.label),)
-).toList();
-
 class AppLayout extends StatefulWidget {
-  final int selectedIndex;
+  int selectedIndex;
   final Widget child;
 
-  const AppLayout({super.key, required this.selectedIndex, required this.child});
+  AppLayout({super.key, required this.selectedIndex, required this.child});
 
   @override
   State<AppLayout> createState() => _AppLayoutState();
 }
+
 class _AppLayoutState extends State<AppLayout> {
 
   @override
   Widget build(BuildContext context) {
-    final width = MediaQuery.of(context).size.width;
-    final isWide = width >= 600;
-    final isDrawer = width >= 1024;
+    return LayoutBuilder(
+      builder: (context, constraints) {
+        const double mobileBreakpoint = 600;
+        final bool isMobile = constraints.maxWidth < mobileBreakpoint;
 
-    final navWidget = _buildNavigation(context, isWide, isDrawer, widget.selectedIndex);
+        debugPrint('Current Route: ${ModalRoute
+            .of(context)
+            ?.settings
+            .name}'); // Get current route name
 
-    return Scaffold(
-      body: Row(
-        children: [
-          if (isWide) navWidget,
-          Expanded(child: SafeArea(child: widget.child),),
+        return Scaffold(
+          appBar:isMobile ?  AppBar(
+            automaticallyImplyLeading: false,
+            title: Text(appDestinations[widget.selectedIndex].label),
+            // Label from current selected item
+            leading: Builder(
+              builder: (context) =>
+                  IconButton(
+                    icon: const Icon(Icons.menu),
+                    onPressed: () => Scaffold.of(context).openDrawer(),
+                  ),
+            ),
+          ) : null,
+          body: isMobile
+              ? widget.child // Display the child widget passed by the router
+              : Row(
+            children: [
+              NavigationRail(
+                selectedIndex: widget.selectedIndex,
+                onDestinationSelected: _onItemTapped, // Use the new handler
+                labelType: NavigationRailLabelType.all,
+                destinations: appDestinations
+                    .map((item) =>
+                    NavigationRailDestination(
+                      icon: Icon(item.icon),
+                      selectedIcon: Icon(item.icon,
+                          color: Theme
+                              .of(context)
+                              .colorScheme
+                              .primary),
+                      label: Text(item.label),
+                    ))
+                    .toList(),
+              ),
+              const VerticalDivider(thickness: 1, width: 1),
+              Expanded(
+                child: widget.child, // Display the child widget
+              ),
+            ],
+          ),
+          bottomNavigationBar: isMobile
+              ? BottomNavigationBar(
+            items: appDestinations
+                .map((item) =>
+                BottomNavigationBarItem(
+                  icon: Icon(item.icon),
+                  label: item.label,
+                ))
+                .toList(),
+            currentIndex: widget.selectedIndex,
+            onTap: _onItemTapped, // Use the new handler
+            type: BottomNavigationBarType.fixed,
+          )
+              : null,
+          drawer: isMobile ? _buildAppDrawer() : null,
+        );
+      },
+    );
+  }
+
+  void _onItemTapped(int index) {
+    if (widget.selectedIndex == index) return; // Avoid pushing the same route
+
+    setState(() {
+      widget.selectedIndex = index;
+    });
+    // Navigate using named routes
+    Navigator.pushNamed(
+      context,
+      AppRoutes.fromDestination(appDestinations[index].destination),
+    );
+  }
+
+  Widget _buildAppDrawer() {
+    return Drawer(
+      child: ListView(
+        padding: EdgeInsets.zero,
+        children: <Widget>[
+          DrawerHeader(
+            decoration: BoxDecoration(
+              color: Theme
+                  .of(context)
+                  .colorScheme
+                  .primaryContainer,
+            ),
+            child: Text(
+              'App Menu',
+              style: TextStyle(
+                  fontSize: 24,
+                  color: Theme
+                      .of(context)
+                      .colorScheme
+                      .onPrimaryContainer),
+            ),
+          ),
+          ...appDestinations
+              .asMap()
+              .entries
+              .map((entry) {
+            int idx = entry.key;
+            NavigationItem item = entry.value;
+            return ListTile(
+              leading: Icon(item.icon),
+              title: Text(item.label),
+              selected: widget.selectedIndex == idx,
+              onTap: () {
+                Navigator.pop(context); // Close the drawer FIRST
+                _onItemTapped(idx); // Then navigate
+              },
+            );
+          }),
         ],
       ),
-      bottomNavigationBar: !isWide ? navWidget : null,
     );
   }
+
 }
 
-
-void _onDestinationSelected(BuildContext context, int index) {
-  final route = _navItems[index].route;
-  if (route != null && ModalRoute.of(context)?.settings.name != route) {
-    Navigator.pushNamed(context, route);
-  }
-}
-
-Widget _buildNavigation(BuildContext context, bool isWide, bool isDrawer, int selectedIndex) {
-  if (isDrawer) {
-    return NavigationDrawer(
-      selectedIndex: selectedIndex,
-      backgroundColor: Theme.of(context).colorScheme.secondaryContainer,
-      onDestinationSelected: (index) => _onDestinationSelected(context, index),
-      children: [
-        ...navDrawerDestinations,
-        const Divider(),
-        logoutButton(context, () => logoutUser(context)),
-      ],
-    );
-  } else if (isWide) {
-    return NavigationRail(
-      selectedIndex: selectedIndex,
-      backgroundColor: Theme.of(context).colorScheme.secondaryContainer,
-      onDestinationSelected: (index) => _onDestinationSelected(context, index),
-      labelType: NavigationRailLabelType.all,
-      destinations: _navItems
-          .map((item) => NavigationRailDestination(
-        icon: Icon(item.icon),
-        label: Text(item.label),
-      ))
-          .toList(),
-      trailing: logoutButton(context, () => logoutUser(context)),
-    );
-  } else {
-    return NavigationBar(
-      selectedIndex: selectedIndex,
-      onDestinationSelected: (index) => _onDestinationSelected(context, index),
-      destinations: _navItems
-          .map((item) => NavigationDestination(
-        icon: Icon(item.icon),
-        label: item.label,
-      ))
-          .toList(),
-      backgroundColor: Theme.of(context).colorScheme.secondaryContainer,
-    );
-  }
-}
 Widget logoutButton(BuildContext context, VoidCallback logoutUser) {
   return Padding(
     padding: const EdgeInsets.all(12.0),

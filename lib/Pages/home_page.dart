@@ -4,8 +4,6 @@ import 'package:provider/provider.dart';
 import 'package:nextbus/Pages/home_page_helper.dart';
 import 'package:nextbus/Providers/authentication.dart';
 import 'package:nextbus/Providers/route.dart';
-import 'package:nextbus/Pages/login.dart';
-import 'package:nextbus/Pages/setting_page.dart';
 
 class BusHomePage extends StatelessWidget {
   const BusHomePage({super.key});
@@ -21,29 +19,16 @@ class BusHomePage extends StatelessWidget {
     if (user != null) {
       isAdmin = !user.isAnonymous;
     }
+    bool isMobile = MediaQuery.of(context).size.width < 600;
 
-    return Container(
-      // appBar: AppBar(
-      //   backgroundColor: Theme.of(context).colorScheme.inversePrimary,
-      //   title: Consumer<RouteProvider>(
-      //     builder: (context, routeProvider, child) {
-      //       return Text('Route ${routeProvider.route}');
-      //     },),
-      //   actions: [
-      //     if (user != null)
-      //       IconButton(
-      //         icon: const Icon(Icons.logout),
-      //         onPressed: () async {
-      //           await authService.signOut();
-      //           Navigator.pushReplacement(
-      //             context,
-      //             MaterialPageRoute(builder: (context) => const AuthScreen()),
-      //           );
-      //         },
-      //       ),
-      //   ],
-      // ),
-      child: Padding(
+    return Scaffold(
+
+      appBar: !isMobile ? AppBar(
+        backgroundColor: Theme.of(context).colorScheme.inversePrimary,
+        automaticallyImplyLeading: false,
+        title: Text("Route $route"),
+      ) : null,
+      body: Padding(
         padding: const EdgeInsets.symmetric(vertical: 13.0, horizontal: 10.0),
         child: Column(
           mainAxisAlignment: MainAxisAlignment.center,
@@ -84,7 +69,6 @@ class BusHomePage extends StatelessWidget {
           ],
         ),
       ),
-      // floatingActionButton: isAdmin ? adminFAB(context, user) : null,
     );
   }
 }

@@ -323,22 +323,34 @@ class SettingPage extends StatelessWidget {
   Widget build(BuildContext context) {
     final authService = Provider.of<AuthService>(context);
     final User? user = authService.user;
-    return Center(
+    bool isMobile = MediaQuery.of(context).size.width < 600;
+
+    return Scaffold( // Added Scaffold for proper layout
+      appBar: !isMobile ? AppBar(
+        automaticallyImplyLeading: false,
+        title: const Text("Settings"),
+      ) : null,
+      body: SingleChildScrollView( // Wrapped in SingleChildScrollView
         child: Padding(
           padding: const EdgeInsets.all(16.0),
-          child:
-            Column(mainAxisAlignment: MainAxisAlignment.center, children: [
+          child: Column(
+            mainAxisAlignment: MainAxisAlignment.start, // Align to start
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
               adminFAB(context, user),
+              // const SizedBox(height: 16.0), // Added spacing
               logoutButton(context, () => logoutUser(context)),
-              Expanded(child: theme_setting(context),),
-            ]
-            ),
+              const SizedBox(height: 16.0), // Added more spacing
+              theme_setting(context, isMobile),
+            ],
+          ),
         ),
+      ),
     );
   }
 }
 
-Widget theme_setting(BuildContext context) {
+Widget theme_setting(BuildContext context, bool isMobile) {
   final themeProvider = Provider.of<ThemeProvider>(context);
 
   return Column(
@@ -375,7 +387,9 @@ Widget theme_setting(BuildContext context) {
             }
           },
         ),
+        
         const Divider(),
+        
         Text('Color Scheme', style: Theme.of(context).textTheme.titleLarge),
         SwitchListTile(
           title: const Text('Use Dynamic Color (Android 12+)'),
@@ -384,12 +398,16 @@ Widget theme_setting(BuildContext context) {
             themeProvider.setDynamicColor(value);
           },
         ),
+        
         if (!themeProvider.isDynamicColor) ...[
           const SizedBox(height: 16),
           Text('Choose a Seed Color:',
               style: Theme.of(context).textTheme.titleMedium),
-          Expanded(
-            // Use Expanded to make GridView scrollable if needed
+          SizedBox(
+            height: 100, // Adjusted height to fit colors
+            width: isMobile
+                ? MediaQuery.of(context).size.width
+                : MediaQuery.of(context).size.width * 0.25,
             child: GridView.builder(
               gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
                 crossAxisCount: 4, // Adjust number of columns
@@ -400,30 +418,27 @@ Widget theme_setting(BuildContext context) {
               itemBuilder: (context, index) {
                 final color = seedColorList[index];
                 final isSelected = themeProvider.selectedSeedColor == color;
-                return GestureDetector(
-                  onTap: () {
+                return ElevatedButton(
+                  onPressed: () {
                     themeProvider.setSelectedSeedColor(color);
                   },
-                  child: Container(
-                    decoration: BoxDecoration(
-                      color: color,
+                  style: ElevatedButton.styleFrom(
+                    backgroundColor: color,
+                    shape: RoundedRectangleBorder(
                       borderRadius: BorderRadius.circular(8.0),
-                      border: isSelected
-                          ? Border.all(
+                      side: isSelected
+                          ? BorderSide(
                               color: Theme.of(context).colorScheme.onSurface,
                               width: 3.0,
                             )
-                          : null,
+                          : BorderSide.none,
                     ),
-                    // Optional: Add a checkmark or other indicator for selection
-                    child: isSelected
-                        ? Icon(Icons.check,
-                            color: Theme.of(context)
-                                .colorScheme
-                                .onPrimaryContainer)
-                        : null,
                   ),
-                );
+                  child: isSelected
+                      ? Icon(Icons.check,
+                          color: Theme.of(context).colorScheme.onPrimaryContainer)
+                      : null,
+                  );
               },
             ),
           ),

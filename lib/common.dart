@@ -35,3 +35,55 @@ void logoutUser(BuildContext context) async {
   if (!context.mounted) return;
   Navigator.pushReplacementNamed(context, '/login');
 }
+
+enum NavigationDestinations {
+  login,
+  home,
+  route,
+  entries,
+  settings,
+}
+
+class AppRoutes {
+  static const String home = '/home'; // Often the initial route
+  static const String login = '/login';
+  static const String route = '/route';
+  static const String entries = '/entries';
+  static const String settings = '/settings';
+
+  // Helper to get route from our enum (optional but can be handy)
+  static String fromDestination(NavigationDestinations destination) {
+    switch (destination) {
+      case NavigationDestinations.home:
+        return home;
+      case NavigationDestinations.login:
+        return login;
+      case NavigationDestinations.route:
+        return route;
+      case NavigationDestinations.entries:
+        return entries;
+      case NavigationDestinations.settings:
+        return settings;
+    }
+  }
+}
+
+class NavigationItem {
+  final NavigationDestinations destination;
+  final IconData icon;
+  final String label;
+
+  NavigationItem({
+    required this.destination,
+    required this.icon,
+    required this.label,
+  });
+}
+
+final List<NavigationItem> appDestinations = [
+  // NavigationItem(destination: NavigationDestinations.login, icon: Icons.logout, label: 'Logout'),
+  NavigationItem(destination: NavigationDestinations.home, icon: Icons.home, label: 'Home'),
+  NavigationItem(destination: NavigationDestinations.route, icon: Icons.route, label: 'Profile'),
+  NavigationItem(destination: NavigationDestinations.entries, icon: Icons.bookmark, label: 'Settings'),
+  NavigationItem(destination: NavigationDestinations.settings, icon: Icons.settings, label: 'Settings'),
+];

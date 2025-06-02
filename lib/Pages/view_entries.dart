@@ -20,13 +20,15 @@ class EntriesPage extends StatelessWidget {
 
     String route = routeProvider.route;
     String userId = user?.uid ?? "guest"; // Use "guest" if the user is not logged in
+    bool isMobile = MediaQuery.of(context).size.width < 600;
 
-    return Container(
-      // appBar: AppBar(
-      //   backgroundColor: Theme.of(context).colorScheme.inversePrimary,
-      //   title: const Text('Entries'),
-      // ),
-      child: Padding(
+    return Scaffold(
+      appBar: !isMobile ? AppBar(
+        backgroundColor: Theme.of(context).colorScheme.inversePrimary,
+        automaticallyImplyLeading: false,
+        title: const Text('Entries'),
+      ) : null,
+      body: Padding(
         padding: EdgeInsets.symmetric(vertical: 13.0, horizontal: 10.0),
         child: Column(
           mainAxisAlignment: MainAxisAlignment.center,

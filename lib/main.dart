@@ -10,15 +10,14 @@ import 'package:nextbus/Providers/providers.dart';
 import 'package:nextbus/firebase_options.dart';
 import 'package:nextbus/Pages/pages.dart';
 import 'package:nextbus/app_layout.dart';
+import 'package:nextbus/common.dart';
 
-
-// Define application routes
 final Map<String, WidgetBuilder> routes = {
-  '/login': (context) => AuthScreen(),
-  '/route': (context) => AppLayout(selectedIndex: 1, child: RouteSelect()),
-  '/entries': (context) => AppLayout(selectedIndex: 2, child: EntriesPage()),
-  '/home': (context) => AppLayout(selectedIndex: 0, child: BusHomePage()),
-  '/setting': (context) => AppLayout(selectedIndex: 3, child: SettingPage()),
+  AppRoutes.login: (context) => AuthScreen(),
+  AppRoutes.route: (context) => AppLayout(selectedIndex: 1, child: RouteSelect()),
+  AppRoutes.entries: (context) => AppLayout(selectedIndex: 2, child: EntriesPage()),
+  AppRoutes.home: (context) => AppLayout(selectedIndex: 0, child: BusHomePage()),
+  AppRoutes.settings: (context) => AppLayout(selectedIndex: 3, child: SettingPage()),
 };
 
 
@@ -98,6 +97,9 @@ class NextBusApp extends StatelessWidget {
                   // Use themeMode from provider
                   debugShowCheckedModeBanner: true,
                   routes: routes,
+                  onUnknownRoute: (_) {
+                    return MaterialPageRoute(builder: (_) => ErrorScreen());
+                  },
                   home: StreamBuilder<User?>(
                     stream: FirebaseAuth.instance.authStateChanges(),
                     builder: (context, snapshot) {
