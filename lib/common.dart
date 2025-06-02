@@ -84,6 +84,6 @@ final List<NavigationItem> appDestinations = [
   // NavigationItem(destination: NavigationDestinations.login, icon: Icons.logout, label: 'Logout'),
   NavigationItem(destination: NavigationDestinations.home, icon: Icons.home, label: 'Home'),
   NavigationItem(destination: NavigationDestinations.route, icon: Icons.route, label: 'Profile'),
-  NavigationItem(destination: NavigationDestinations.entries, icon: Icons.bookmark, label: 'Settings'),
+  NavigationItem(destination: NavigationDestinations.entries, icon: Icons.bookmark, label: 'Entries'),
   NavigationItem(destination: NavigationDestinations.settings, icon: Icons.settings, label: 'Settings'),
 ];
