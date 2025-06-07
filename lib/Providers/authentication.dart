@@ -18,7 +18,7 @@ class AuthService with ChangeNotifier {
 
   /// Ensures Firebase Auth persistence & listens for auth changes
   Future<void> _initializeAuth() async {
-    // await _auth.setPersistence(Persistence.LOCAL); // ✅ Keep user signed in
+    // await _auth.setPersistence(Persistence.LOCAL);
     _auth.authStateChanges().listen((User? user) {
       _user = user;
       notifyListeners();
@@ -28,21 +28,18 @@ class AuthService with ChangeNotifier {
   /// 🔹 Google Sign-In (Web & Mobile)
   Future<User?> signInWithGoogle() async {
     try {
-      // debugPrint("Hello0");
-      UserCredential? userCredential; // Initialize with null
+      UserCredential? userCredential;
       if (kIsWeb) {
         GoogleAuthProvider googleProvider = GoogleAuthProvider();
         try {
           userCredential = await _auth.signInWithPopup(googleProvider);
         } on FirebaseAuthException catch (e) {
           debugPrint("Popup sign-in failed, $e");
-          // Consider handling redirect flow if popup fails and it's not a user cancellation
           if (e.code == 'popup-closed-by-user') return null;
         }
       } else {
         final GoogleSignInAccount? googleUser = await _googleSignIn.signIn();
         if (googleUser == null) return null; // User canceled sign-in
-        // debugPrint("Hello1");
 
         final GoogleSignInAuthentication googleAuth =
         await googleUser.authentication;
@@ -51,7 +48,6 @@ class AuthService with ChangeNotifier {
           accessToken: googleAuth.accessToken,
           idToken: googleAuth.idToken,
         );
-        // debugPrint("Hello2");
 
         userCredential = await _auth.signInWithCredential(credential);
       }
@@ -59,11 +55,11 @@ class AuthService with ChangeNotifier {
       if (userCredential != null) {
         _user = userCredential.user;
         notifyListeners();
-        // debugPrint("Hello3");
-        debugPrint("Google Sign-In Successful: ${_user?.email}");
+        debugPrint("Auth Token: ${await _user?.getIdToken()}");
+        debugPrint("Google Sign-In Successful: ${_user?.displayName}");
         return _user;
       }
-      return null; // Return null if userCredential is still null (e.g., popup closed)
+      return null;
     } catch (e) {
       debugPrint("Google Sign-In Error: $e");
       return null;
@@ -76,6 +72,8 @@ class AuthService with ChangeNotifier {
       UserCredential userCredential = await _auth.signInAnonymously();
       _user = userCredential.user;
       notifyListeners();
+      debugPrint("Auth Token: ${await _user?.getIdToken()}");
+      debugPrint("Guest Login Successful: ${_user?.displayName}");
       return _user;
     } catch (e) {
       debugPrint("Guest Login Error: $e");
