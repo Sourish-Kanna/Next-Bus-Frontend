@@ -55,7 +55,7 @@ class AuthService with ChangeNotifier {
       if (userCredential != null) {
         _user = userCredential.user;
         notifyListeners();
-        debugPrint("Auth Token: ${await _user?.getIdToken()}");
+        // debugPrint("Auth Token: ${await _user?.getIdToken()}");
         debugPrint("Google Sign-In Successful: ${_user?.displayName}");
         return _user;
       }
@@ -72,7 +72,7 @@ class AuthService with ChangeNotifier {
       UserCredential userCredential = await _auth.signInAnonymously();
       _user = userCredential.user;
       notifyListeners();
-      debugPrint("Auth Token: ${await _user?.getIdToken()}");
+      // debugPrint("Auth Token: ${await _user?.getIdToken()}");
       debugPrint("Guest Login Successful: ${_user?.displayName}");
       return _user;
     } catch (e) {
