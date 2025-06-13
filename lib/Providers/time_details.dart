@@ -17,7 +17,7 @@ DateTime dateToFormat(DateTime now) {
 
 class BusTimingList with ChangeNotifier {
   final FirestoreService _firebaseService = FirestoreService();
-  final Map<String, List<String>> _routeBusTimings = {}; // Store timings per route
+  final Map<String, List<String>> _routeBusTimings = {};
 
 
   /// Get bus timings for a specific route

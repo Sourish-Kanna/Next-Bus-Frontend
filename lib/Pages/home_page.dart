@@ -3,7 +3,7 @@ import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:nextbus/Pages/home_page_helper.dart';
 import 'package:nextbus/Providers/authentication.dart';
-import 'package:nextbus/Providers/route.dart';
+import 'package:nextbus/Providers/route_details.dart';
 
 class BusHomePage extends StatelessWidget {
   const BusHomePage({super.key});

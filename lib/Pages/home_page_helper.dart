@@ -1,6 +1,6 @@
 
 import 'package:flutter/material.dart';
-import 'package:nextbus/Providers/bus_timing.dart';
+import 'package:nextbus/Providers/time_details.dart';
 import 'package:provider/provider.dart';
 
 // NextTime widget - Displays the next available bus

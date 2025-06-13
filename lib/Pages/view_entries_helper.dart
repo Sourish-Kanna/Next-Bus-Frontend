@@ -1,7 +1,7 @@
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_slidable/flutter_slidable.dart';
-import 'package:nextbus/Providers/bus_timing.dart';
+import 'package:nextbus/Providers/time_details.dart';
 import 'package:provider/provider.dart';
 import 'package:nextbus/Providers/authentication.dart';
 import 'package:nextbus/common.dart';
@@ -156,4 +156,3 @@ class AddTime extends StatelessWidget {
     );
   }
 }
-

@@ -5,6 +5,7 @@ import 'package:dynamic_color/dynamic_color.dart' show ColorSchemeHarmonization,
 import 'package:provider/provider.dart' show ChangeNotifierProvider, Consumer, MultiProvider;
 import 'package:firebase_core/firebase_core.dart' show Firebase;
 import 'package:firebase_auth/firebase_auth.dart' show FirebaseAuth, User;
+import 'package:flutter_dotenv/flutter_dotenv.dart';
 
 import 'package:nextbus/Providers/providers.dart';
 import 'package:nextbus/firebase_options.dart';
@@ -23,6 +24,7 @@ final Map<String, WidgetBuilder> routes = {
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
+  await dotenv.load(fileName: ".env");
 
   // Set app orientation to portrait mode only if platform is Android
   if (TargetPlatform.android == defaultTargetPlatform) {

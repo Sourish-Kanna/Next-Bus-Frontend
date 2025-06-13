@@ -27,6 +27,7 @@ class _AppLayoutState extends State<AppLayout> {
 
         return Scaffold(
           appBar:isMobile ?  AppBar(
+            backgroundColor: Theme.of(context).colorScheme.inversePrimary,
             automaticallyImplyLeading: false,
             title: Text(appDestinations[widget.selectedIndex].label),
             // Label from current selected item
