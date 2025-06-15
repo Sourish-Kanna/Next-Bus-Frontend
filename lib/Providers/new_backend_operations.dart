@@ -25,4 +25,27 @@ class ApiService {
     );
     return response;
   }
+
+  Future<Response> post(String path, {Map<String,dynamic>? data}) async {
+    final user = FirebaseAuth.instance.currentUser;
+    if (user == null) {
+      throw Exception('No user logged in');
+    }
+
+    final idToken = await user.getIdToken();
+    final url = '$baseUrl/v1$path';
+
+    final response = await _dio.post(
+      url,
+      options: Options(
+        headers: {
+          'Authorization': 'Bearer $idToken',
+          'Content-Type': 'application/json',
+        },
+      ),
+      data: data
+    );
+
+    return response;
+  }
 }

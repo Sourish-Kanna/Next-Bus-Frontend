@@ -453,8 +453,8 @@ Widget theme_setting(BuildContext context, bool isMobile) {
 Widget testing(BuildContext context) {
 
   void verify() {
-    ApiService verify_test = ApiService();
-    var rel = verify_test.verifyTest();
+    ApiService test = ApiService();
+    var rel = test.post('/test-done/verify_token');
     rel.then((value) {
       // Handle successful response
       print("API Test Successful: ${value.data}");
