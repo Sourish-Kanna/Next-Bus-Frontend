@@ -8,6 +8,7 @@ import 'package:nextbus/common.dart';
 import 'package:nextbus/Providers/authentication.dart';
 import 'package:nextbus/app_layout.dart';
 import 'package:nextbus/Providers/theme.dart';
+import 'package:nextbus/Providers/new_backend_operations.dart';
 
 void _showAdminOptionsDialog(BuildContext context, User? user) {
   final routeProvider = Provider.of<RouteProvider>(context, listen: false);
@@ -342,6 +343,8 @@ class SettingPage extends StatelessWidget {
               logoutButton(context, () => logoutUser(context)),
               const SizedBox(height: 16.0), // Added more spacing
               theme_setting(context, isMobile),
+              const SizedBox(height: 16.0), // Added spacing
+              testing(context),
             ],
           ),
         ),
@@ -445,4 +448,26 @@ Widget theme_setting(BuildContext context, bool isMobile) {
         ],
       ],
   );
+}
+
+Widget testing(BuildContext context) {
+
+  void verify() {
+    ApiService verify_test = ApiService();
+    var rel = verify_test.verifyTest();
+    rel.then((value) {
+      // Handle successful response
+      print("API Test Successful: ${value.data}");
+      customSnackBar(context, "API Test Successful: ${value.statusCode}");
+    }).catchError((error) {
+      // Handle error
+      print("API Test Failed: $error");
+      customSnackBar(context, "API Test Failed: $error");
+    });
+  }
+
+  return ElevatedButton(
+    onPressed: verify, 
+    child: const Text("Test API Connection")
+    );
 }

@@ -1,29 +1,28 @@
+import 'package:dio/dio.dart';
+import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter_dotenv/flutter_dotenv.dart';
-import 'package:http/http.dart' as http;
 
 class ApiService {
-  final String? _baseUrl = dotenv.env['API_LINK'];
-  final String? _apiKey = dotenv.env['API_KEY'];
+  final Dio _dio = Dio();
+  final String baseUrl = dotenv.env['API_LINK'] ?? '';
 
-  Future<void> fetchData() async {
-    if (_baseUrl == null || _apiKey == null) {
-      print('API URL or Key not found in .env');
-      return;
+  Future<Response> verifyTest() async {
+    final user = FirebaseAuth.instance.currentUser;
+    if (user == null) {
+      throw Exception('No user logged in');
     }
+    final idToken = await user.getIdToken();
 
-    final response = await http.get(
-      Uri.parse('$_baseUrl/some_endpoint'),
-      headers: {
-        'Authorization': 'Bearer $_apiKey', // Example usage of API key
-      },
+    final url = '$baseUrl/test-done/verify_token';
+    final response = await _dio.post(
+      url,
+      options: Options(
+        headers: {
+          'Authorization': 'Bearer $idToken',
+          'Content-Type': 'application/json',
+        },
+      ),
     );
-
-    if (response.statusCode == 200) {
-      // Process the response
-      print('Data fetched successfully: ${response.body}');
-    } else {
-      // Handle error
-      print('Failed to fetch data: ${response.statusCode}');
-    }
+    return response;
   }
 }
