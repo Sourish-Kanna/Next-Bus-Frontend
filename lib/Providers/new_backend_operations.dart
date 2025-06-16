@@ -1,10 +1,14 @@
 import 'package:dio/dio.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter_dotenv/flutter_dotenv.dart';
+import 'package:flutter/foundation.dart';
+
 
 class ApiService {
   final Dio _dio = Dio();
-  final String baseUrl = dotenv.env['API_LINK'] ?? '';
+  final String baseUrl = kIsWeb
+      ? const String.fromEnvironment('API_LINK')
+      : (dotenv.env['API_LINK'] ?? '');
 
   Future<Response> verifyTest() async {
     final user = FirebaseAuth.instance.currentUser;
