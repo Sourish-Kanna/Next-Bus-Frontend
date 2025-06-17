@@ -341,10 +341,10 @@ class SettingPage extends StatelessWidget {
               adminFAB(context, user),
               // const SizedBox(height: 16.0), // Added spacing
               logoutButton(context, () => logoutUser(context)),
+              testing(context),
               const SizedBox(height: 16.0), // Added more spacing
               theme_setting(context, isMobile),
               const SizedBox(height: 16.0), // Added spacing
-              testing(context),
             ],
           ),
         ),
@@ -454,7 +454,8 @@ Widget testing(BuildContext context) {
 
   void verify() {
     ApiService test = ApiService();
-    var rel = test.post('/test-done/verify_token');
+    var rel = test.get('/test/56A');
+    print(const String.fromEnvironment('API_LINK'));
     rel.then((value) {
       // Handle successful response
       print("API Test Successful: ${value.data}");
