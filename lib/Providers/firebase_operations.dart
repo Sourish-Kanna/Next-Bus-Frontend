@@ -254,7 +254,14 @@ class NewFirebaseOperations {
     return result;
   }
 
+  Future updateTime(String routeName, String stopName, String timing) async {
+    Map<String, dynamic> data = {
+      "route_name": routeName,
+      "timing": timing,
+      "stop": stopName
+    };
 
-
-
+    var result = await _apiService.post(urls['updateTime']!, data: data);
+    return result;
+  }
 }

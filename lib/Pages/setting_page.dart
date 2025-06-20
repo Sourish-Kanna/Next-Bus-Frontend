@@ -454,7 +454,7 @@ Widget testing(BuildContext context) {
 
   void verify() {
     NewFirebaseOperations test = NewFirebaseOperations();
-    var rel = test.addRoute("54A",["test","test2"],"11:55 AM","test","test2");
+    var rel = test.updateTime("54A","test2","11:58 AM");
     rel.then((value) {
       // Handle successful response
       debugPrint("API Test Successful: ${value.data}");
