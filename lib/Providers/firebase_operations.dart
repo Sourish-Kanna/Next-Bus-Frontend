@@ -1,5 +1,6 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
+import 'package:nextbus/Providers/new_backend_operations.dart';
 
 class FirestoreService {
   static final FirestoreService _instance = FirestoreService._internal();
@@ -217,4 +218,43 @@ class FirestoreService {
       return [];
     }
   }
+}
+
+class NewFirebaseOperations {
+  static final NewFirebaseOperations _instance = NewFirebaseOperations._internal();
+  factory NewFirebaseOperations() {
+    return _instance;
+  }
+  NewFirebaseOperations._internal();
+  final ApiService _apiService = ApiService();
+
+  final urls = {
+    'addRoute': '/route/add',
+    'updateTime': '/timings/update',
+  };
+
+  Future addRoute(String routeName, List<String> stops, String timing, String start, String end) async {
+    Map<String, dynamic> time = {
+      "stop_name": start,
+      "time": timing,
+      "delay_by": 0,
+      "deviation_count": 1,
+      "deviation_sum": 0
+    };
+
+    Map<String, dynamic> data = {
+      "route_name": routeName,
+      "stops": stops,
+      "start": start,
+      "end": end,
+      "timing":time,
+    };
+
+    var result = await _apiService.post(urls['addRoute']!, data:data);
+    return result;
+  }
+
+
+
+
 }

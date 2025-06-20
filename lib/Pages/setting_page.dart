@@ -453,16 +453,15 @@ Widget theme_setting(BuildContext context, bool isMobile) {
 Widget testing(BuildContext context) {
 
   void verify() {
-    ApiService test = ApiService();
-    var rel = test.get('/test/56A');
-    print(const String.fromEnvironment('API_LINK'));
+    NewFirebaseOperations test = NewFirebaseOperations();
+    var rel = test.addRoute("54A",["test","test2"],"11:55 AM","test","test2");
     rel.then((value) {
       // Handle successful response
-      print("API Test Successful: ${value.data}");
+      debugPrint("API Test Successful: ${value.data}");
       customSnackBar(context, "API Test Successful: ${value.statusCode}");
     }).catchError((error) {
       // Handle error
-      print("API Test Failed: $error");
+      debugPrint("API Test Failed: $error");
       customSnackBar(context, "API Test Failed: $error");
     });
   }
