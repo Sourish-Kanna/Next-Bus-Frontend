@@ -11,11 +11,12 @@ import 'package:nextbus/firebase_options.dart';
 import 'package:nextbus/Pages/pages.dart';
 import 'package:nextbus/app_layout.dart';
 import 'package:nextbus/common.dart';
+import 'package:nextbus/Pages/timings.dart';
 
 final Map<String, WidgetBuilder> routes = {
   AppRoutes.login: (context) => AuthScreen(),
   AppRoutes.route: (context) => AppLayout(selectedIndex: 1, child: RouteSelect()),
-  AppRoutes.entries: (context) => AppLayout(selectedIndex: 2, child: EntriesPage()),
+  AppRoutes.entries: (context) => AppLayout(selectedIndex: 2, child: TabBarApp()),
   AppRoutes.home: (context) => AppLayout(selectedIndex: 0, child: BusHomePage()),
   AppRoutes.settings: (context) => AppLayout(selectedIndex: 3, child: SettingPage()),
 };

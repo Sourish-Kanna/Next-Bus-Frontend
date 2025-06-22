@@ -1,5 +1,5 @@
 import 'package:firebase_auth/firebase_auth.dart';
-import 'package:nextbus/Pages/view_entries_helper.dart';
+import 'package:nextbus/Pages/Helpers/view_entries_helper.dart';
 import 'package:flutter/material.dart';
 import 'package:nextbus/Providers/authentication.dart';
 import 'package:nextbus/Providers/route_details.dart';
