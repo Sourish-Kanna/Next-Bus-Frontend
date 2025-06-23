@@ -1,5 +1,6 @@
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:google_sign_in/google_sign_in.dart';
+import 'package:nextbus/common.dart';
 import 'package:flutter/foundation.dart';
 
 class AuthService with ChangeNotifier {
@@ -34,7 +35,7 @@ class AuthService with ChangeNotifier {
         try {
           userCredential = await _auth.signInWithPopup(googleProvider);
         } on FirebaseAuthException catch (e) {
-          debugPrint("Popup sign-in failed, $e");
+          AppLogger.log("Popup sign-in failed, $e");
           if (e.code == 'popup-closed-by-user') return null;
         }
       } else {
@@ -55,13 +56,13 @@ class AuthService with ChangeNotifier {
       if (userCredential != null) {
         _user = userCredential.user;
         notifyListeners();
-        // debugPrint("Auth Token: ${await _user?.getIdToken()}");
-        debugPrint("Google Sign-In Successful: ${_user?.displayName}");
+        // AppLogger.log("Auth Token: ${await _user?.getIdToken()}");
+        AppLogger.log("Google Sign-In Successful: ${_user?.displayName}");
         return _user;
       }
       return null;
     } catch (e) {
-      debugPrint("Google Sign-In Error: $e");
+      AppLogger.log("Google Sign-In Error: $e");
       return null;
     }
   }
@@ -72,11 +73,11 @@ class AuthService with ChangeNotifier {
       UserCredential userCredential = await _auth.signInAnonymously();
       _user = userCredential.user;
       notifyListeners();
-      // debugPrint("Auth Token: ${await _user?.getIdToken()}");
-      debugPrint("Guest Login Successful: ${_user?.displayName}");
+      // AppLogger.log("Auth Token: ${await _user?.getIdToken()}");
+      AppLogger.log("Guest Login Successful: ${_user?.displayName}");
       return _user;
     } catch (e) {
-      debugPrint("Guest Login Error: $e");
+      AppLogger.log("Guest Login Error: $e");
       return null;
     }
   }
@@ -87,7 +88,7 @@ class AuthService with ChangeNotifier {
       if (_auth.currentUser != null) {
         if (_auth.currentUser!.isAnonymous) {
           await _auth.currentUser!.delete(); // ✅ Delete anonymous user
-          debugPrint("Anonymous user deleted successfully.");
+          AppLogger.log("Anonymous user deleted successfully.");
         }
 
         await _googleSignIn.signOut(); // ✅ Ensure Google sign-out
@@ -96,7 +97,7 @@ class AuthService with ChangeNotifier {
         notifyListeners();
       }
     } catch (e) {
-      debugPrint("Sign-Out Error: $e");
+      AppLogger.log("Sign-Out Error: $e");
     }
   }
 }

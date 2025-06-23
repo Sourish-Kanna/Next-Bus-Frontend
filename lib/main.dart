@@ -37,7 +37,7 @@ void main() async {
       options: DefaultFirebaseOptions.currentPlatform,
     );
   } catch (e) {
-    debugPrint("error : $e");
+    AppLogger.log("error : $e");
     runApp(const ErrorScreen());
     return;
   }

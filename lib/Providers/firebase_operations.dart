@@ -1,6 +1,6 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
-import 'package:flutter/material.dart';
 import 'package:nextbus/Providers/new_backend_operations.dart';
+import 'package:nextbus/common.dart';
 
 class FirestoreService {
   static final FirestoreService _instance = FirestoreService._internal();
@@ -85,7 +85,7 @@ class FirestoreService {
       await _logActivity("Added Route $routeName", userId, "Route: $routeName with stops: ${stops.join(', ')}");
     }).catchError((error) {
       // ❌ Handle errors properly
-      debugPrint("Failed to add route: $error");
+      AppLogger.log("Failed to add route: $error");
     });
   }
 
@@ -109,7 +109,7 @@ class FirestoreService {
       await _logActivity("Removed Route $routeName", userId, "Route: $routeName deleted");
     }).catchError((error) {
       // ❌ Handle errors properly
-      debugPrint("Failed to remove route: $error");
+      AppLogger.log("Failed to remove route: $error");
     });
   }
 
@@ -139,7 +139,7 @@ class FirestoreService {
       await _logActivity("Added Bus Timing for $routeName", userId, "Added $time to route: $routeName");
     }).catchError((error) {
       // ❌ Handle errors properly
-      debugPrint("Failed to add time: $error");
+      AppLogger.log("Failed to add time: $error");
     });
   }
 
@@ -169,7 +169,7 @@ class FirestoreService {
       await _logActivity("Deleted Bus Timing for $routeName", userId, "Removed $time from route: $routeName");
     }).catchError((error) {
       // ❌ Handle errors properly
-      debugPrint("Failed to remove time: $error");
+      AppLogger.log("Failed to remove time: $error");
     });
   }
 
@@ -201,7 +201,7 @@ class FirestoreService {
       await _logActivity("Updated Bus Timing for $routeName", userId, "Changed $oldTime to $newTime on route: $routeName");
     }).catchError((error) {
       // ❌ Handle errors properly
-      debugPrint("Failed to update time: $error");
+      AppLogger.log("Failed to update time: $error");
     });
   }
 
@@ -214,7 +214,7 @@ class FirestoreService {
       List<dynamic> timings = routeDoc.data()?['timings'] ?? [];
       return timings.map((entry) => (entry as Map<String, dynamic>)['time'] as String).toList();
     } catch (e) {
-      debugPrint("Error fetching bus timings: $e");
+      AppLogger.log("Error fetching bus timings: $e");
       return [];
     }
   }
@@ -231,6 +231,7 @@ class NewFirebaseOperations {
   final urls = {
     'addRoute': '/route/add',
     'updateTime': '/timings/update',
+    'busRoutes': '/route/routes'
   };
 
   Future addRoute(String routeName, List<String> stops, String timing, String start, String end) async {
@@ -264,4 +265,21 @@ class NewFirebaseOperations {
     var result = await _apiService.post(urls['updateTime']!, data: data);
     return result;
   }
+
+  Future<List<String>> getBusRoutes() async {
+    try {
+      var response = await _apiService.get(urls['busRoutes']!);
+      if (response.data != null &&
+          response.data["data"] is List) {
+        return List<String>.from(response.data["data"]);
+      } else {
+        AppLogger.log("Invalid data format received from API");
+        return [];
+      }
+    } catch (e) {
+      AppLogger.log("Error fetching bus routes: $e");
+      return [];
+    }
+  }
+
 }

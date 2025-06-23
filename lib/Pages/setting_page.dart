@@ -1,6 +1,7 @@
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
+
 import 'package:nextbus/Providers/firebase_operations.dart';
 import 'package:nextbus/Providers/route_details.dart';
 import 'package:nextbus/Providers/time_details.dart';
@@ -8,7 +9,6 @@ import 'package:nextbus/common.dart';
 import 'package:nextbus/Providers/authentication.dart';
 import 'package:nextbus/app_layout.dart';
 import 'package:nextbus/Providers/theme.dart';
-import 'package:nextbus/Providers/new_backend_operations.dart';
 
 void _showAdminOptionsDialog(BuildContext context, User? user) {
   final routeProvider = Provider.of<RouteProvider>(context, listen: false);
@@ -276,9 +276,9 @@ void _showAdminOptionsDialog(BuildContext context, User? user) {
                 leading: const Icon(Icons.print),
                 title: const Text("Print All Variables"),
                 onTap: () {
-                  debugPrint("Route: ${routeProvider.route}");
-                  debugPrint("User ID: ${user?.uid}");
-                  debugPrint("Auth Status: ${user?.isAnonymous}");
+                  AppLogger.log("Route: ${routeProvider.route}");
+                  AppLogger.log("User ID: ${user?.uid}");
+                  AppLogger.log("Auth Status: ${user?.isAnonymous}");
                 },
               ),
               ListTile(
@@ -454,17 +454,18 @@ Widget testing(BuildContext context) {
 
   void verify() {
     NewFirebaseOperations test = NewFirebaseOperations();
-    var rel = test.updateTime("54A","test2","11:58 AM");
+    var rel = test.getBusRoutes();
     rel.then((value) {
-      // Handle successful response
-      debugPrint("API Test Successful: ${value.data}");
-      customSnackBar(context, "API Test Successful: ${value.statusCode}");
+      if (!context.mounted) return;
+      AppLogger.log("API Test Successful: $value");
+      customSnackBar(context, "API Test Successful: $value");
     }).catchError((error) {
-      // Handle error
-      debugPrint("API Test Failed: $error");
+      if (!context.mounted) return;
+      AppLogger.log("API Test Failed: $error");
       customSnackBar(context, "API Test Failed: $error");
     });
   }
+
 
   return ElevatedButton(
     onPressed: verify, 

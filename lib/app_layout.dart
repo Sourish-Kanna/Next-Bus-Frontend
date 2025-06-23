@@ -20,7 +20,7 @@ class _AppLayoutState extends State<AppLayout> {
         const double mobileBreakpoint = 600;
         final bool isMobile = constraints.maxWidth < mobileBreakpoint;
 
-        debugPrint('Current Route: ${ModalRoute
+        AppLogger.log('Current Route: ${ModalRoute
             .of(context)
             ?.settings
             .name}'); // Get current route name

@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
+import 'package:flutter/foundation.dart';
 
 import 'package:provider/provider.dart';
 import 'package:nextbus/Providers/authentication.dart';
@@ -87,3 +88,12 @@ final List<NavigationItem> appDestinations = [
   NavigationItem(destination: NavigationDestinations.entries, icon: Icons.bookmark, label: 'Entries'),
   NavigationItem(destination: NavigationDestinations.settings, icon: Icons.settings, label: 'Settings'),
 ];
+
+class AppLogger {
+  static void log(String message) {
+    if (kDebugMode) {
+      final logMessage = message;
+      debugPrint(logMessage);
+    }
+  }
+}

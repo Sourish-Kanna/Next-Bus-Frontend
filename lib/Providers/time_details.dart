@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
+import 'package:nextbus/common.dart';
 import 'package:nextbus/Providers/firebase_operations.dart';
 
 String dateToString(DateTime time) {
@@ -36,7 +37,7 @@ class BusTimingList with ChangeNotifier {
 
       notifyListeners();
     } catch (e) {
-      debugPrint('🔥 Error fetching bus timings: $e');
+      AppLogger.log('🔥 Error fetching bus timings: $e');
     }
   }
 
@@ -52,7 +53,7 @@ class BusTimingList with ChangeNotifier {
 
       notifyListeners();
     } catch (e) {
-      debugPrint('🔥 Error adding bus timing: $e');
+      AppLogger.log('🔥 Error adding bus timing: $e');
     }
   }
 
@@ -67,7 +68,7 @@ class BusTimingList with ChangeNotifier {
       _routeBusTimings[route]!.removeAt(index);
       notifyListeners();
     } catch (e) {
-      debugPrint('🔥 Error deleting bus timing: $e');
+      AppLogger.log('🔥 Error deleting bus timing: $e');
     }
   }
 
@@ -80,7 +81,7 @@ class BusTimingList with ChangeNotifier {
       _routeBusTimings[route]!.remove(time);
       notifyListeners();
     } catch (e) {
-      debugPrint('🔥 Error undoing add bus timing: $e');
+      AppLogger.log('🔥 Error undoing add bus timing: $e');
     }
   }
 
@@ -97,7 +98,7 @@ class BusTimingList with ChangeNotifier {
 
       notifyListeners();
     } catch (e) {
-      debugPrint('🔥 Error editing bus timing: $e');
+      AppLogger.log('🔥 Error editing bus timing: $e');
     }
   }
 }
