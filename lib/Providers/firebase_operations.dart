@@ -234,7 +234,7 @@ class NewFirebaseOperations {
     'busRoutes': '/route/routes'
   };
 
-  Future addRoute(String routeName, List<String> stops, String timing, String start, String end) async {
+  Future<Map<String, dynamic>> addRoute(String routeName, List<String> stops, String timing, String start, String end) async {
     Map<String, dynamic> time = {
       "stop_name": start,
       "time": timing,
@@ -251,19 +251,37 @@ class NewFirebaseOperations {
       "timing":time,
     };
 
-    var result = await _apiService.post(urls['addRoute']!, data:data);
-    return result;
+    try {
+      var response = await _apiService.post(urls['addRoute']!, data: data);
+      if (response.statusCode == 200 && response.data != null && response.data is Map<String, dynamic>) {
+        return {'success': true, 'data': response.data['data']};
+      } else {
+        return {'success': false, 'message': response.data['detail'] ?? 'Failed to add route'};
+      }
+    } catch (e) {
+      AppLogger.log("Error adding route: $e");
+      return {'success': false, 'message': 'An error occurred: $e'};
+    }
   }
 
-  Future updateTime(String routeName, String stopName, String timing) async {
+  Future<Map<String, dynamic>> updateTime(String routeName, String stopName, String timing) async {
     Map<String, dynamic> data = {
       "route_name": routeName,
       "timing": timing,
       "stop": stopName
     };
 
-    var result = await _apiService.post(urls['updateTime']!, data: data);
-    return result;
+    try {
+      var response = await _apiService.post(urls['updateTime']!, data: data);
+      if (response.statusCode == 200 && response.data != null && response.data is Map<String, dynamic>) {
+        return {'success': true, 'data': response.data['data']};
+      } else {
+        return {'success': false, 'message': response.data['detail'] ?? 'Failed to update time'};
+      }
+    } catch (e) {
+      AppLogger.log("Error updating time: $e");
+      return {'success': false, 'message': 'An error occurred: $e'};
+    }
   }
 
   Future<List<String>> getBusRoutes() async {
