@@ -221,14 +221,15 @@ class FirestoreService {
 }
 
 class NewFirebaseOperations {
+
   static final NewFirebaseOperations _instance = NewFirebaseOperations._internal();
   factory NewFirebaseOperations() {
     return _instance;
   }
   NewFirebaseOperations._internal();
-  final ApiService _apiService = ApiService();
 
-  final urls = {
+  final ApiService _apiService = ApiService();
+  final _urls = {
     'addRoute': '/route/add',
     'updateTime': '/timings/update',
     'busRoutes': '/route/routes'
@@ -252,7 +253,7 @@ class NewFirebaseOperations {
     };
 
     try {
-      var response = await _apiService.post(urls['addRoute']!, data: data);
+      var response = await _apiService.post(_urls['addRoute']!, data: data);
       if (response.statusCode == 200 && response.data != null && response.data is Map<String, dynamic>) {
         return {'success': true, 'data': response.data['data']};
       } else {
@@ -272,7 +273,7 @@ class NewFirebaseOperations {
     };
 
     try {
-      var response = await _apiService.post(urls['updateTime']!, data: data);
+      var response = await _apiService.post(_urls['updateTime']!, data: data);
       if (response.statusCode == 200 && response.data != null && response.data is Map<String, dynamic>) {
         return {'success': true, 'data': response.data['data']};
       } else {
@@ -286,7 +287,7 @@ class NewFirebaseOperations {
 
   Future<List<String>> getBusRoutes() async {
     try {
-      var response = await _apiService.get(urls['busRoutes']!);
+      var response = await _apiService.get(_urls['busRoutes']!);
       if (response.data != null &&
           response.data["data"] is List) {
         return List<String>.from(response.data["data"]);
