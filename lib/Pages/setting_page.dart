@@ -9,6 +9,7 @@ import 'package:nextbus/common.dart';
 import 'package:nextbus/Providers/authentication.dart';
 import 'package:nextbus/app_layout.dart';
 import 'package:nextbus/Providers/theme.dart';
+import 'package:nextbus/Providers/user_details.dart';
 
 void _showAdminOptionsDialog(BuildContext context, User? user) {
   final routeProvider = Provider.of<RouteProvider>(context, listen: false);
@@ -451,24 +452,14 @@ Widget theme_setting(BuildContext context, bool isMobile) {
 }
 
 Widget testing(BuildContext context) {
-
   void verify() {
-    NewFirebaseOperations test = NewFirebaseOperations();
-    var rel = test.getBusRoutes();
-    rel.then((value) {
-      if (!context.mounted) return;
-      AppLogger.log("API Test Successful: $value");
-      customSnackBar(context, "API Test Successful: $value");
-    }).catchError((error) {
-      if (!context.mounted) return;
-      AppLogger.log("API Test Failed: $error");
-      customSnackBar(context, "API Test Failed: $error");
-    });
+    // Correctly use listen: false inside an event handler
+    final userDetails = Provider.of<UserDetails>(context, listen: false);
+    AppLogger.log("Admin: ${userDetails.isAdmin}, guest: ${userDetails.isGuest}, logged: ${userDetails.isLoggedIn}");
   }
 
-
   return ElevatedButton(
-    onPressed: verify, 
-    child: const Text("Test API Connection")
-    );
+    onPressed: verify,
+    child: const Text("Test API Connection"),
+  );
 }

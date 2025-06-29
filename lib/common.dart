@@ -3,6 +3,8 @@ import 'package:flutter/services.dart';
 import 'package:flutter/foundation.dart';
 
 import 'package:provider/provider.dart';
+import 'package:nextbus/Pages/pages.dart';
+import 'package:nextbus/app_layout.dart';
 import 'package:nextbus/Providers/authentication.dart';
 
 
@@ -84,10 +86,18 @@ class NavigationItem {
 final List<NavigationItem> appDestinations = [
   // NavigationItem(destination: NavigationDestinations.login, icon: Icons.logout, label: 'Logout'),
   NavigationItem(destination: NavigationDestinations.home, icon: Icons.home, label: 'Home'),
-  NavigationItem(destination: NavigationDestinations.route, icon: Icons.route, label: 'Profile'),
+  NavigationItem(destination: NavigationDestinations.route, icon: Icons.route, label: 'Route'),
   NavigationItem(destination: NavigationDestinations.entries, icon: Icons.bookmark, label: 'Entries'),
   NavigationItem(destination: NavigationDestinations.settings, icon: Icons.settings, label: 'Settings'),
 ];
+
+final Map<String, WidgetBuilder> routes = {
+  AppRoutes.login: (context) => AuthScreen(),
+  AppRoutes.route: (context) => AppLayout(selectedIndex: 1, child: RouteSelect()),
+  AppRoutes.entries: (context) => AppLayout(selectedIndex: 2, child: TabBarApp()),
+  AppRoutes.home: (context) => AppLayout(selectedIndex: 0, child: BusHomePage()),
+  AppRoutes.settings: (context) => AppLayout(selectedIndex: 3, child: SettingPage()),
+};
 
 class AppLogger {
   static void log(String message) {

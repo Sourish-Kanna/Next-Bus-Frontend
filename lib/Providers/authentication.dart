@@ -1,7 +1,10 @@
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:google_sign_in/google_sign_in.dart';
 import 'package:nextbus/common.dart';
+import 'package:flutter/material.dart';
 import 'package:flutter/foundation.dart';
+import 'package:nextbus/Providers/user_details.dart';
+import 'package:provider/provider.dart';
 
 class AuthService with ChangeNotifier {
   static final AuthService _instance = AuthService._internal();
@@ -27,7 +30,7 @@ class AuthService with ChangeNotifier {
   }
 
   /// 🔹 Google Sign-In (Web & Mobile)
-  Future<User?> signInWithGoogle() async {
+  Future<User?> signInWithGoogle(BuildContext context) async {
     try {
       UserCredential? userCredential;
       if (kIsWeb) {
@@ -58,6 +61,9 @@ class AuthService with ChangeNotifier {
         notifyListeners();
         // AppLogger.log("Auth Token: ${await _user?.getIdToken()}");
         AppLogger.log("Google Sign-In Successful: ${_user?.displayName}");
+        await Provider.of<UserDetails>(context,listen: false).fetchUserDetails();
+        var t= Provider.of<UserDetails>(context,listen: false);
+        AppLogger.log("Admin: ${t.isAdmin}, guest: ${t.isGuest}, looged: ${t.isLoggedIn}");
         return _user;
       }
       return null;
@@ -68,13 +74,16 @@ class AuthService with ChangeNotifier {
   }
 
   /// 🔹 Guest Login (Anonymous Sign-In)
-  Future<User?> signInAsGuest() async {
+  Future<User?> signInAsGuest(BuildContext context) async {
     try {
       UserCredential userCredential = await _auth.signInAnonymously();
       _user = userCredential.user;
       notifyListeners();
       // AppLogger.log("Auth Token: ${await _user?.getIdToken()}");
       AppLogger.log("Guest Login Successful: ${_user?.displayName}");
+      await Provider.of<UserDetails>(context,listen: false).fetchUserDetails();
+      var t= Provider.of<UserDetails>(context,listen: false);
+      AppLogger.log("Admin: ${t.isAdmin}, guest: ${t.isGuest}, looged: ${t.isLoggedIn}");
       return _user;
     } catch (e) {
       AppLogger.log("Guest Login Error: $e");

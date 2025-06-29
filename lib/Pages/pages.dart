@@ -4,3 +4,4 @@ export 'home_page.dart';
 export 'login.dart';
 export 'route_selection.dart';
 export 'view_entries.dart';
+export 'timings.dart';

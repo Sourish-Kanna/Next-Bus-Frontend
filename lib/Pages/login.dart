@@ -21,7 +21,7 @@ class AuthScreen extends StatelessWidget {
               icon: const Icon(Icons.account_circle),
               label: const Text("Sign in with Google"),
               onPressed: () async {
-                User? user = await authService.signInWithGoogle();
+                User? user = await authService.signInWithGoogle(context);
                 if (user != null) {
                   Navigator.pushReplacement(
                     context,
@@ -35,7 +35,7 @@ class AuthScreen extends StatelessWidget {
               icon: const Icon(Icons.person_outline),
               label: const Text("Continue as Guest"),
               onPressed: () async {
-                User? user = await authService.signInAsGuest();
+                User? user = await authService.signInAsGuest(context);
                 if (user != null) {
                   Navigator.pushReplacement(
                     context,

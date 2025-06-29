@@ -2,7 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart' show Brightness, DeviceOrientation, SystemChrome;
 import 'package:flutter/foundation.dart' show TargetPlatform, defaultTargetPlatform;
 import 'package:dynamic_color/dynamic_color.dart' show ColorSchemeHarmonization, DynamicColorBuilder;
-import 'package:provider/provider.dart' show ChangeNotifierProvider, Consumer, MultiProvider;
+import 'package:provider/provider.dart' show ChangeNotifierProvider, Consumer, MultiProvider, Provider;
 import 'package:firebase_core/firebase_core.dart' show Firebase;
 import 'package:firebase_auth/firebase_auth.dart' show FirebaseAuth, User;
 
@@ -11,15 +11,7 @@ import 'package:nextbus/firebase_options.dart';
 import 'package:nextbus/Pages/pages.dart';
 import 'package:nextbus/app_layout.dart';
 import 'package:nextbus/common.dart';
-import 'package:nextbus/Pages/timings.dart';
 
-final Map<String, WidgetBuilder> routes = {
-  AppRoutes.login: (context) => AuthScreen(),
-  AppRoutes.route: (context) => AppLayout(selectedIndex: 1, child: RouteSelect()),
-  AppRoutes.entries: (context) => AppLayout(selectedIndex: 2, child: TabBarApp()),
-  AppRoutes.home: (context) => AppLayout(selectedIndex: 0, child: BusHomePage()),
-  AppRoutes.settings: (context) => AppLayout(selectedIndex: 3, child: SettingPage()),
-};
 
 
 void main() async {
@@ -49,6 +41,7 @@ void main() async {
         ChangeNotifierProvider(create: (context) => BusTimingList()),
         ChangeNotifierProvider(create: (context) => RouteProvider()),
         ChangeNotifierProvider(create: (context) => ThemeProvider()),
+        ChangeNotifierProvider(create: (context) => UserDetails()),
       ],
       child: NextBusApp()
     ),

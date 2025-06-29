@@ -1,8 +1,6 @@
-import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:nextbus/Pages/Helpers/home_page_helper.dart';
-import 'package:nextbus/Providers/authentication.dart';
 import 'package:nextbus/Providers/route_details.dart';
 
 class BusHomePage extends StatelessWidget {
@@ -10,15 +8,9 @@ class BusHomePage extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final authService = Provider.of<AuthService>(context);
-    final User? user = authService.user;
 
     final routeProvider = Provider.of<RouteProvider>(context);
     String route = routeProvider.route;
-    bool isAdmin = false;
-    if (user != null) {
-      isAdmin = !user.isAnonymous;
-    }
     bool isMobile = MediaQuery.of(context).size.width < 600;
 
     return Scaffold(
