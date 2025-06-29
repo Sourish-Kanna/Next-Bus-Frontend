@@ -7,6 +7,29 @@ import 'package:nextbus/Pages/pages.dart';
 import 'package:nextbus/app_layout.dart';
 import 'package:nextbus/Providers/authentication.dart';
 
+enum NavigationDestinations {
+  login,
+  home,
+  route,
+  entries,
+  settings,
+}
+
+final List<NavigationItem> appDestinations = [
+  NavigationItem(destination: NavigationDestinations.home, icon: Icons.home, label: 'Home'),
+  NavigationItem(destination: NavigationDestinations.route, icon: Icons.route, label: 'Route'),
+  NavigationItem(destination: NavigationDestinations.entries, icon: Icons.bookmark, label: 'Entries'),
+  NavigationItem(destination: NavigationDestinations.settings, icon: Icons.settings, label: 'Settings'),
+];
+
+final Map<String, WidgetBuilder> routes = {
+  AppRoutes.login: (context) => AuthScreen(),
+  AppRoutes.route: (context) => AppLayout(selectedIndex: 1, child: RouteSelect()),
+  AppRoutes.entries: (context) => AppLayout(selectedIndex: 2, child: TabBarApp()),
+  AppRoutes.home: (context) => AppLayout(selectedIndex: 0, child: BusHomePage()),
+  AppRoutes.settings: (context) => AppLayout(selectedIndex: 3, child: SettingPage()),
+};
+
 
 // SnackBar widget with optional undo action and Haptic feedback for user actions
 void customSnackBar(BuildContext context, String text, {VoidCallback? onUndo}) {
@@ -39,12 +62,26 @@ void logoutUser(BuildContext context) async {
   Navigator.pushReplacementNamed(context, '/login');
 }
 
-enum NavigationDestinations {
-  login,
-  home,
-  route,
-  entries,
-  settings,
+
+class AppLogger {
+  static void log(String message) {
+    if (kDebugMode) {
+      final logMessage = message;
+      debugPrint(logMessage);
+    }
+  }
+}
+
+class NavigationItem {
+  final NavigationDestinations destination;
+  final IconData icon;
+  final String label;
+
+  NavigationItem({
+    required this.destination,
+    required this.icon,
+    required this.label,
+  });
 }
 
 class AppRoutes {
@@ -67,43 +104,6 @@ class AppRoutes {
         return entries;
       case NavigationDestinations.settings:
         return settings;
-    }
-  }
-}
-
-class NavigationItem {
-  final NavigationDestinations destination;
-  final IconData icon;
-  final String label;
-
-  NavigationItem({
-    required this.destination,
-    required this.icon,
-    required this.label,
-  });
-}
-
-final List<NavigationItem> appDestinations = [
-  // NavigationItem(destination: NavigationDestinations.login, icon: Icons.logout, label: 'Logout'),
-  NavigationItem(destination: NavigationDestinations.home, icon: Icons.home, label: 'Home'),
-  NavigationItem(destination: NavigationDestinations.route, icon: Icons.route, label: 'Route'),
-  NavigationItem(destination: NavigationDestinations.entries, icon: Icons.bookmark, label: 'Entries'),
-  NavigationItem(destination: NavigationDestinations.settings, icon: Icons.settings, label: 'Settings'),
-];
-
-final Map<String, WidgetBuilder> routes = {
-  AppRoutes.login: (context) => AuthScreen(),
-  AppRoutes.route: (context) => AppLayout(selectedIndex: 1, child: RouteSelect()),
-  AppRoutes.entries: (context) => AppLayout(selectedIndex: 2, child: TabBarApp()),
-  AppRoutes.home: (context) => AppLayout(selectedIndex: 0, child: BusHomePage()),
-  AppRoutes.settings: (context) => AppLayout(selectedIndex: 3, child: SettingPage()),
-};
-
-class AppLogger {
-  static void log(String message) {
-    if (kDebugMode) {
-      final logMessage = message;
-      debugPrint(logMessage);
     }
   }
 }
