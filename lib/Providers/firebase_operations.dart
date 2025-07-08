@@ -1,5 +1,5 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
-import 'package:nextbus/Providers/new_backend_operations.dart';
+import 'package:nextbus/Providers/api_caller.dart';
 import 'package:nextbus/common.dart';
 
 class FirestoreService {

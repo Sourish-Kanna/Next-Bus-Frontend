@@ -1,12 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:shared_preferences/shared_preferences.dart';
-
-final List<MaterialColor> seedColorList = [
-  Colors.deepOrange,
-  Colors.deepPurple,
-  Colors.indigo,
-  Colors.green
-];
+import 'package:nextbus/constant.dart';
 
 class ThemeProvider with ChangeNotifier {
   ThemeMode _themeMode = ThemeMode.system; // Default to system theme
