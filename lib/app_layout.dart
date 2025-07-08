@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:nextbus/common.dart';
+import 'package:nextbus/constant.dart' show mobileBreakpoint;
 
 class AppLayout extends StatefulWidget {
   int selectedIndex;
@@ -17,69 +18,20 @@ class _AppLayoutState extends State<AppLayout> {
   Widget build(BuildContext context) {
     return LayoutBuilder(
       builder: (context, constraints) {
-        const double mobileBreakpoint = 600;
         final bool isMobile = constraints.maxWidth < mobileBreakpoint;
 
-        AppLogger.log('Current Route: ${ModalRoute
-            .of(context)
-            ?.settings
-            .name}'); // Get current route name
+        AppLogger.log('Current Route: ${ModalRoute.of(context)?.settings.name}'); // Get current route name
 
         return Scaffold(
-          appBar:isMobile ?  AppBar(
-            backgroundColor: Theme.of(context).colorScheme.inversePrimary,
-            automaticallyImplyLeading: false,
-            title: Text(appDestinations[widget.selectedIndex].label),
-            // Label from current selected item
-            leading: Builder(
-              builder: (context) =>
-                  IconButton(
-                    icon: const Icon(Icons.menu),
-                    onPressed: () => Scaffold.of(context).openDrawer(),
-                  ),
-            ),
-          ) : null,
-          body: isMobile
-              ? widget.child // Display the child widget passed by the router
-              : Row(
+          appBar:appbar(isMobile, context, widget),
+          body: isMobile ? widget.child : Row(
             children: [
-              NavigationRail(
-                selectedIndex: widget.selectedIndex,
-                onDestinationSelected: _onItemTapped, // Use the new handler
-                labelType: NavigationRailLabelType.all,
-                destinations: appDestinations
-                    .map((item) =>
-                    NavigationRailDestination(
-                      icon: Icon(item.icon),
-                      selectedIcon: Icon(item.icon,
-                          color: Theme
-                              .of(context)
-                              .colorScheme
-                              .primary),
-                      label: Text(item.label),
-                    ))
-                    .toList(),
-              ),
+              _navigationRail(context),
               const VerticalDivider(thickness: 1, width: 1),
-              Expanded(
-                child: widget.child, // Display the child widget
-              ),
+              Expanded(child: widget.child,),
             ],
           ),
-          bottomNavigationBar: isMobile
-              ? BottomNavigationBar(
-            items: appDestinations
-                .map((item) =>
-                BottomNavigationBarItem(
-                  icon: Icon(item.icon),
-                  label: item.label,
-                ))
-                .toList(),
-            currentIndex: widget.selectedIndex,
-            onTap: _onItemTapped, // Use the new handler
-            type: BottomNavigationBarType.fixed,
-          )
-              : null,
+          bottomNavigationBar: _bottomNavigationBar(isMobile, context, widget, _onItemTapped),
           drawer: isMobile ? _buildAppDrawer() : null,
         );
       },
@@ -142,17 +94,40 @@ class _AppLayoutState extends State<AppLayout> {
     );
   }
 
-}
+  Widget _navigationRail(BuildContext context) {
+    return NavigationRail(
+      selectedIndex: widget.selectedIndex,
+      onDestinationSelected: _onItemTapped, // Use the new handler
+      labelType: NavigationRailLabelType.all,
+      destinations: appDestinations
+          .map((item) =>
+          NavigationRailDestination(
+            icon: Icon(item.icon),
+            selectedIcon: Icon(item.icon,
+                color: Theme
+                    .of(context)
+                    .colorScheme
+                    .primary),
+            label: Text(item.label),
+          ))
+          .toList(),
+    );
+  }
 
-Widget logoutButton(BuildContext context, VoidCallback logoutUser) {
-  return Padding(
-    padding: const EdgeInsets.all(12.0),
-    child: ElevatedButton.icon(
-      onPressed: () {logoutUser();},
-      icon: Icon(
-        Icons.logout,
-      ),
-      label: Text("Logout"),
-    ),
-  );
+  BottomNavigationBar? _bottomNavigationBar(bool isMobile, BuildContext context,
+      AppLayout widget, Function(int) onItemTapped) {
+    return isMobile ? BottomNavigationBar(
+      items: appDestinations
+          .map((item) =>
+          BottomNavigationBarItem(
+            icon: Icon(item.icon),
+            label: item.label,
+          ))
+          .toList(),
+      currentIndex: widget.selectedIndex,
+      onTap: onItemTapped, // Use the new handler
+      type: BottomNavigationBarType.fixed,
+    ): null;
+  }
+
 }

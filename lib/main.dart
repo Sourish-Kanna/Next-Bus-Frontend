@@ -2,7 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart' show Brightness, DeviceOrientation, SystemChrome;
 import 'package:flutter/foundation.dart' show TargetPlatform, defaultTargetPlatform;
 import 'package:dynamic_color/dynamic_color.dart' show ColorSchemeHarmonization, DynamicColorBuilder;
-import 'package:provider/provider.dart' show ChangeNotifierProvider, Consumer, MultiProvider, Provider;
+import 'package:provider/provider.dart' show ChangeNotifierProvider, Consumer, MultiProvider;
 import 'package:firebase_core/firebase_core.dart' show Firebase;
 import 'package:firebase_auth/firebase_auth.dart' show FirebaseAuth, User;
 
@@ -11,11 +11,13 @@ import 'package:nextbus/firebase_options.dart';
 import 'package:nextbus/Pages/pages.dart';
 import 'package:nextbus/app_layout.dart';
 import 'package:nextbus/common.dart';
+import 'package:nextbus/constant.dart';
 
 
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
+
   // Set app orientation to portrait mode only if platform is Android
   if (TargetPlatform.android == defaultTargetPlatform) {
     await SystemChrome.setPreferredOrientations([
@@ -48,8 +50,14 @@ void main() async {
   );
 }
 
-class NextBusApp extends StatelessWidget {
+class NextBusApp extends StatefulWidget{
   const NextBusApp({super.key});
+
+  @override
+  State<StatefulWidget> createState() => NextBusAppState();
+}
+
+class NextBusAppState extends State<NextBusApp> {
 
   @override
   Widget build(BuildContext context) {
@@ -62,32 +70,25 @@ class NextBusApp extends StatelessWidget {
 
                 if (themeProvider.isDynamicColor) {
                   lightScheme = lightDynamic?.harmonized() ??
-                      ColorScheme.fromSeed(
-                          seedColor: seedColorList[0]); // Fallback
+                      ColorScheme.fromSeed(seedColor: fallbackColor); // Fallback
                   darkScheme = darkDynamic?.harmonized() ??
-                      ColorScheme.fromSeed(
-                        seedColor: seedColorList[0], // Fallback
-                        brightness: Brightness.dark,
-                      );
+                      ColorScheme.fromSeed(seedColor: fallbackColor, // Fallback
+                        brightness: Brightness.dark,);
                 } else {
                   // Use the selected seed color or a default if null
                   final seed = themeProvider.selectedSeedColor ??
-                      seedColorList[0];
+                      fallbackColor;
                   lightScheme = ColorScheme.fromSeed(seedColor: seed);
-                  darkScheme = ColorScheme.fromSeed(
-                    seedColor: seed,
+                  darkScheme = ColorScheme.fromSeed(seedColor: seed,
                     brightness: Brightness.dark,
                   );
                 }
 
                 return MaterialApp(
                   title: 'Next Bus',
-                  theme: ThemeData(
-                      colorScheme: lightScheme, useMaterial3: true),
-                  darkTheme: ThemeData(
-                      colorScheme: darkScheme, useMaterial3: true),
+                  theme: ThemeData(colorScheme: lightScheme, useMaterial3: true),
+                  darkTheme: ThemeData(colorScheme: darkScheme, useMaterial3: true),
                   themeMode: themeProvider.themeMode,
-                  // Use themeMode from provider
                   debugShowCheckedModeBanner: true,
                   routes: routes,
                   onUnknownRoute: (_) {
@@ -98,7 +99,7 @@ class NextBusApp extends StatelessWidget {
                     builder: (context, snapshot) {
                       if (snapshot.connectionState == ConnectionState.waiting) {
                         return AppLayout(selectedIndex: 0,
-                            child: CircularProgressIndicator()); // Or a loading screen
+                            child: CircularProgressIndicator());
                       }
                       if (snapshot.hasData) {
                         // User is logged in

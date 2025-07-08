@@ -2,7 +2,6 @@ import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 
 import 'package:nextbus/common.dart';
-import 'package:nextbus/app_layout.dart';
 import 'package:nextbus/Providers/theme.dart';
 
 class SettingPage extends StatelessWidget {

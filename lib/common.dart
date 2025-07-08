@@ -11,21 +11,18 @@ enum NavigationDestinations {
   login,
   home,
   route,
-  entries,
   settings,
 }
 
 final List<NavigationItem> appDestinations = [
   NavigationItem(destination: NavigationDestinations.home, icon: Icons.home, label: 'Home'),
   NavigationItem(destination: NavigationDestinations.route, icon: Icons.route, label: 'Route'),
-  NavigationItem(destination: NavigationDestinations.entries, icon: Icons.bookmark, label: 'Entries'),
   NavigationItem(destination: NavigationDestinations.settings, icon: Icons.settings, label: 'Settings'),
 ];
 
 final Map<String, WidgetBuilder> routes = {
   AppRoutes.login: (context) => AuthScreen(),
   AppRoutes.route: (context) => AppLayout(selectedIndex: 1, child: RouteSelect()),
-  AppRoutes.entries: (context) => AppLayout(selectedIndex: 2, child: TabBarApp()),
   AppRoutes.home: (context) => AppLayout(selectedIndex: 0, child: BusHomePage()),
   AppRoutes.settings: (context) => AppLayout(selectedIndex: 3, child: SettingPage()),
 };
@@ -88,7 +85,6 @@ class AppRoutes {
   static const String home = '/home'; // Often the initial route
   static const String login = '/login';
   static const String route = '/route';
-  static const String entries = '/entries';
   static const String settings = '/settings';
 
   // Helper to get route from our enum (optional but can be handy)
@@ -100,10 +96,39 @@ class AppRoutes {
         return login;
       case NavigationDestinations.route:
         return route;
-      case NavigationDestinations.entries:
-        return entries;
+      // case NavigationDestinations.entries:
+      //   return entries;
       case NavigationDestinations.settings:
         return settings;
     }
   }
+}
+
+Widget logoutButton(BuildContext context, VoidCallback logoutUser) {
+  return Padding(
+    padding: const EdgeInsets.all(12.0),
+    child: ElevatedButton.icon(
+      onPressed: () {logoutUser();},
+      icon: Icon(
+        Icons.logout,
+      ),
+      label: Text("Logout"),
+    ),
+  );
+}
+
+PreferredSizeWidget? appbar(bool isMobile, BuildContext context, AppLayout widget) {
+  return isMobile ? AppBar(
+    backgroundColor: Theme.of(context).colorScheme.inversePrimary,
+    automaticallyImplyLeading: false,
+    title: Text(appDestinations[widget.selectedIndex].label),
+    // Label from current selected item
+    leading: Builder(
+      builder: (context) =>
+          IconButton(
+            icon: const Icon(Icons.menu),
+            onPressed: () => Scaffold.of(context).openDrawer(),
+          ),
+    ),
+  ): null;
 }
