@@ -7,8 +7,6 @@ import 'package:nextbus/Providers/route_details.dart';
 import 'package:nextbus/Providers/time_details.dart';
 import 'package:nextbus/common.dart';
 import 'package:nextbus/Providers/authentication.dart';
-import 'package:nextbus/app_layout.dart';
-import 'package:nextbus/Providers/theme.dart';
 import 'package:nextbus/Providers/user_details.dart';
 
 void _showAdminOptionsDialog(BuildContext context, User? user) {

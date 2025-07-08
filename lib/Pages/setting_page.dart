@@ -1,15 +1,9 @@
-import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 
-import 'package:nextbus/Providers/firebase_operations.dart';
-import 'package:nextbus/Providers/route_details.dart';
-import 'package:nextbus/Providers/time_details.dart';
 import 'package:nextbus/common.dart';
-import 'package:nextbus/Providers/authentication.dart';
 import 'package:nextbus/app_layout.dart';
 import 'package:nextbus/Providers/theme.dart';
-import 'package:nextbus/Providers/user_details.dart';
 
 class SettingPage extends StatelessWidget {
   const SettingPage({super.key});
