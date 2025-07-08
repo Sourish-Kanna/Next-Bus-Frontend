@@ -24,7 +24,7 @@ final Map<String, WidgetBuilder> routes = {
   AppRoutes.login: (context) => AuthScreen(),
   AppRoutes.route: (context) => AppLayout(selectedIndex: 1, child: RouteSelect()),
   AppRoutes.home: (context) => AppLayout(selectedIndex: 0, child: BusHomePage()),
-  AppRoutes.settings: (context) => AppLayout(selectedIndex: 3, child: SettingPage()),
+  AppRoutes.settings: (context) => AppLayout(selectedIndex: 2, child: SettingPage()),
 };
 
 
@@ -96,8 +96,6 @@ class AppRoutes {
         return login;
       case NavigationDestinations.route:
         return route;
-      // case NavigationDestinations.entries:
-      //   return entries;
       case NavigationDestinations.settings:
         return settings;
     }
