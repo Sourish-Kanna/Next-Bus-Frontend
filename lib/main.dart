@@ -50,14 +50,15 @@ void main() async {
   );
 }
 
-class NextBusApp extends StatefulWidget{
+// class NextBusApp extends StatefulWidget{
+//   const NextBusApp({super.key});
+//
+//   @override
+//   State<StatefulWidget> createState() => NextBusAppState();
+// }
+
+class NextBusApp extends StatelessWidget {
   const NextBusApp({super.key});
-
-  @override
-  State<StatefulWidget> createState() => NextBusAppState();
-}
-
-class NextBusAppState extends State<NextBusApp> {
 
   @override
   Widget build(BuildContext context) {

@@ -7,9 +7,24 @@ class UserDetails with ChangeNotifier {
   bool _isLoggedIn = false;
   bool _isGuest = false;
 
-  bool get isAdmin => _isAdmin;
-  bool get isLoggedIn => _isLoggedIn;
-  bool get isGuest => _isGuest;
+  // bool get isAdmin => _isAdmin;
+  // bool get isLoggedIn => _isLoggedIn;
+  // bool get isGuest => _isGuest;
+
+  Future<bool> get isAdmin async {
+    await fetchUserDetails();
+    return _isAdmin;
+  }
+
+  Future<bool> get isLoggedIn async {
+    await fetchUserDetails();
+    return _isLoggedIn;
+  }
+
+  Future<bool> get isGuest async {
+    await fetchUserDetails();
+    return _isGuest;
+  }
 
   Future<void> fetchUserDetails() async {
     ApiService API = ApiService();
