@@ -104,7 +104,7 @@ class NextBusAppState extends State<NextBusApp> {
                       if (snapshot.hasData) {
                         // User is logged in
                         return AppLayout(selectedIndex: 0,
-                            child: Center(child: BusHomePage()));
+                            child: Center(child: HomePage()));
                       } else {
                         // User is not logged in
                         return const AuthScreen();

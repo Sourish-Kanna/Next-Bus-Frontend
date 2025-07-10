@@ -3,8 +3,8 @@ import 'package:provider/provider.dart';
 import 'package:nextbus/Pages/Helpers/home_page_helper.dart';
 import 'package:nextbus/Providers/route_details.dart';
 
-class BusHomePage extends StatelessWidget {
-  const BusHomePage({super.key});
+class HomePage extends StatelessWidget {
+  const HomePage({super.key});
 
   @override
   Widget build(BuildContext context) {

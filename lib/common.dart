@@ -23,10 +23,18 @@ final List<NavigationItem> appDestinations = [
 final Map<String, WidgetBuilder> routes = {
   AppRoutes.login: (context) => AuthScreen(),
   AppRoutes.route: (context) => AppLayout(selectedIndex: 1, child: RouteSelect()),
-  AppRoutes.home: (context) => AppLayout(selectedIndex: 0, child: BusHomePage()),
+  AppRoutes.home: (context) => AppLayout(selectedIndex: 0, child: HomePage()),
   AppRoutes.settings: (context) => AppLayout(selectedIndex: 2, child: SettingPage()),
 };
 
+final List<Widget> new_routes = [
+  AuthScreen(),
+  RouteSelect(),
+  HomePage(),
+  SettingPage(),
+  ErrorScreen(),
+  AdminPage(),
+];
 
 // SnackBar widget with optional undo action and Haptic feedback for user actions
 void customSnackBar(BuildContext context, String text, {VoidCallback? onUndo}) {
@@ -101,6 +109,7 @@ class AppRoutes {
     }
   }
 }
+
 
 Widget logoutButton(BuildContext context, VoidCallback logoutUser) {
   return Padding(
