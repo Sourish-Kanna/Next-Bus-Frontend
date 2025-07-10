@@ -91,21 +91,19 @@ class NextBusApp extends StatelessWidget {
                   darkTheme: ThemeData(colorScheme: darkScheme, useMaterial3: true),
                   themeMode: themeProvider.themeMode,
                   debugShowCheckedModeBanner: true,
-                  routes: routes,
-                  onUnknownRoute: (_) {
-                    return MaterialPageRoute(builder: (_) => ErrorScreen());
-                  },
+                  // routes: routes,
+                  // onUnknownRoute: (_) {
+                  //   return MaterialPageRoute(builder: (_) => ErrorScreen());
+                  // },
                   home: StreamBuilder<User?>(
                     stream: FirebaseAuth.instance.authStateChanges(),
                     builder: (context, snapshot) {
                       if (snapshot.connectionState == ConnectionState.waiting) {
-                        return AppLayout(selectedIndex: 0,
-                            child: CircularProgressIndicator());
+                        return const Center(child: CircularProgressIndicator());
                       }
                       if (snapshot.hasData) {
                         // User is logged in
-                        return AppLayout(selectedIndex: 0,
-                            child: Center(child: HomePage()));
+                        return AppLayout();
                       } else {
                         // User is not logged in
                         return const AuthScreen();

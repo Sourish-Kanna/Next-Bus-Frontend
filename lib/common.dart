@@ -12,7 +12,10 @@ enum NavigationDestinations {
   home,
   route,
   settings,
+  admin,
 }
+
+int selectedIndex = 0;
 
 final List<NavigationItem> appDestinations = [
   NavigationItem(destination: NavigationDestinations.home, icon: Icons.home, label: 'Home'),
@@ -20,20 +23,21 @@ final List<NavigationItem> appDestinations = [
   NavigationItem(destination: NavigationDestinations.settings, icon: Icons.settings, label: 'Settings'),
 ];
 
-final Map<String, WidgetBuilder> routes = {
-  AppRoutes.login: (context) => AuthScreen(),
-  AppRoutes.route: (context) => AppLayout(selectedIndex: 1, child: RouteSelect()),
-  AppRoutes.home: (context) => AppLayout(selectedIndex: 0, child: HomePage()),
-  AppRoutes.settings: (context) => AppLayout(selectedIndex: 2, child: SettingPage()),
-};
+// final Map<String, WidgetBuilder> routes = {
+//   AppRoutes.login: (context) => AuthScreen(),
+//   AppRoutes.route: (context) => AppLayout(),
+//   AppRoutes.home: (context) => AppLayout(),
+//   AppRoutes.settings: (context) => AppLayout(),
+//   AppRoutes.admin: (context) => AppLayout(),
+// };
 
-final List<Widget> new_routes = [
-  AuthScreen(),
-  RouteSelect(),
-  HomePage(),
-  SettingPage(),
-  ErrorScreen(),
-  AdminPage(),
+final List<Widget> newRoutes = [
+  const HomePage(),
+  const RouteSelect(),
+  const SettingPage(),
+  const AdminPage(),
+  const ErrorScreen(),
+  const AuthScreen(),
 ];
 
 // SnackBar widget with optional undo action and Haptic feedback for user actions
@@ -89,26 +93,30 @@ class NavigationItem {
   });
 }
 
-class AppRoutes {
-  static const String home = '/home'; // Often the initial route
-  static const String login = '/login';
-  static const String route = '/route';
-  static const String settings = '/settings';
-
-  // Helper to get route from our enum (optional but can be handy)
-  static String fromDestination(NavigationDestinations destination) {
-    switch (destination) {
-      case NavigationDestinations.home:
-        return home;
-      case NavigationDestinations.login:
-        return login;
-      case NavigationDestinations.route:
-        return route;
-      case NavigationDestinations.settings:
-        return settings;
-    }
-  }
-}
+// class AppRoutes {
+//   static const String home = '/home'; // Often the initial route
+//   static const String login = '/login';
+//   static const String route = '/route';
+//   static const String settings = '/settings';
+//   static const String admin = '/admin';
+//
+//   // Helper to get route from our enum (optional but can be handy)
+//   static String fromDestination(NavigationDestinations destination) {
+//     switch (destination) {
+//       case NavigationDestinations.home:
+//         return home;
+//       case NavigationDestinations.login:
+//         return login;
+//       case NavigationDestinations.route:
+//         return route;
+//       case NavigationDestinations.settings:
+//         return settings;
+//       case NavigationDestinations.admin:
+//         return admin;
+//
+//     }
+//   }
+// }
 
 
 Widget logoutButton(BuildContext context, VoidCallback logoutUser) {
@@ -124,11 +132,11 @@ Widget logoutButton(BuildContext context, VoidCallback logoutUser) {
   );
 }
 
-PreferredSizeWidget? appbar(bool isMobile, BuildContext context, AppLayout widget) {
+PreferredSizeWidget? appbar(bool isMobile, BuildContext context,{bool isAdmin = false, List<NavigationItem> destination= const []}) {
   return isMobile ? AppBar(
     backgroundColor: Theme.of(context).colorScheme.inversePrimary,
     automaticallyImplyLeading: false,
-    title: Text(appDestinations[widget.selectedIndex].label),
+    title: (!isAdmin) ? Text(appDestinations[selectedIndex].label): Text(destination[selectedIndex].label),
     // Label from current selected item
     leading: Builder(
       builder: (context) =>

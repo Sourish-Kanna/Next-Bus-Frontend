@@ -25,7 +25,7 @@ class AuthScreen extends StatelessWidget {
                 if (user != null) {
                   Navigator.pushReplacement(
                     context,
-                    MaterialPageRoute(builder: (context) => AppLayout(selectedIndex: 0, child: Center(child: HomePage()))),
+                    MaterialPageRoute(builder: (context) => AppLayout()),
                   );
                 }
               },
@@ -39,7 +39,7 @@ class AuthScreen extends StatelessWidget {
                 if (user != null) {
                   Navigator.pushReplacement(
                     context,
-                    MaterialPageRoute(builder: (context) => AppLayout(selectedIndex: 0, child: Center(child: HomePage()))),
+                    MaterialPageRoute(builder: (context) => AppLayout()),
                   );
                 }
               },
