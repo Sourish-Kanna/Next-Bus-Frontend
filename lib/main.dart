@@ -50,13 +50,6 @@ void main() async {
   );
 }
 
-// class NextBusApp extends StatefulWidget{
-//   const NextBusApp({super.key});
-//
-//   @override
-//   State<StatefulWidget> createState() => NextBusAppState();
-// }
-
 class NextBusApp extends StatelessWidget {
   const NextBusApp({super.key});
 
@@ -91,10 +84,6 @@ class NextBusApp extends StatelessWidget {
                   darkTheme: ThemeData(colorScheme: darkScheme, useMaterial3: true),
                   themeMode: themeProvider.themeMode,
                   debugShowCheckedModeBanner: true,
-                  // routes: routes,
-                  // onUnknownRoute: (_) {
-                  //   return MaterialPageRoute(builder: (_) => ErrorScreen());
-                  // },
                   home: StreamBuilder<User?>(
                     stream: FirebaseAuth.instance.authStateChanges(),
                     builder: (context, snapshot) {
