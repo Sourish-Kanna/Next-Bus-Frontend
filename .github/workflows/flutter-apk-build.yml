@@ -1,0 +1,44 @@
+name: Build and Upload to Release
+
+# This workflow now runs automatically when a new release is published
+on:
+  release:
+    types: [published]
+
+jobs:
+  build-and-upload:
+    runs-on: ubuntu-latest
+    permissions:
+      # This permission is required to upload assets to a release
+      contents: write
+
+    steps:
+      - name: Checkout repository at release tag
+        uses: actions/checkout@v4
+        with:
+          # Checks out the code from the specific tag of the release that triggered the workflow
+          ref: ${{ github.event.release.tag_name }}
+
+      - name: Set up Flutter 🐦
+        uses: subosito/flutter-action@v2
+        with:
+          channel: 'stable'
+
+      - name: Build APK 📦
+        # Uses the release's tag name for the build-name
+        run: flutter build apk --release --build-name ${{ github.event.release.tag_name }} --build-number ${{ github.run_number }}
+
+      - name: Rename APK file
+        id: rename_apk
+        run: |
+          APK_NAME="Next-Bus-${{ github.event.release.tag_name }}.apk"
+          APK_PATH="build/app/outputs/flutter-apk/$APK_NAME"
+          mv build/app/outputs/flutter-apk/app-release.apk "$APK_PATH"
+          echo "path=$APK_PATH" >> "$GITHUB_OUTPUT"
+
+      - name: Upload APK to this Release 🚀
+        uses: softprops/action-gh-release@v2
+        with:
+          # The 'files' key handles the upload. The action automatically targets
+          # the release that triggered this workflow run.
+          files: ${{ steps.rename_apk.outputs.path }}
