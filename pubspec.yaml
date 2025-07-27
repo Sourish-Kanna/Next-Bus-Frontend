@@ -53,23 +53,11 @@ dev_dependencies:
   # package. See that file for information about deactivating specific lint
   # rules and activating additional ones.
   flutter_lints: ^6.0.0
-  flutter_launcher_icons: ^0.14.3
+  launcher_name: ^1.0.2
+  flutter_launcher_icons: ^0.14.4
 
 # For information on the generic Dart part of this file, see the
 # following page: https://dart.dev/tools/pub/pubspec
-
-flutter_launcher_icons:
-  android: "launcher_icon"
-  image_path: "assets/logo.png"
-#  dart run flutter_launcher_icons
-#  rename setAppName --targets android,web --value "Next Bus"
-#  flutter pub global activate rename
-  min_sdk_android: 21 # android min sdk min:16, default 21
-  web:
-    generate: true
-    image_path: "assets/logo.png"
-    background_color: "#0175C2"
-    theme_color: "#0175C2"
 
 # The following section is specific to Flutter packages.
 flutter:
@@ -108,3 +96,17 @@ flutter:
   #
   # For details regarding fonts from package dependencies,
   # see https://flutter.dev/to/font-from-package
+
+flutter_launcher_icons:
+  android: true
+  image_path: "assets/logo.png"
+  min_sdk_android: 21
+  web:
+    generate: true
+  windows:
+    generate: true
+#  dart run flutter_launcher_icons
+
+launcher_name:
+  default: "Next Bus"
+#  dart run launcher_name:main
