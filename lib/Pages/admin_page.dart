@@ -350,10 +350,22 @@ class AdminPage extends StatelessWidget {
 
 
 Widget testing(BuildContext context) {
-  void verify() {
-    // Correctly use listen: false inside an event handler
+  void verify() async {
     final userDetails = Provider.of<UserDetails>(context, listen: false);
-    AppLogger.log("Admin: ${userDetails.isAdmin}, guest: ${userDetails.isGuest}, logged: ${userDetails.isLoggedIn}");
+
+    final bool isAdmin = await userDetails.isAdmin;
+    final bool isGuest = await userDetails.isGuest;
+    final bool isLoggedIn = await userDetails.isLoggedIn;
+
+    AppLogger.log("Admin: $isAdmin, guest: $isGuest, logged: $isLoggedIn");
+
+    final timetable = Provider.of<Timetable>(context, listen: false);
+    await timetable.fetchTimetable('56A');
+    final timetableData = timetable.getTimetableForRoute('56A');
+    for (var element in timetableData!) {
+      AppLogger.log(element.toString());
+    }
+
   }
 
   return ElevatedButton(

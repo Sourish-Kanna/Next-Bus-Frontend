@@ -14,7 +14,6 @@ class HomePage extends StatelessWidget {
     bool isMobile = MediaQuery.of(context).size.width < 600;
 
     return Scaffold(
-
       appBar: !isMobile ? AppBar(
         backgroundColor: Theme.of(context).colorScheme.inversePrimary,
         automaticallyImplyLeading: false,
@@ -63,4 +62,5 @@ class HomePage extends StatelessWidget {
       ),
     );
   }
+
 }

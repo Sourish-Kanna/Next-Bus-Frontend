@@ -50,7 +50,7 @@ class NextTime extends StatelessWidget {
 class ListHome extends StatelessWidget {
   final String title;
   final bool isPast;
-  final String route; // Added route parameter
+  final String route;
 
   const ListHome({super.key, required this.title, required this.isPast, required this.route});
 

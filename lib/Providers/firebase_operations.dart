@@ -232,7 +232,8 @@ class NewFirebaseOperations {
   final _urls = {
     'addRoute': '/route/add',
     'updateTime': '/timings/update',
-    'busRoutes': '/route/routes'
+    'busRoutes': '/route/routes',
+    'busTimes': '/timings/{route}'
   };
 
   Future<Map<String, dynamic>> addRoute(String routeName, List<String> stops, String timing, String start, String end) async {
@@ -301,4 +302,53 @@ class NewFirebaseOperations {
     }
   }
 
+  // ✅ Best Practice: Return a list of your strongly-typed model
+  Future<List<TimingDetail>> getBusTimings(String routeName) async {
+    try {
+      final url = _urls["busTimes"]!.replaceAll('{route}', routeName);
+      var response = await _apiService.get(url);
+
+      if (response.data != null && response.data["data"] is List) {
+        final List rawData = response.data["data"];
+
+        // Map the raw list of maps to a list of TimingDetail objects
+        return rawData
+            .map((json) => TimingDetail.fromJson(json as Map<String, dynamic>))
+            .toList();
+      } else {
+        AppLogger.log("Invalid data format received from API");
+        return [];
+      }
+    } catch (e) {
+      AppLogger.log("Error fetching bus timings: $e");
+      return [];
+    }
+  }
+}
+
+class TimingDetail {
+  final String time;
+  final String stop;
+  final num delay; // Use 'num' to handle both int (90) and double (90.0)
+
+  TimingDetail({
+    required this.time,
+    required this.stop,
+    required this.delay,
+  });
+
+  // Factory constructor to safely parse a map into a TimingDetail object
+  factory TimingDetail.fromJson(Map<String, dynamic> json) {
+    return TimingDetail(
+      time: json['time'] as String? ?? 'N/A',
+      stop: json['stop'] as String? ?? 'Unknown',
+      delay: json['delay'] as num? ?? 0,
+    );
+  }
+
+  // ✅ Add this method to your class
+  @override
+  String toString() {
+    return 'TimingDetail(time: $time, stop: $stop, delay: $delay)';
+  }
 }

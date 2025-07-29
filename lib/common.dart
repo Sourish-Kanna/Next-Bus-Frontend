@@ -75,8 +75,7 @@ void logoutUser(BuildContext context) async {
 class AppLogger {
   static void log(String message) {
     if (kDebugMode) {
-      final logMessage = message;
-      debugPrint(logMessage);
+      debugPrint(message);
     }
   }
 }
@@ -92,31 +91,6 @@ class NavigationItem {
     required this.label,
   });
 }
-
-// class AppRoutes {
-//   static const String home = '/home'; // Often the initial route
-//   static const String login = '/login';
-//   static const String route = '/route';
-//   static const String settings = '/settings';
-//   static const String admin = '/admin';
-//
-//   // Helper to get route from our enum (optional but can be handy)
-//   static String fromDestination(NavigationDestinations destination) {
-//     switch (destination) {
-//       case NavigationDestinations.home:
-//         return home;
-//       case NavigationDestinations.login:
-//         return login;
-//       case NavigationDestinations.route:
-//         return route;
-//       case NavigationDestinations.settings:
-//         return settings;
-//       case NavigationDestinations.admin:
-//         return admin;
-//
-//     }
-//   }
-// }
 
 
 Widget logoutButton(BuildContext context, VoidCallback logoutUser) {

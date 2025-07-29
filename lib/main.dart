@@ -14,7 +14,6 @@ import 'package:nextbus/common.dart';
 import 'package:nextbus/constant.dart';
 
 
-
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
 
@@ -44,6 +43,7 @@ void main() async {
         ChangeNotifierProvider(create: (context) => RouteProvider()),
         ChangeNotifierProvider(create: (context) => ThemeProvider()),
         ChangeNotifierProvider(create: (context) => UserDetails()),
+        ChangeNotifierProvider(create: (context) => Timetable()),
       ],
       child: NextBusApp()
     ),

@@ -1,8 +1,9 @@
+import 'package:flutter/foundation.dart' show kDebugMode;
 import 'package:flutter/material.dart';
 import 'package:nextbus/common.dart';
 import 'package:nextbus/constant.dart' show mobileBreakpoint;
-import 'package:nextbus/Providers/user_details.dart';
-import 'package:provider/provider.dart';
+import 'package:nextbus/Providers/user_details.dart' show UserDetails;
+import 'package:provider/provider.dart' show Provider;
 
 class AppLayout extends StatefulWidget {
 
@@ -35,7 +36,9 @@ class _AppLayoutState extends State<AppLayout> {
     if (mounted) {
       setState(() {
         isAdmin = adminStatus;
-        isAdmin = true;
+        if (kDebugMode) {
+          isAdmin = true;
+        }
         _rebuildAppDestinations();
       });
     }
