@@ -4,7 +4,6 @@ import 'package:flutter/foundation.dart';
 
 import 'package:provider/provider.dart';
 import 'package:nextbus/Pages/pages.dart';
-import 'package:nextbus/app_layout.dart';
 import 'package:nextbus/Providers/authentication.dart';
 
 enum NavigationDestinations {
