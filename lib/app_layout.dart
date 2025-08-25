@@ -29,6 +29,7 @@ class _AppLayoutState extends State<AppLayout> {
     bool adminStatus  = false;
     try {
       bool adminStatus = await userDetails.isAdmin;
+      AppLogger.log("Admin Status: $adminStatus");
     } catch (e) {
       AppLogger.log("Error fetching admin status: $e");
     }
