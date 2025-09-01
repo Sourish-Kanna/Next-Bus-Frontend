@@ -45,7 +45,7 @@ void _showAdminOptionsDialog(BuildContext context, User? user) {
                   children: [
                     const Text("Select a new route:"),
                     DropdownButtonFormField<String>(
-                      value: selectedRoute,
+                      initialValue: selectedRoute,
                       items: routes.map((route) {
                         return DropdownMenuItem(
                           value: route,

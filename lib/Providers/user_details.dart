@@ -23,9 +23,9 @@ class UserDetails with ChangeNotifier {
   }
 
   Future<void> fetchUserDetails() async {
-    ApiService API = ApiService();
+    ApiService api = ApiService();
     try {
-      var result = await API.get("/user/get-user-details");
+      var result = await api.get("/user/get-user-details");
       if (result.data != null && result.data["data"] != null){
         Map<String, dynamic> data = result.data["data"];
         _isAdmin = data["isAdmin"] ?? false;

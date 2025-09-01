@@ -56,7 +56,7 @@ class _RouteSelectState extends State<RouteSelect> {
                   const Text("Choose a route:", style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold)),
                   const SizedBox(height: 10),
                   DropdownButtonFormField<String>(
-                    value: selectedRoute, // Ensure this is initialized or handled if null
+                    initialValue: selectedRoute, // Ensure this is initialized or handled if null
                     items: routeProvider.availableRoutes.map((route) => DropdownMenuItem(
                       value: route,
                       child: Text("Route $route"),
