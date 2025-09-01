@@ -28,8 +28,9 @@ class SettingPage extends StatelessWidget {
             children: [
               const SizedBox(height: 16.0),
               themeSetting(context, isMobile),
+              const Divider(),
+              const ExpressiveSettingsWidget(), // New widget added here
               const SizedBox(height: 16.0),
-              // Assuming logoutButton is defined in common.dart or another imported file
               logoutButton(context, () => logoutUser(context)),
             ],
           ),
@@ -54,17 +55,17 @@ Widget themeSetting(BuildContext context, bool isMobile) {
           ButtonSegment<ThemeMode>(
             value: ThemeMode.system,
             label: Text('System'),
-            icon: Icon(Icons.brightness_auto_outlined),
+            icon: Icon(Icons.brightness_auto),
           ),
           ButtonSegment<ThemeMode>(
             value: ThemeMode.light,
             label: Text('Light'),
-            icon: Icon(Icons.light_mode_outlined),
+            icon: Icon(Icons.light_mode),
           ),
           ButtonSegment<ThemeMode>(
             value: ThemeMode.dark,
             label: Text('Dark'),
-            icon: Icon(Icons.dark_mode_outlined),
+            icon: Icon(Icons.dark_mode),
           ),
         ],
         // The 'selected' property requires a Set.
@@ -103,8 +104,8 @@ Widget themeSetting(BuildContext context, bool isMobile) {
               onTap: () => themeProvider.setSelectedSeedColor(color),
               borderRadius: BorderRadius.circular(50), // For ripple effect
               child: Container(
-                width: 40,
-                height: 40,
+                width: 50,
+                height: 50,
                 decoration: BoxDecoration(
                   color: color,
                   shape: BoxShape.circle,
@@ -128,4 +129,65 @@ Widget themeSetting(BuildContext context, bool isMobile) {
       ],
     ],
   );
+}
+
+// Enum for the dummy options in the new widget
+enum ExpressiveOptions { optionA, optionB, optionC }
+
+// A new widget demonstrating an "expressive" Material 3 SegmentedButton style.
+class ExpressiveSettingsWidget extends StatefulWidget {
+  const ExpressiveSettingsWidget({super.key});
+
+  @override
+  State<ExpressiveSettingsWidget> createState() => _ExpressiveSettingsWidgetState();
+}
+
+class _ExpressiveSettingsWidgetState extends State<ExpressiveSettingsWidget> {
+  Set<ExpressiveOptions> _selection = {ExpressiveOptions.optionA};
+
+  @override
+  Widget build(BuildContext context) {
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        Text('Expressive Choices', style: Theme.of(context).textTheme.titleLarge),
+        const SizedBox(height: 8.0),
+        SegmentedButton<ExpressiveOptions>(
+          segments: const <ButtonSegment<ExpressiveOptions>>[
+            ButtonSegment(
+              value: ExpressiveOptions.optionA,
+              label: Text('Apollo'),
+              icon: Icon(Icons.rocket_launch),
+            ),
+            ButtonSegment(
+              value: ExpressiveOptions.optionB,
+              label: Text('Gemini'),
+              icon: Icon(Icons.auto_awesome),
+            ),
+            ButtonSegment(
+              value: ExpressiveOptions.optionC,
+              label: Text('Artemis'),
+              icon: Icon(Icons.explore),
+            ),
+          ],
+          selected: _selection,
+          onSelectionChanged: (Set<ExpressiveOptions> newSelection) {
+            setState(() {
+              _selection = newSelection;
+            });
+          },
+          // Applying a custom, expressive M3 style
+          style: SegmentedButton.styleFrom(
+            backgroundColor: Theme.of(context).colorScheme.secondaryContainer,
+            foregroundColor: Theme.of(context).colorScheme.onSecondaryContainer,
+            selectedForegroundColor: Theme.of(context).colorScheme.onPrimary,
+            selectedBackgroundColor: Theme.of(context).colorScheme.primary,
+            shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12.0)),
+          ),
+          multiSelectionEnabled: false,
+          emptySelectionAllowed: false,
+        ),
+      ],
+    );
+  }
 }

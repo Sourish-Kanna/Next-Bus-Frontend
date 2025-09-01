@@ -78,7 +78,7 @@ class ThemeProvider with ChangeNotifier {
     await prefs.setInt(_themeModeKey, _themeMode.index);
     await prefs.setBool(_isDynamicColorKey, _isDynamicColor);
     if (_selectedSeedColor != null) {
-      final index = seedColorList.indexOf(_selectedSeedColor as MaterialColor);
+      final index = seedColorList.indexOf(_selectedSeedColor!);
       if (index != -1) {
         await prefs.setInt(_seedColorIndexKey, index);
       }

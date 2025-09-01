@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 
-final List<MaterialColor> seedColorList = [
+final List<Color> seedColorList = [
   Colors.deepOrange,
   Colors.deepPurple,
   Colors.indigo,
