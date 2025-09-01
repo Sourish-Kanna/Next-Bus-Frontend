@@ -12,21 +12,24 @@ class SettingPage extends StatelessWidget {
   Widget build(BuildContext context) {
     bool isMobile = MediaQuery.of(context).size.width < 600;
 
-    return Scaffold( // Added Scaffold for proper layout
-      appBar: !isMobile ? AppBar(
+    return Scaffold(
+      appBar: !isMobile
+          ? AppBar(
         automaticallyImplyLeading: false,
         title: const Text("Settings"),
-      ) : null,
-      body: SingleChildScrollView( // Wrapped in SingleChildScrollView
+      )
+          : null,
+      body: SingleChildScrollView(
         child: Padding(
           padding: const EdgeInsets.all(16.0),
           child: Column(
-            mainAxisAlignment: MainAxisAlignment.start, // Align to start
+            mainAxisAlignment: MainAxisAlignment.start,
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              const SizedBox(height: 16.0), // Added more spacing
-              theme_setting(context, isMobile),
-              const SizedBox(height: 16.0), // Added spacing
+              const SizedBox(height: 16.0),
+              themeSetting(context, isMobile),
+              const SizedBox(height: 16.0),
+              // Assuming logoutButton is defined in common.dart or another imported file
               logoutButton(context, () => logoutUser(context)),
             ],
           ),
@@ -36,99 +39,93 @@ class SettingPage extends StatelessWidget {
   }
 }
 
-Widget theme_setting(BuildContext context, bool isMobile) {
+Widget themeSetting(BuildContext context, bool isMobile) {
   final themeProvider = Provider.of<ThemeProvider>(context);
 
   return Column(
-      crossAxisAlignment: CrossAxisAlignment.start,
-      children: [
-        Text('Theme Mode', style: Theme.of(context).textTheme.titleLarge),
-        RadioListTile<ThemeMode>(
-          title: const Text('System Default'),
-          value: ThemeMode.system,
-          groupValue: themeProvider.themeMode,
-          onChanged: (value) {
-            if (value != null) {
-              themeProvider.setThemeMode(value);
-            }
-          },
-        ),
-        RadioListTile<ThemeMode>(
-          title: const Text('Light Mode'),
-          value: ThemeMode.light,
-          groupValue: themeProvider.themeMode,
-          onChanged: (value) {
-            if (value != null) {
-              themeProvider.setThemeMode(value);
-            }
-          },
-        ),
-        RadioListTile<ThemeMode>(
-          title: const Text('Dark Mode'),
-          value: ThemeMode.dark,
-          groupValue: themeProvider.themeMode,
-          onChanged: (value) {
-            if (value != null) {
-              themeProvider.setThemeMode(value);
-            }
-          },
-        ),
-        
-        const Divider(),
-        
-        Text('Color Scheme', style: Theme.of(context).textTheme.titleLarge),
-        SwitchListTile(
-          title: const Text('Use Dynamic Color (Android 12+)'),
-          value: themeProvider.isDynamicColor,
-          onChanged: (value) {
-            themeProvider.setDynamicColor(value);
-          },
-        ),
-        
-        if (!themeProvider.isDynamicColor) ...[
-          const SizedBox(height: 16),
-          Text('Choose a Seed Color:',
-              style: Theme.of(context).textTheme.titleMedium),
-          SizedBox(
-            height: 100, // Adjusted height to fit colors
-            width: isMobile
-                ? MediaQuery.of(context).size.width
-                : MediaQuery.of(context).size.width * 0.25,
-            child: GridView.builder(
-              gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
-                crossAxisCount: 4, // Adjust number of columns
-                crossAxisSpacing: 8.0,
-                mainAxisSpacing: 8.0,
-              ),
-              itemCount: seedColorList.length,
-              itemBuilder: (context, index) {
-                final color = seedColorList[index];
-                final isSelected = themeProvider.selectedSeedColor == color;
-                return ElevatedButton(
-                  onPressed: () {
-                    themeProvider.setSelectedSeedColor(color);
-                  },
-                  style: ElevatedButton.styleFrom(
-                    backgroundColor: color,
-                    shape: RoundedRectangleBorder(
-                      borderRadius: BorderRadius.circular(8.0),
-                      side: isSelected
-                          ? BorderSide(
-                              color: Theme.of(context).colorScheme.onSurface,
-                              width: 3.0,
-                            )
-                          : BorderSide.none,
-                    ),
-                  ),
-                  child: isSelected
-                      ? Icon(Icons.check,
-                          color: Theme.of(context).colorScheme.onPrimaryContainer)
-                      : null,
-                  );
-              },
-            ),
+    crossAxisAlignment: CrossAxisAlignment.start,
+    children: [
+      Text('Theme Mode', style: Theme.of(context).textTheme.titleLarge),
+      const SizedBox(height: 8.0), // Added some space for better layout
+
+      // Replaced Radio buttons with a SegmentedButton for a modern UI
+      SegmentedButton<ThemeMode>(
+        segments: const <ButtonSegment<ThemeMode>>[
+          ButtonSegment<ThemeMode>(
+            value: ThemeMode.system,
+            label: Text('System'),
+            icon: Icon(Icons.brightness_auto_outlined),
+          ),
+          ButtonSegment<ThemeMode>(
+            value: ThemeMode.light,
+            label: Text('Light'),
+            icon: Icon(Icons.light_mode_outlined),
+          ),
+          ButtonSegment<ThemeMode>(
+            value: ThemeMode.dark,
+            label: Text('Dark'),
+            icon: Icon(Icons.dark_mode_outlined),
           ),
         ],
+        // The 'selected' property requires a Set.
+        selected: {themeProvider.themeMode},
+        // The callback returns a Set of the new selection.
+        onSelectionChanged: (Set<ThemeMode> newSelection) {
+          // We update the theme mode with the first item in the new selection.
+          themeProvider.setThemeMode(newSelection.first);
+        },
+      ),
+
+      const Divider(),
+
+      Text('Color Scheme', style: Theme.of(context).textTheme.titleLarge),
+      SwitchListTile(
+        title: const Text('Use Dynamic Color (Android 12+)'),
+        value: themeProvider.isDynamicColor,
+        onChanged: (value) {
+          themeProvider.setDynamicColor(value);
+        },
+      ),
+
+      if (!themeProvider.isDynamicColor) ...[
+        const SizedBox(height: 16),
+        Text('Choose a Seed Color:',
+            style: Theme.of(context).textTheme.titleMedium),
+        const SizedBox(height: 8.0),
+
+        // Use a Wrap layout for color selection on all screen sizes.
+        Wrap(
+          spacing: 8.0,
+          runSpacing: 8.0,
+          children: seedColorList.map((color) {
+            final isSelected = themeProvider.selectedSeedColor == color;
+            return InkWell(
+              onTap: () => themeProvider.setSelectedSeedColor(color),
+              borderRadius: BorderRadius.circular(50), // For ripple effect
+              child: Container(
+                width: 40,
+                height: 40,
+                decoration: BoxDecoration(
+                  color: color,
+                  shape: BoxShape.circle,
+                  border: isSelected
+                      ? Border.all(
+                    color: Theme.of(context).colorScheme.primary,
+                    width: 3.0,
+                  )
+                      : null,
+                ),
+                child: isSelected
+                    ? Icon(
+                  Icons.check,
+                  color: Theme.of(context).colorScheme.primary,
+                )
+                    : null,
+              ),
+            );
+          }).toList(),
+        ),
       ],
+    ],
   );
 }
