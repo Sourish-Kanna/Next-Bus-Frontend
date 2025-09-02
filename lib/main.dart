@@ -80,8 +80,8 @@ class NextBusApp extends StatelessWidget {
           // Step 3: Build the MaterialApp
           return MaterialApp(
             title: 'Next Bus',
-            theme: ThemeData(colorScheme: lightColorScheme, useMaterial3: true, useSystemColors: true),
-            darkTheme: ThemeData(colorScheme: darkColorScheme, useMaterial3: true, useSystemColors: true),
+            theme: ThemeData(colorScheme: lightColorScheme, useMaterial3: true),
+            darkTheme: ThemeData(colorScheme: darkColorScheme, useMaterial3: true),
             themeMode: themeProvider.themeMode,
             debugShowCheckedModeBanner: true,
             home: StreamBuilder<User?>(
