@@ -74,38 +74,35 @@ class NextBusApp extends StatelessWidget {
                 brightness: Brightness.dark,
               );
             }
-           // Step 2: Define the base theme
-            final baseTheme = ThemeData(
-              useMaterial3: true,
-              useSystemColors: true,
-            );
+          // Step 2: Define the base theme
+          // final baseTheme = ThemeData(useMaterial3: true, useSystemColors: true);
 
-            // Step 3: Build the MaterialApp
-            return MaterialApp(
-              title: 'Next Bus',
-              theme: baseTheme.copyWith(colorScheme: lightColorScheme),
-              darkTheme: baseTheme.copyWith(colorScheme: darkColorScheme),
-              themeMode: themeProvider.themeMode,
-              debugShowCheckedModeBanner: true,
-              home: StreamBuilder<User?>(
-                    stream: FirebaseAuth.instance.authStateChanges(),
-                    builder: (context, snapshot) {
-                      if (snapshot.connectionState == ConnectionState.waiting) {
-                        return const Center(child: CircularProgressIndicator());
-                      }
-                      if (snapshot.hasData) {
-                        // User is logged in
-                        return AppLayout();
-                      } else {
-                        // User is not logged in
-                        return const AuthScreen();
-                      }
-                    },
-                  ),
-                );
-              }
-          );
-        }
+          // Step 3: Build the MaterialApp
+          return MaterialApp(
+            title: 'Next Bus',
+            theme: ThemeData(colorScheme: lightColorScheme, useMaterial3: true, useSystemColors: true),
+            darkTheme: ThemeData(colorScheme: darkColorScheme, useMaterial3: true, useSystemColors: true),
+            themeMode: themeProvider.themeMode,
+            debugShowCheckedModeBanner: true,
+            home: StreamBuilder<User?>(
+              stream: FirebaseAuth.instance.authStateChanges(),
+              builder: (context, snapshot) {
+                  if (snapshot.connectionState == ConnectionState.waiting) {
+                    return const Center(child: CircularProgressIndicator());
+                  }
+                  if (snapshot.hasData) {
+                    // User is logged in
+                    return AppLayout();
+                  } else {
+                    // User is not logged in
+                    return const AuthScreen();
+                  }
+                },
+              ),
+            );
+          }
+        );
+      }
     );
   }
 }
