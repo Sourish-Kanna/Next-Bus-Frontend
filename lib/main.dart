@@ -56,35 +56,38 @@ class NextBusApp extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Consumer<ThemeProvider>(
-        builder: (context, themeProvider, child) {
-          return DynamicColorBuilder(
-              builder: (lightDynamic, darkDynamic) {
-                ColorScheme lightScheme;
-                ColorScheme darkScheme;
+      builder: (context, themeProvider, child) {
+        return DynamicColorBuilder(
+          builder: (lightDynamic, darkDynamic) {
+            final ColorScheme lightColorScheme;
+            ColorScheme darkColorScheme;
 
-                if (themeProvider.isDynamicColor) {
-                  lightScheme = lightDynamic?.harmonized() ??
-                      ColorScheme.fromSeed(seedColor: fallbackColor); // Fallback
-                  darkScheme = darkDynamic?.harmonized() ??
-                      ColorScheme.fromSeed(seedColor: fallbackColor, // Fallback
-                        brightness: Brightness.dark,);
-                } else {
-                  // Use the selected seed color or a default if null
-                  final seed = themeProvider.selectedSeedColor ??
-                      fallbackColor;
-                  lightScheme = ColorScheme.fromSeed(seedColor: seed);
-                  darkScheme = ColorScheme.fromSeed(seedColor: seed,
-                    brightness: Brightness.dark,
-                  );
-                }
+            // Step 1: Generate the initial color schemes
+            if (themeProvider.isDynamicColor && lightDynamic != null && darkDynamic != null) {
+              lightColorScheme = lightDynamic.harmonized();
+              darkColorScheme = darkDynamic.harmonized();
+            } else {
+              final seed = themeProvider.selectedSeedColor ?? fallbackColor;
+              lightColorScheme = ColorScheme.fromSeed(seedColor: seed);
+              darkColorScheme = ColorScheme.fromSeed(
+                seedColor: seed,
+                brightness: Brightness.dark,
+              );
+            }
+           // Step 2: Define the base theme
+            final baseTheme = ThemeData(
+              useMaterial3: true,
+              useSystemColors: true,
+            );
 
-                return MaterialApp(
-                  title: 'Next Bus',
-                  theme: ThemeData(colorScheme: lightScheme, useMaterial3: true),
-                  darkTheme: ThemeData(colorScheme: darkScheme, useMaterial3: true),
-                  themeMode: themeProvider.themeMode,
-                  debugShowCheckedModeBanner: true,
-                  home: StreamBuilder<User?>(
+            // Step 3: Build the MaterialApp
+            return MaterialApp(
+              title: 'Next Bus',
+              theme: baseTheme.copyWith(colorScheme: lightColorScheme),
+              darkTheme: baseTheme.copyWith(colorScheme: darkColorScheme),
+              themeMode: themeProvider.themeMode,
+              debugShowCheckedModeBanner: true,
+              home: StreamBuilder<User?>(
                     stream: FirebaseAuth.instance.authStateChanges(),
                     builder: (context, snapshot) {
                       if (snapshot.connectionState == ConnectionState.waiting) {
