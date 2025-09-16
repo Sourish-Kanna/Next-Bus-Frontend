@@ -100,7 +100,7 @@ flutter:
 flutter_launcher_icons:
   android: true
   image_path: "assets/logo.png"
-  min_sdk_android: 21
+  min_sdk_android: 26
   web:
     generate: true
   windows:
