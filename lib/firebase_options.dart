@@ -23,10 +23,7 @@ class DefaultFirebaseOptions {
       case TargetPlatform.android:
         return android;
       case TargetPlatform.iOS:
-        throw UnsupportedError(
-          'DefaultFirebaseOptions have not been configured for ios - '
-          'you can reconfigure this by running the FlutterFire CLI again.',
-        );
+        return ios;
       case TargetPlatform.macOS:
         throw UnsupportedError(
           'DefaultFirebaseOptions have not been configured for macos - '
@@ -46,14 +43,6 @@ class DefaultFirebaseOptions {
     }
   }
 
-  static const FirebaseOptions android = FirebaseOptions(
-    apiKey: 'AIzaSyDhmxMFTSut-kIg76pXzsgH0jP9gx01NaA',
-    appId: '1:878462952161:android:c0f4ca92e5dbb100400da0',
-    messagingSenderId: '878462952161',
-    projectId: 'next-bus-31103',
-    storageBucket: 'next-bus-31103.firebasestorage.app',
-  );
-
   static const FirebaseOptions web = FirebaseOptions(
     apiKey: 'AIzaSyAjFrlZiD-xPd7NRfgBe7W_75BRhXDJWeA',
     appId: '1:878462952161:web:0d724492919fd642400da0',
@@ -62,6 +51,25 @@ class DefaultFirebaseOptions {
     authDomain: 'next-bus-31103.firebaseapp.com',
     storageBucket: 'next-bus-31103.firebasestorage.app',
     measurementId: 'G-B1XZ55EWQL',
+  );
+
+  static const FirebaseOptions android = FirebaseOptions(
+    apiKey: 'AIzaSyDhmxMFTSut-kIg76pXzsgH0jP9gx01NaA',
+    appId: '1:878462952161:android:c0f4ca92e5dbb100400da0',
+    messagingSenderId: '878462952161',
+    projectId: 'next-bus-31103',
+    storageBucket: 'next-bus-31103.firebasestorage.app',
+  );
+
+  static const FirebaseOptions ios = FirebaseOptions(
+    apiKey: 'AIzaSyD1gauFzGetiPHW7uJ2ViwCiLuSeIHnojs',
+    appId: '1:878462952161:ios:7efe256a33d57ac4400da0',
+    messagingSenderId: '878462952161',
+    projectId: 'next-bus-31103',
+    storageBucket: 'next-bus-31103.firebasestorage.app',
+    androidClientId: '878462952161-e3ak4ggputcmip5a27pfq7l0b8kj1v8j.apps.googleusercontent.com',
+    iosClientId: '878462952161-joemnmte4k4ctbbrdsduoal6miqp6dq8.apps.googleusercontent.com',
+    iosBundleId: 'com.example.nextbus',
   );
 
   static const FirebaseOptions windows = FirebaseOptions(
@@ -73,5 +81,4 @@ class DefaultFirebaseOptions {
     storageBucket: 'next-bus-31103.firebasestorage.app',
     measurementId: 'G-9K0MM9D2NT',
   );
-
 }
