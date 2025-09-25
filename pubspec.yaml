@@ -108,6 +108,7 @@ flutter_launcher_icons:
     generate: true
   windows:
     generate: true
+  ios: true
 #  dart run flutter_launcher_icons
 
 launcher_name:
