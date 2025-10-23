@@ -49,14 +49,14 @@ class HomePage extends StatelessWidget {
                 ],
               ),
             ),
-            ElevatedButton(
-              style: ElevatedButton.styleFrom(
-                backgroundColor: Theme.of(context).colorScheme.primary,
-                foregroundColor: Theme.of(context).colorScheme.onPrimary,
-              ),
-              onPressed: () => Navigator.pushNamed(context, '/entries'),
-              child: const Text("View All Timings", style: TextStyle(fontSize: 20)),
-            ),
+            // ElevatedButton(
+            //   style: ElevatedButton.styleFrom(
+            //     backgroundColor: Theme.of(context).colorScheme.primary,
+            //     foregroundColor: Theme.of(context).colorScheme.onPrimary,
+            //   ),
+            //   onPressed: () => Navigator.pushNamed(context, '/entries'),
+            //   child: const Text("View All Timings", style: TextStyle(fontSize: 20)),
+            // ),
           ],
         ),
       ),
