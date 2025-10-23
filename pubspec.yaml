@@ -44,6 +44,7 @@ dependencies:
   shared_preferences: ^2.5.3
   dio: ^5.9.0
   google_sign_in: 6.3.0
+  internet_connection_checker_plus: ^2.9.0
 
 dev_dependencies:
   flutter_test:

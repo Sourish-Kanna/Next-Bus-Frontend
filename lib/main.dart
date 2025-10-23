@@ -5,6 +5,7 @@ import 'package:dynamic_color/dynamic_color.dart' show ColorSchemeHarmonization,
 import 'package:provider/provider.dart' show ChangeNotifierProvider, Consumer, MultiProvider;
 import 'package:firebase_core/firebase_core.dart' show Firebase;
 import 'package:firebase_auth/firebase_auth.dart' show FirebaseAuth, User;
+import 'package:internet_connection_checker_plus/internet_connection_checker_plus.dart';
 
 import 'package:nextbus/Providers/providers.dart';
 import 'package:nextbus/firebase_options.dart';
@@ -17,6 +18,25 @@ import 'package:nextbus/constant.dart';
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
 
+  // Internet connection check
+  final connection = InternetConnection.createInstance(
+    enableStrictCheck: true,
+    customCheckOptions: [
+      InternetCheckOption(uri: Uri.parse(const String.fromEnvironment('API_LINK'))),
+    ],
+  );
+
+  final bool isConnected = await connection.hasInternetAccess;
+
+  if (!isConnected) {
+    AppLogger.log("No Internet Connection");
+    runApp(const ErrorScreen(
+      title: "No Internet Connection",
+      message: "Please check your internet connection and try again.",
+    ));
+    return;
+  }
+
   // Set app orientation to portrait mode only if platform is Android
   if (TargetPlatform.android == defaultTargetPlatform) {
     await SystemChrome.setPreferredOrientations([
@@ -24,17 +44,20 @@ void main() async {
       DeviceOrientation.portraitDown,
     ]);
   }
-
+  // Set Up Firebase
   try {
     await Firebase.initializeApp(
       options: DefaultFirebaseOptions.currentPlatform,
     );
   } catch (e) {
     AppLogger.log("error : $e");
-    runApp(const ErrorScreen());
+    runApp(const ErrorScreen(
+      title: "Failed to Initialize Firebase",
+      message: "An error occurred while connecting to our services.",
+    ));
     return;
   }
-
+  // Run App
   runApp(
     MultiProvider(
       providers: [
@@ -45,7 +68,7 @@ void main() async {
         ChangeNotifierProvider(create: (context) => UserDetails()),
         ChangeNotifierProvider(create: (context) => Timetable()),
       ],
-      child: NextBusApp()
+      child: const NextBusApp()
     ),
   );
 }
