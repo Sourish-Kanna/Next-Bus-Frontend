@@ -36,11 +36,16 @@ class SettingPage extends StatelessWidget {
             title: 'Account',
             icon: Icons.person_outline_rounded,
             children: [
-              // Restored the original logout button as requested.
-              // Added padding for better alignment within the card.
               Padding(
                 padding: const EdgeInsets.all(8.0),
-                child: logoutButton(context, () => logoutUser(context)),
+                child: Padding(
+                  padding: const EdgeInsets.all(12.0),
+                  child: ElevatedButton.icon(
+                    onPressed: () => {logoutUser(context)},
+                    icon: const Icon(Icons.logout),
+                    label: const Text("Logout"),
+                  ),
+                ),
               ),
             ],
           ),

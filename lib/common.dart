@@ -91,20 +91,6 @@ class NavigationItem {
   });
 }
 
-
-Widget logoutButton(BuildContext context, VoidCallback logoutUser) {
-  return Padding(
-    padding: const EdgeInsets.all(12.0),
-    child: ElevatedButton.icon(
-      onPressed: () {logoutUser();},
-      icon: Icon(
-        Icons.logout,
-      ),
-      label: Text("Logout"),
-    ),
-  );
-}
-
 PreferredSizeWidget? appbar(bool isMobile, BuildContext context,{bool isAdmin = false, List<NavigationItem> destination= const []}) {
   return isMobile ? AppBar(
     backgroundColor: Theme.of(context).colorScheme.inversePrimary,
