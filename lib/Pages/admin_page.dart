@@ -339,37 +339,10 @@ class AdminPage extends StatelessWidget {
             children: [
               adminFAB(context, user),
               const SizedBox(height: 16.0), // Added more spacing
-              testing(context),
             ],
           ),
         ),
       ),
     );
   }
-}
-
-
-Widget testing(BuildContext context) {
-  void verify() async {
-    final userDetails = Provider.of<UserDetails>(context, listen: false);
-
-    final bool isAdmin = await userDetails.isAdmin;
-    final bool isGuest = await userDetails.isGuest;
-    final bool isLoggedIn = await userDetails.isLoggedIn;
-
-    AppLogger.log("Admin: $isAdmin, guest: $isGuest, logged: $isLoggedIn");
-
-    final timetable = Provider.of<Timetable>(context, listen: false);
-    await timetable.fetchTimetable('56A');
-    final timetableData = timetable.getTimetableForRoute('56A');
-    for (var element in timetableData!) {
-      AppLogger.log(element.toString());
-    }
-
-  }
-
-  return ElevatedButton(
-    onPressed: verify,
-    child: const Text("Test API Connection"),
-  );
 }

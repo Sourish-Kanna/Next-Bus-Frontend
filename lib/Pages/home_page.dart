@@ -8,10 +8,10 @@ class HomePage extends StatefulWidget {
   const HomePage({super.key});
 
   @override
-  _HomePageState createState() => _HomePageState();
+  HomePageState createState() => HomePageState();
 }
 
-class _HomePageState extends State<HomePage> {
+class HomePageState extends State<HomePage> {
   @override
   void initState() {
     super.initState();
@@ -104,6 +104,7 @@ class TimetableDisplay extends StatelessWidget {
         }
 
         final timetable = timetableProvider.timetables[route];
+        print(timetable);
         if (timetable == null || timetable.isEmpty) {
           return const Center(child: Text('No timetable data available.'));
         }
