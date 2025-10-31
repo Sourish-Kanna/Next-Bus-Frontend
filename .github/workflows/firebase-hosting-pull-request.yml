@@ -19,7 +19,7 @@ jobs:
       
       # This step is now updated to include your API_LINK secret
       - name: Build Flutter Web
-        run: flutter build web --release --dart-define=API_LINK=${{ secrets.API_LINK }}
+        run: flutter build web --release --dart-define=API_LINK=${{ secrets.API_LINK_DEV }}
         
       - name: Deploy to Firebase Hosting
         uses: FirebaseExtended/action-hosting-deploy@v0
