@@ -1,18 +1,18 @@
 import 'package:flutter/material.dart';
 import 'package:shared_preferences/shared_preferences.dart';
-import 'package:nextbus/Providers/firebase_operations.dart';
+import 'package:nextbus/Providers/api_caller.dart';
 import 'package:nextbus/common.dart';
 
 // Route Provider with String-based Route Persistence
 class RouteProvider with ChangeNotifier {
-  String _route = "56"; // Default route as String, will be updated from Firebase
-  List<String> _availableRoutes = ["56"]; // Initial default, will be updated from Firebase
+  String _route = "56"; // Default route
+  List<String> _availableRoutes = ["56"]; // Initial default
 
   String get route => _route;
   List<String> get availableRoutes => _availableRoutes;
 
   RouteProvider() {
-    _loadAvailableRoutes(); // Load routes from Firebase or SharedPreferences first
+    _loadAvailableRoutes();
     _loadRoute();
   }
 
@@ -23,44 +23,38 @@ class RouteProvider with ChangeNotifier {
     if (savedRoutes != null && savedRoutes.isNotEmpty) {
       _availableRoutes = savedRoutes;
     } else {
-      // Fallback to Firebase if not found in SharedPreferences
-      NewFirebaseOperations firebaseOps = NewFirebaseOperations();
+      // Fallback to API if not found in SharedPreferences
+      ApiService apiService = ApiService();
       try {
-        var routesFromFirebase = await firebaseOps.getBusRoutes();
-        if (routesFromFirebase.isNotEmpty) {
-          _availableRoutes = List<String>.from(routesFromFirebase); // Assuming getBusRoutes returns List<dynamic> or List<String>
-          // Save to SharedPreferences for future use
+        var response = await apiService.get('/route/routes');
+        if (response.statusCode == 200) {
+          _availableRoutes = List<String>.from(response.data['data']);
           await prefs.setStringList('availableRoutes', _availableRoutes);
         }
       } catch (e) {
-        AppLogger.log("Error loading routes from Firebase: $e");
-        // Keep the default hardcoded routes if Firebase fails and nothing in SharedPreferences
+        AppLogger.log("Error loading routes from API: $e");
       }
     }
 
-    // If the current default route is not in the new list, update it
     if (_availableRoutes.isNotEmpty && !_availableRoutes.contains(_route)) {
-      _route = _availableRoutes.first; // Or some other default logic
-        }
-    notifyListeners(); // Notify listeners after routes are potentially updated
+      _route = _availableRoutes.first;
+    }
+    notifyListeners();
   }
-
 
   void _loadRoute() async {
     final prefs = await SharedPreferences.getInstance();
     String? savedRoute = prefs.getString('selectedRoute');
-    // Ensure the saved route is one of the available routes
     if (savedRoute != null && _availableRoutes.contains(savedRoute)) {
       _route = savedRoute;
     } else if (_availableRoutes.isNotEmpty) {
-      _route = _availableRoutes.first; // Fallback to the first available route if saved one is not valid or not set
+      _route = _availableRoutes.first;
     }
-    // No need to save here, just loading
     notifyListeners();
   }
 
   void setRoute(String newRoute) async {
-    if (_route == newRoute || !_availableRoutes.contains(newRoute)) return; // Only set if it's a valid and different route
+    if (_route == newRoute || !_availableRoutes.contains(newRoute)) return;
     _route = newRoute;
     final prefs = await SharedPreferences.getInstance();
     await prefs.setString('selectedRoute', newRoute);

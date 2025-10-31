@@ -8,6 +8,7 @@ import 'package:firebase_auth/firebase_auth.dart' show FirebaseAuth, User;
 import 'package:internet_connection_checker_plus/internet_connection_checker_plus.dart';
 
 import 'package:nextbus/Providers/providers.dart';
+import 'package:nextbus/Providers/timetable_provider.dart';
 import 'package:nextbus/firebase_options.dart';
 import 'package:nextbus/Pages/pages.dart';
 import 'package:nextbus/app_layout.dart';
@@ -67,6 +68,7 @@ void main() async {
         ChangeNotifierProvider(create: (context) => ThemeProvider()),
         ChangeNotifierProvider(create: (context) => UserDetails()),
         ChangeNotifierProvider(create: (context) => Timetable()),
+        ChangeNotifierProvider(create: (context) => TimetableProvider()),
       ],
       child: const NextBusApp()
     ),
