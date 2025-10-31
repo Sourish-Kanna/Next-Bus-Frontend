@@ -1,23 +1,19 @@
 name: Build and Upload Windows EXE to Release
 
-# This workflow runs automatically when a new release is published
 on:
   release:
     types: [published]
 
 jobs:
   build-and-upload-windows:
-    # Use the Windows runner for this job
     runs-on: windows-latest
     permissions:
-      # This permission is required to upload assets to a release
       contents: write
 
     steps:
       - name: Checkout repository at release tag
         uses: actions/checkout@v4
         with:
-          # Checks out the code from the specific tag of the release that triggered the workflow
           ref: ${{ github.event.release.tag_name }}
 
       - name: Set up Flutter 🐦
@@ -26,12 +22,14 @@ jobs:
           channel: 'stable'
 
       - name: Build Windows Executable 📦
-        # Uses the release's tag name for the build-name
-        run: flutter build windows --release --build-name ${{ github.event.release.tag_name }} --build-number ${{ github.run_number }}
+        # This step now injects ONLY the API_LINK secret
+        run: flutter build windows --release \
+          --build-name ${{ github.event.release.tag_name }} \
+          --build-number ${{ github.run_number }} \
+          --dart-define=API_LINK=${{ secrets.API_LINK }}
 
       - name: Zip the Release folder
         id: zip_release
-        # PowerShell command to zip the entire output directory
         run: |
           $RELEASE_PATH = "build\windows\x64\runner\Release"
           $ZIP_NAME = "Next-Bus-Windows-${{ github.event.release.tag_name }}.zip"
@@ -42,6 +40,4 @@ jobs:
       - name: Upload Windows ZIP to this Release 🚀
         uses: softprops/action-gh-release@v2
         with:
-          # The 'files' key handles the upload. The action automatically targets
-          # the release that triggered this workflow run.
           files: ${{ steps.zip_release.outputs.path }}
