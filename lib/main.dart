@@ -66,7 +66,7 @@ void main() async {
         ChangeNotifierProvider(create: (context) => RouteProvider()),
         ChangeNotifierProvider(create: (context) => ThemeProvider()),
         ChangeNotifierProvider(create: (context) => UserDetails()),
-        ChangeNotifierProvider(create: (context) => Timetable()),
+        ChangeNotifierProvider(create: (context) => TimetableProvider()),
       ],
       child: const NextBusApp()
     ),

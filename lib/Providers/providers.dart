@@ -4,3 +4,4 @@ export 'firebase_operations.dart';
 export 'route_details.dart';
 export 'theme.dart';
 export 'user_details.dart';
+export 'timetable_provider.dart';

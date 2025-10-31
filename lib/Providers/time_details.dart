@@ -103,28 +103,3 @@ class BusTimingList with ChangeNotifier {
     }
   }
 }
-
-class Timetable with ChangeNotifier {
-  final NewFirebaseOperations _firebaseService = NewFirebaseOperations();
-  final Map<String, List<TimingDetail>> _routeTimetables = {};
-
-  // ✅ Getter: Only returns what's already in the cache.
-  List<TimingDetail>? getTimetableForRoute(String route) {
-    return _routeTimetables[route];
-  }
-
-  // ✅ Fetch Method: Fetches data and notifies listeners when done.
-  Future<void> fetchTimetable(String route) async {
-    if (route.isEmpty) return;
-    try {
-      final List<TimingDetail> timetable = await _firebaseService.getBusTimings(route);
-
-      // ✅ Sort the list by time before storing it
-      timetable.sort((a, b) => stringToDate(a.time).compareTo(stringToDate(b.time)));
-      _routeTimetables[route] = timetable;
-      notifyListeners();
-    } catch (e) {
-      AppLogger.log('🔥 Error fetching and parsing timetable: $e');
-    }
-  }
-}
