@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:nextbus/common.dart';
 import 'package:provider/provider.dart';
 import 'package:nextbus/Pages/Helpers/home_page_helper.dart';
 import 'package:nextbus/Providers/route_details.dart';
@@ -12,13 +13,18 @@ class HomePage extends StatefulWidget {
 }
 
 class HomePageState extends State<HomePage> {
+  String? _currentRoute;
+
   @override
-  void initState() {
-    super.initState();
-    final routeProvider = Provider.of<RouteProvider>(context, listen: false);
-    if (routeProvider.route != "56") {
+  void didChangeDependencies() {
+    super.didChangeDependencies();
+    final routeProvider = Provider.of<RouteProvider>(context);
+    final newRoute = routeProvider.route;
+
+    if (newRoute != _currentRoute && newRoute != "56") {
       Provider.of<TimetableProvider>(context, listen: false)
-          .fetchTimetable(routeProvider.route);
+          .fetchTimetable(newRoute);
+      _currentRoute = newRoute;
     }
   }
 
@@ -104,7 +110,7 @@ class TimetableDisplay extends StatelessWidget {
         }
 
         final timetable = timetableProvider.timetables[route];
-        print(timetable);
+        AppLogger.log("Timetable for route $route: $timetable");
         if (timetable == null || timetable.isEmpty) {
           return const Center(child: Text('No timetable data available.'));
         }
