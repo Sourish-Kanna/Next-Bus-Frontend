@@ -2,7 +2,7 @@ name: Build and Upload Windows EXE to Release
 
 on:
   release:
-    types: [published]
+    types: [published, drafted]
 
 jobs:
   build-and-upload-windows:
