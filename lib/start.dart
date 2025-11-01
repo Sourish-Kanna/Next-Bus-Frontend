@@ -11,8 +11,13 @@ import 'package:nextbus/constant.dart';
 
 class NextBusApp extends StatelessWidget {
   final FirebaseAnalyticsObserver observer;
+  final User? initialUser; // Accept the initial user
 
-  const NextBusApp({super.key, required this.observer});
+  const NextBusApp({
+    super.key,
+    required this.observer,
+    required this.initialUser, // Add to constructor
+  });
 
   @override
   Widget build(BuildContext context) {
@@ -24,7 +29,9 @@ class NextBusApp extends StatelessWidget {
             ColorScheme darkColorScheme;
 
             // Step 1: Generate the initial color schemes
-            if (themeProvider.isDynamicColor && lightDynamic != null && darkDynamic != null) {
+            if (themeProvider.isDynamicColor &&
+                lightDynamic != null &&
+                darkDynamic != null) {
               lightColorScheme = lightDynamic.harmonized();
               darkColorScheme = darkDynamic.harmonized();
             } else {
@@ -35,26 +42,29 @@ class NextBusApp extends StatelessWidget {
                 brightness: Brightness.dark,
               );
             }
-          // Step 2: Define the base theme
-          // final baseTheme = ThemeData(useMaterial3: true, useSystemColors: true);
+            // Step 2: Define the base theme
+            // final baseTheme = ThemeData(useMaterial3: true, useSystemColors: true);
 
-          // Step 3: Build the MaterialApp
-          return MaterialApp(
-            title: 'Next Bus',
-            theme: ThemeData(colorScheme: lightColorScheme, useMaterial3: true),
-            darkTheme: ThemeData(colorScheme: darkColorScheme, useMaterial3: true),
-            themeMode: themeProvider.themeMode,
-            debugShowCheckedModeBanner: true,
-            navigatorObservers: [
-              observer,
-            ],
-            home: StreamBuilder<User?>(
-              stream: FirebaseAuth.instance.authStateChanges(),
-              builder: (context, snapshot) {
-                  if (snapshot.connectionState == ConnectionState.waiting) {
-                    return const Center(child: CircularProgressIndicator());
-                  }
-                  if (snapshot.hasData) {
+            // Step 3: Build the MaterialApp
+            return MaterialApp(
+              title: 'Next Bus',
+              theme:
+              ThemeData(colorScheme: lightColorScheme, useMaterial3: true),
+              darkTheme:
+              ThemeData(colorScheme: darkColorScheme, useMaterial3: true),
+              themeMode: themeProvider.themeMode,
+              debugShowCheckedModeBanner: true,
+              navigatorObservers: [
+                observer,
+              ],
+              home: StreamBuilder<User?>(
+                stream: FirebaseAuth.instance.authStateChanges(),
+                initialData: initialUser, // Use the pre-fetched user data
+                builder: (context, snapshot) {
+                  // We no longer need the 'waiting' check, as initialData is provided.
+                  final User? user = snapshot.data;
+
+                  if (user != null) {
                     // User is logged in
                     return AppLayout();
                   } else {
@@ -64,9 +74,9 @@ class NextBusApp extends StatelessWidget {
                 },
               ),
             );
-          }
+          },
         );
-      }
+      },
     );
   }
 }

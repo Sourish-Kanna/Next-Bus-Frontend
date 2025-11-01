@@ -137,6 +137,12 @@ class LogoutUser {
 class AppLogger {
   static final _crashlytics = FirebaseCrashlytics.instance;
 
+  static void onlyLocal(String message) {
+    if (kDebugMode) {
+      debugPrint(message);
+    }
+  }
+
   /// Legacy log method.
   /// Consider migrating to info(), warn(), or error() for more specific context.
   static void log(String message) {
