@@ -1,10 +1,12 @@
 import 'package:flutter/material.dart';
 import 'package:nextbus/Providers/api_caller.dart';
 
+import 'package:nextbus/common.dart';
+
 class TimetableProvider with ChangeNotifier {
   final ApiService _apiService = ApiService();
 
-  Map<String, List<dynamic>> _timetables = {};
+  final Map<String, List<dynamic>> _timetables = {};
   Map<String, List<dynamic>> get timetables => _timetables;
 
   bool _isLoading = false;
@@ -20,8 +22,13 @@ class TimetableProvider with ChangeNotifier {
       if (response.statusCode == 200) {
         _timetables[route] = response.data['data'];
       }
-    } catch (e) {
-      print('Error fetching timetable: $e');
+    } catch (e, stack) {
+      // Here is the fix:
+      AppLogger.error(
+        "Failed to fetch timetable for route: $route",
+        e,
+        stack,
+      );
     } finally {
       _isLoading = false;
       notifyListeners();

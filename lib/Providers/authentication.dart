@@ -61,7 +61,9 @@ class AuthService with ChangeNotifier {
         notifyListeners();
         // AppLogger.log("Auth Token: ${await _user?.getIdToken()}");
         AppLogger.log("Google Sign-In Successful: ${_user?.displayName}");
+        if (!context.mounted) return null;
         await Provider.of<UserDetails>(context,listen: false).fetchUserDetails();
+        if (!context.mounted) return null;
         var t= Provider.of<UserDetails>(context,listen: false);
         AppLogger.log("Admin: ${t.isAdmin}, guest: ${t.isGuest}, looged: ${t.isLoggedIn}");
         return _user;
@@ -81,7 +83,9 @@ class AuthService with ChangeNotifier {
       notifyListeners();
       // AppLogger.log("Auth Token: ${await _user?.getIdToken()}");
       AppLogger.log("Guest Login Successful: ${_user?.displayName}");
+      if (!context.mounted) return null;
       await Provider.of<UserDetails>(context,listen: false).fetchUserDetails();
+      if (!context.mounted) return null;
       var t= Provider.of<UserDetails>(context,listen: false);
       AppLogger.log("Admin: ${t.isAdmin}, guest: ${t.isGuest}, looged: ${t.isLoggedIn}");
       return _user;

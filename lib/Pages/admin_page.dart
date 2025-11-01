@@ -7,7 +7,7 @@ import 'package:nextbus/Providers/route_details.dart';
 import 'package:nextbus/Providers/time_details.dart';
 import 'package:nextbus/common.dart';
 import 'package:nextbus/Providers/authentication.dart';
-import 'package:nextbus/Providers/user_details.dart';
+// import 'package:nextbus/Providers/user_details.dart';
 
 void _showAdminOptionsDialog(BuildContext context, User? user) {
   final routeProvider = Provider.of<RouteProvider>(context, listen: false);
@@ -71,7 +71,7 @@ void _showAdminOptionsDialog(BuildContext context, User? user) {
                   onPressed: () {
                     Navigator.pop(context);
                     routeProvider.setRoute(selectedRoute);
-                    customSnackBar(context, "Route changed to $selectedRoute");
+                    CustomSnackBar.show(context, "Route changed to $selectedRoute");
                   },
                 ),
               ],
@@ -127,7 +127,7 @@ void _showAdminOptionsDialog(BuildContext context, User? user) {
                   [timeController.text],
                   user!.uid,
                 );
-                customSnackBar(context, "Added Route ${routeController.text}");
+                CustomSnackBar.show(context, "Added Route ${routeController.text}");
                 Navigator.pop(context);
               },
             ),
@@ -159,7 +159,7 @@ void _showAdminOptionsDialog(BuildContext context, User? user) {
               child: const Text("Remove"),
               onPressed: () {
                 firestoreService.removeRoute(routeController.text, user!.uid);
-                customSnackBar(
+                CustomSnackBar.show(
                     context, "Removed Route ${routeController.text}");
                 Navigator.pop(context);
               },
@@ -214,7 +214,7 @@ void _showAdminOptionsDialog(BuildContext context, User? user) {
                   stopController.text,
                   timeController.text,
                 );
-                customSnackBar(
+                CustomSnackBar.show(
                     context, "Added Timing for Route ${routeController.text}");
                 Navigator.pop(context);
               },
@@ -262,7 +262,7 @@ void _showAdminOptionsDialog(BuildContext context, User? user) {
                 title: const Text("View Timings"),
                 onTap: () {
                   busTimingProvider.getBusTimings(routeProvider.route);
-                  customSnackBar(context,
+                  CustomSnackBar.show(context,
                       "Fetching timings for Route ${routeProvider.route}");
                 },
               ),
@@ -339,6 +339,10 @@ class AdminPage extends StatelessWidget {
             children: [
               adminFAB(context, user),
               const SizedBox(height: 16.0), // Added more spacing
+              TextButton(
+                  onPressed: () => throw Exception(),
+                  child: const Text("Test Crash")
+              ),
             ],
           ),
         ),

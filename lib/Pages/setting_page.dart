@@ -41,7 +41,7 @@ class SettingPage extends StatelessWidget {
                 child: Padding(
                   padding: const EdgeInsets.all(12.0),
                   child: ElevatedButton.icon(
-                    onPressed: () => {logoutUser(context)},
+                    onPressed: () => {LogoutUser.execute(context)},
                     icon: const Icon(Icons.logout),
                     label: const Text("Logout"),
                   ),

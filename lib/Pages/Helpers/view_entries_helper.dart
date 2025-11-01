@@ -117,6 +117,7 @@ class ListDisplay extends StatelessWidget {
       String formattedTime = dateToString(
         DateTime(0, 0, 0, pickedTime.hour, pickedTime.minute),
       );
+      if (!context.mounted) return;
       final authService = Provider.of<AuthService>(context, listen: false);
       final User? user = authService.user;
       provider.editBusTiming(route, index, formattedTime, user!.uid);
@@ -140,8 +141,8 @@ class AddTime extends StatelessWidget {
       onPressed: () async {
         String newTime = dateToString(DateTime.now()); // Generate a new time entry
         await Provider.of<BusTimingList>(context, listen: false).addBusTiming(route, newTime, userId);
-
-        customSnackBar(
+        if (!context.mounted) return;
+        CustomSnackBar.show(
           context,
           "Time Added for Route $route",
           onUndo: () {

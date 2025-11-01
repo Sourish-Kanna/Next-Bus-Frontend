@@ -37,6 +37,13 @@
             {
               "client_id": "878462952161-ph6h8gfqhkv5ce9useq3ut57l11pgi9c.apps.googleusercontent.com",
               "client_type": 3
+            },
+            {
+              "client_id": "878462952161-joemnmte4k4ctbbrdsduoal6miqp6dq8.apps.googleusercontent.com",
+              "client_type": 2,
+              "ios_info": {
+                "bundle_id": "com.example.nextbus"
+              }
             }
           ]
         }

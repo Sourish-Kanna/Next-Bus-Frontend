@@ -1,26 +1,28 @@
 import 'package:flutter/material.dart';
-import 'package:flutter/services.dart' show Brightness, DeviceOrientation, SystemChrome;
-import 'package:flutter/foundation.dart' show TargetPlatform, defaultTargetPlatform;
-import 'package:dynamic_color/dynamic_color.dart' show ColorSchemeHarmonization, DynamicColorBuilder;
-import 'package:provider/provider.dart' show ChangeNotifierProvider, Consumer, MultiProvider;
+import 'package:flutter/services.dart' show DeviceOrientation, SystemChrome;
+import 'package:flutter/foundation.dart' show TargetPlatform, defaultTargetPlatform, PlatformDispatcher;
+import 'package:provider/provider.dart' show ChangeNotifierProvider, MultiProvider;
 import 'package:firebase_core/firebase_core.dart' show Firebase;
-import 'package:firebase_auth/firebase_auth.dart' show FirebaseAuth, User;
 import 'package:internet_connection_checker_plus/internet_connection_checker_plus.dart';
+import 'package:firebase_crashlytics/firebase_crashlytics.dart';
+import 'package:firebase_analytics/firebase_analytics.dart';
 
 import 'package:nextbus/Providers/providers.dart';
 import 'package:nextbus/firebase_options.dart';
 import 'package:nextbus/Pages/pages.dart';
-import 'package:nextbus/app_layout.dart';
 import 'package:nextbus/common.dart';
-import 'package:nextbus/constant.dart';
+import 'package:nextbus/start.dart';
 
+// static instances for Analytics
+final FirebaseAnalytics analytics = FirebaseAnalytics.instance;
+final FirebaseAnalyticsObserver observer = FirebaseAnalyticsObserver(analytics: analytics);
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
 
   // Internet connection check
   final connection = InternetConnection.createInstance(
-    enableStrictCheck: true,
+    // enableStrictCheck: true,
     customCheckOptions: [
       InternetCheckOption(uri: Uri.parse(const String.fromEnvironment('API_LINK'))),
     ],
@@ -44,6 +46,7 @@ void main() async {
       DeviceOrientation.portraitDown,
     ]);
   }
+
   // Set Up Firebase
   try {
     await Firebase.initializeApp(
@@ -57,6 +60,19 @@ void main() async {
     ));
     return;
   }
+
+  // Crashlytics
+  FlutterError.onError = (errorDetails) {
+    FirebaseCrashlytics.instance
+        .recordFlutterFatalError(errorDetails);
+  };
+
+  PlatformDispatcher.instance.onError = (error, stack) {
+    FirebaseCrashlytics.instance
+        .recordError(error, stack, fatal: true);
+    return true;
+  };
+
   // Run App
   runApp(
     MultiProvider(
@@ -68,64 +84,7 @@ void main() async {
         ChangeNotifierProvider(create: (context) => UserDetails()),
         ChangeNotifierProvider(create: (context) => TimetableProvider()),
       ],
-      child: const NextBusApp()
+        child: NextBusApp(observer: observer)
     ),
   );
-}
-
-class NextBusApp extends StatelessWidget {
-  const NextBusApp({super.key});
-
-  @override
-  Widget build(BuildContext context) {
-    return Consumer<ThemeProvider>(
-      builder: (context, themeProvider, child) {
-        return DynamicColorBuilder(
-          builder: (lightDynamic, darkDynamic) {
-            final ColorScheme lightColorScheme;
-            ColorScheme darkColorScheme;
-
-            // Step 1: Generate the initial color schemes
-            if (themeProvider.isDynamicColor && lightDynamic != null && darkDynamic != null) {
-              lightColorScheme = lightDynamic.harmonized();
-              darkColorScheme = darkDynamic.harmonized();
-            } else {
-              final seed = themeProvider.selectedSeedColor ?? fallbackColor;
-              lightColorScheme = ColorScheme.fromSeed(seedColor: seed);
-              darkColorScheme = ColorScheme.fromSeed(
-                seedColor: seed,
-                brightness: Brightness.dark,
-              );
-            }
-          // Step 2: Define the base theme
-          // final baseTheme = ThemeData(useMaterial3: true, useSystemColors: true);
-
-          // Step 3: Build the MaterialApp
-          return MaterialApp(
-            title: 'Next Bus',
-            theme: ThemeData(colorScheme: lightColorScheme, useMaterial3: true),
-            darkTheme: ThemeData(colorScheme: darkColorScheme, useMaterial3: true),
-            themeMode: themeProvider.themeMode,
-            debugShowCheckedModeBanner: true,
-            home: StreamBuilder<User?>(
-              stream: FirebaseAuth.instance.authStateChanges(),
-              builder: (context, snapshot) {
-                  if (snapshot.connectionState == ConnectionState.waiting) {
-                    return const Center(child: CircularProgressIndicator());
-                  }
-                  if (snapshot.hasData) {
-                    // User is logged in
-                    return AppLayout();
-                  } else {
-                    // User is not logged in
-                    return const AuthScreen();
-                  }
-                },
-              ),
-            );
-          }
-        );
-      }
-    );
-  }
 }

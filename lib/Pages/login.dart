@@ -22,6 +22,7 @@ class AuthScreen extends StatelessWidget {
               onPressed: () async {
                 User? user = await authService.signInWithGoogle(context);
                 if (user != null) {
+                  if (!context.mounted) return;
                   Navigator.pushReplacement(
                     context,
                     MaterialPageRoute(builder: (context) => AppLayout()),
@@ -36,6 +37,7 @@ class AuthScreen extends StatelessWidget {
               onPressed: () async {
                 User? user = await authService.signInAsGuest(context);
                 if (user != null) {
+                  if (!context.mounted) return;
                   Navigator.pushReplacement(
                     context,
                     MaterialPageRoute(builder: (context) => AppLayout()),
