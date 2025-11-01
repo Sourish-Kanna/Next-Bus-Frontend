@@ -2,33 +2,37 @@ name: Build and Upload Releases
 
 on:
   release:
-    types: [published, drafted]
+    types: [published]
 
 jobs:
-  build-and-upload-android:
+  android-release:
     runs-on: ubuntu-latest
     permissions:
       contents: write
 
     steps:
-      - name: Checkout repository at release tag
+      - name: 📥 Checkout repository at release tag
         uses: actions/checkout@v4
         with:
           ref: ${{ github.event.release.tag_name }}
 
-      - name: Set up Flutter 🐦
+      - name: 🐦 Set up Flutter
         uses: subosito/flutter-action@v2
         with:
           channel: 'stable'
 
-      - name: Build APK 📦
+      - name: 🔢 Generate build number 
+        id: build_number
+        run: echo "BUILD_NUMBER=$(date +'%y%m%d%H%M')" >> $GITHUB_OUTPUT
+
+      - name: 📱 Build APK
         run: >
           flutter build apk --release
           --build-name ${{ github.event.release.tag_name }}
-          --build-number ${{ github.run_number }}
+          --build-number ${{ steps.build_number.outputs.BUILD_NUMBER }}
           --dart-define=API_LINK=${{ secrets.API_LINK }}
 
-      - name: Rename APK file
+      - name: ✏️ Rename APK file
         id: rename_apk
         run: |
           APK_NAME="Next-Bus-${{ github.event.release.tag_name }}.apk"
@@ -37,35 +41,40 @@ jobs:
           echo "path=$APK_PATH" >> "$GITHUB_OUTPUT"
           echo "name=$APK_NAME" >> "$GITHUB_OUTPUT"
 
-      - name: Upload APK to this Release 🚀
+      - name: 🚀 Upload APK to this Release
         uses: softprops/action-gh-release@v2
         with:
           files: ${{ steps.rename_apk.outputs.path }}
 
-  build-and-upload-windows:
+  windows-release:
     runs-on: windows-latest
     permissions:
       contents: write
 
     steps:
-      - name: Checkout repository at release tag
+      - name: 📥 Checkout repository at release tag
         uses: actions/checkout@v4
         with:
           ref: ${{ github.event.release.tag_name }}
 
-      - name: Set up Flutter 🐦
+      - name: 🐦 Set up Flutter
         uses: subosito/flutter-action@v2
         with:
           channel: 'stable'
 
-      - name: Build Windows Executable 📦
+      - name: 🔢 Generate build number
+        id: build_number
+        run: echo "BUILD_NUMBER=$(Get-Date -Format 'yyMMddHHmm')" >> $env:GITHUB_OUTPUT
+        shell: powershell
+
+      - name: 🖥️ Build Windows Executable
         run: >
           flutter build windows --release
           --build-name ${{ github.event.release.tag_name }}
-          --build-number ${{ github.run_number }}
+          --build-number ${{ steps.build_number.outputs.BUILD_NUMBER }}
           --dart-define=API_LINK=${{ secrets.API_LINK }}
 
-      - name: Zip the Release folder
+      - name: 📦 Zip the Release folder
         id: zip_release
         run: |
           $RELEASE_PATH = "build\windows\x64\runner\Release"
@@ -74,7 +83,7 @@ jobs:
           echo "path=$ZIP_NAME" >> $env:GITHUB_OUTPUT
         shell: powershell
 
-      - name: Upload Windows ZIP to this Release 🚀
+      - name: 🚀 Upload Windows ZIP to this Release
         uses: softprops/action-gh-release@v2
         with:
           files: ${{ steps.zip_release.outputs.path }}
