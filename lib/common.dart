@@ -127,9 +127,9 @@ class LogoutUser {
     final authService = Provider.of<AuthService>(context, listen: false);
     await authService.signOut();
     if (!context.mounted) return;
-    // You need to have a named route '/login' for this to work.
-    // Ensure this is defined in your MaterialApp.
-    Navigator.pushReplacementNamed(context, '/login');
+    Navigator.pushReplacement(context, MaterialPageRoute(builder: (context) {
+      return const AuthScreen();
+    }));
   }
 }
 

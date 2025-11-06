@@ -22,9 +22,11 @@ class HomePageState extends State<HomePage> {
     final newRoute = routeProvider.route;
 
     if (newRoute != _currentRoute && newRoute != "56") {
-      Provider.of<TimetableProvider>(context, listen: false)
-          .fetchTimetable(newRoute);
-      _currentRoute = newRoute;
+      Future.delayed(Duration.zero, () {
+        Provider.of<TimetableProvider>(context, listen: false)
+            .fetchTimetable(newRoute);
+        _currentRoute = newRoute;
+      });
     }
   }
 

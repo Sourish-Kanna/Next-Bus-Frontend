@@ -99,7 +99,7 @@ class _RouteSelectState extends State<RouteSelect> {
                           AppLogger.log("Confirming route: $selectedRoute");
                           routeProvider.setRoute(selectedRoute!);
                           AppLogger.log("Route set in provider. Popping context.");
-                          Navigator.pop(context);
+                          // Navigator.pop(context);
                         }
                       } : null,
                       child: const Text("Confirm Route"),
