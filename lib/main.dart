@@ -6,6 +6,7 @@ import 'package:firebase_core/firebase_core.dart' show Firebase;
 import 'package:internet_connection_checker_plus/internet_connection_checker_plus.dart';
 import 'package:firebase_crashlytics/firebase_crashlytics.dart';
 import 'package:firebase_analytics/firebase_analytics.dart';
+import 'package:connectivity_plus/connectivity_plus.dart';
 import 'package:firebase_auth/firebase_auth.dart' show FirebaseAuth, User;
 
 import 'package:nextbus/Providers/providers.dart';
@@ -50,6 +51,30 @@ class _AppInitializerState extends State<AppInitializer> {
     _initializeApp();
   }
 
+  /// Sends a non-blocking request to wake up the server.
+  /// We don't await this in the main init logic.
+  Future<void> _wakeUpServer() async {
+    try {
+      // Use your custom instance here, with a short timeout.
+      final connection = InternetConnection.createInstance(
+        checkInterval: const Duration(seconds: 60), // Give it 60s to wake up
+        customCheckOptions: [
+          InternetCheckOption(
+              uri: Uri.parse(const String.fromEnvironment('API_LINK'))),
+        ],
+      );
+
+      // We 'await' it here, but this function itself is not
+      // awaited in _initializeApp, so it won't block startup.
+      await connection.hasInternetAccess;
+      AppLogger.onlyLocal("Server wake-up ping sent.");
+    } catch (e) {
+      // This is not a critical error, so we just log it.
+      // The server will just wake up on the first "real" API call.
+      AppLogger.onlyLocal("Server wake-up ping failed or timed out: $e");
+    }
+  }
+
   /// Runs all initialization logic and updates the state.
   Future<void> _initializeApp() async {
     // Set state to loading when retrying
@@ -59,30 +84,41 @@ class _AppInitializerState extends State<AppInitializer> {
       });
     }
 
-    // 1. Internet connection check
-    final connection = InternetConnection.createInstance(
-      // enableStrictCheck: true,
-      customCheckOptions: [
-        InternetCheckOption(
-            uri: Uri.parse(const String.fromEnvironment('API_LINK'))),
-      ],
-    );
-
-    final bool isConnected = await connection.hasInternetAccess;
-
-    if (!isConnected) {
-      AppLogger.onlyLocal("No Internet Connection");
+    // 1. (FAST) Instant "No Wi-Fi/Mobile" Check
+    final connectivityResult = await Connectivity().checkConnectivity();
+    if (connectivityResult.contains(ConnectivityResult.none)) {
+      AppLogger.onlyLocal("No Internet Connection (Instant Check)");
       if (mounted) {
         setState(() {
           _status = AppStatus.error;
-          _errorTitle = "No Internet Connection";
+          _errorTitle = "No Connection";
+          _errorMessage = "Please check your network settings and try again.";
+        });
+      }
+      return;
+    }
+
+    // 2. (FAST) Real "Has Internet" Check (pings Google/Cloudflare by default)
+    // We use the DEFAULT instance here because it's fast.
+    final bool isConnected = await InternetConnection().hasInternetAccess;
+
+    if (!isConnected) {
+      AppLogger.onlyLocal("No Internet Access");
+      if (mounted) {
+        setState(() {
+          _status = AppStatus.error;
+          _errorTitle = "No Internet Access";
           _errorMessage = "Please check your internet connection and try again.";
         });
       }
       return;
     }
 
-    // 2. Set app orientation
+    // --- At this point, we are ONLINE ---
+    // 3. (FIRE-AND-FORGET) Wake up the server
+    _wakeUpServer();
+
+    // 4. Set app orientation
     if (TargetPlatform.android == defaultTargetPlatform) {
       await SystemChrome.setPreferredOrientations([
         DeviceOrientation.portraitUp,
@@ -90,15 +126,13 @@ class _AppInitializerState extends State<AppInitializer> {
       ]);
     }
 
-    // 3. Set Up Firebase
+    // 5. Set Up Firebase
     try {
       await Firebase.initializeApp(
         options: DefaultFirebaseOptions.currentPlatform,
       );
-
       _analytics = FirebaseAnalytics.instance;
       _observer = FirebaseAnalyticsObserver(analytics: _analytics);
-
     } catch (e) {
       AppLogger.onlyLocal("error : $e");
       if (mounted) {
@@ -111,7 +145,7 @@ class _AppInitializerState extends State<AppInitializer> {
       return;
     }
 
-    // 4. Crashlytics
+    // 6. Crashlytics
     FlutterError.onError = (errorDetails) {
       FirebaseCrashlytics.instance.recordFlutterFatalError(errorDetails);
     };
@@ -121,7 +155,7 @@ class _AppInitializerState extends State<AppInitializer> {
       return true;
     };
 
-    // 5. Get Initial Auth State
+    // 7. Get Initial Auth State
     _initialUser = await FirebaseAuth.instance.authStateChanges().first;
 
     // If all successful

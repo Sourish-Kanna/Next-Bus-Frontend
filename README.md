@@ -112,12 +112,6 @@ next-bus/
 
 ---
 
-## License 📄
-
-This project is licensed under the [MIT License](LICENSE).
-
----
-
 ## Screenshots 📸
 <div style="display: flex; flex-wrap: wrap; gap: 10px;">
 <table>
@@ -129,9 +123,13 @@ This project is licensed under the [MIT License](LICENSE).
         <td><img src="https://github.com/user-attachments/assets/ad314106-c706-4d41-8152-e50b9affd147" alt="Screenshot_20250123_194519" width="100%"></td>
         <td><img src="https://github.com/user-attachments/assets/fc3569f8-002b-4549-8601-8b206f7e08ad" alt="Screenshot_20250123_194505" width="100%"></td>
     </tr>
+    <tr>
+        <td colspan="2" align="center"><strong>Admin Operations Demo</strong><br><video src="https://github.com/user-attachments/assets/243b39d5-74e1-44eb-80d4-d7fdb15c8aca" width="100%"></video></td>
+    </tr>
+    <tr>
+        <td colspan="2" align="center"><strong>App Theming Demo</strong><br><video src="https://github.com/user-attachments/assets/8f902910-e598-4c2c-a814-e5e06ac38dd0" width="100%"></video></td>
+    </tr>
 </table>
-<https://github.com/user-attachments/assets/243b39d5-74e1-44eb-80d4-d7fdb15c8aca>
-<https://github.com/user-attachments/assets/8f902910-e598-4c2c-a814-e5e06ac38dd0>
 </div>
 
 ---
