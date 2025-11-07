@@ -28,19 +28,21 @@ class UserDetails with ChangeNotifier {
       var result = await api.get("/user/get-user-details");
       if (result.data != null && result.data["data"] != null){
         Map<String, dynamic> data = result.data["data"];
+        debugPrint("User Details fetched: $data");
+        AppLogger.info("User Details fetched: $data");
         _isAdmin = data["isAdmin"] ?? false;
         _isLoggedIn = data["isLoggedIn"] ?? false;
         _isGuest = data["isGuest"] ?? false;
       } else {
         // Handle cases where the data structure is not as expected
-        AppLogger.log("Error fetching user details: Invalid response structure or null data.");
+        AppLogger.error("Error fetching user details: Invalid response structure or null data.", result.data);
         _isAdmin = false;
         _isLoggedIn = false;
         _isGuest = true; // Default to guest
       }
     } catch (e) {
       // Handle error, e.g., log it or set default values
-      AppLogger.log("Error fetching user details: $e");
+      AppLogger.error("Error fetching user details", e);
       _isAdmin = false;
       _isLoggedIn = false;
       _isGuest = true; // Default to guest if there's an error
