@@ -1,19 +1,22 @@
+import 'package:connectivity_plus/connectivity_plus.dart'
+    show Connectivity, ConnectivityResult;
+import 'package:firebase_analytics/firebase_analytics.dart'
+    show FirebaseAnalytics, FirebaseAnalyticsObserver;
+import 'package:firebase_auth/firebase_auth.dart' show FirebaseAuth, User;
+import 'package:firebase_core/firebase_core.dart' show Firebase;
+import 'package:firebase_crashlytics/firebase_crashlytics.dart'
+    show FirebaseCrashlytics;
+import 'package:flutter/foundation.dart' show TargetPlatform, defaultTargetPlatform, PlatformDispatcher;
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart' show DeviceOrientation, SystemChrome;
-import 'package:flutter/foundation.dart' show TargetPlatform, defaultTargetPlatform, PlatformDispatcher;
-import 'package:provider/provider.dart' show ChangeNotifierProvider, MultiProvider;
-import 'package:firebase_core/firebase_core.dart' show Firebase;
-import 'package:internet_connection_checker_plus/internet_connection_checker_plus.dart';
-import 'package:firebase_crashlytics/firebase_crashlytics.dart';
-import 'package:firebase_analytics/firebase_analytics.dart';
-import 'package:connectivity_plus/connectivity_plus.dart';
-import 'package:firebase_auth/firebase_auth.dart' show FirebaseAuth, User;
-
+import 'package:internet_connection_checker_plus/internet_connection_checker_plus.dart'
+    show InternetCheckOption, InternetConnection;
+import 'package:nextbus/Pages/pages.dart' show ErrorScreen;
 import 'package:nextbus/Providers/providers.dart';
-import 'package:nextbus/firebase_options.dart';
-import 'package:nextbus/Pages/pages.dart';
-import 'package:nextbus/common.dart';
-import 'package:nextbus/start.dart';
+import 'package:nextbus/common.dart' show AppLogger;
+import 'package:nextbus/firebase_options.dart' show DefaultFirebaseOptions;
+import 'package:nextbus/start.dart' show NextBusApp;
+import 'package:provider/provider.dart' show ChangeNotifierProvider, MultiProvider;
 
 void main() async {
   // Ensure bindings are initialized before doing anything else

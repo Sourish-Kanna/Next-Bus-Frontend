@@ -56,6 +56,6 @@ dependencies {
     // Firebase & Play Services
     implementation("com.google.firebase:firebase-analytics")
     implementation("com.google.firebase:firebase-auth") // Required for Google Sign-In
-    implementation("com.google.android.gms:play-services-auth:21.2.0")
+    implementation("com.google.android.gms:play-services-auth:21.4.0")
     implementation("com.google.firebase:firebase-crashlytics")
 }
