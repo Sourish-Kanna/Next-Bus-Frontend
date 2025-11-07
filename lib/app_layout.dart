@@ -37,6 +37,7 @@ class _AppLayoutState extends State<AppLayout> {
     if (mounted) {
       setState(() {
         isAdmin = adminStatus;
+        debugPrint("Admin Status after fetch: $isAdmin");
         if (kDebugMode) {
           isAdmin = true;
         }
