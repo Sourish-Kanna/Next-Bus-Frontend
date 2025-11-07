@@ -4,7 +4,6 @@
 
 [![Netlify Status](https://api.netlify.com/api/v1/badges/736ced60-11c2-47e4-a24d-5d7e7c26c7c0/deploy-status)](https://app.netlify.com/projects/next-bus-app/deploys)
 
-
 ## Features ✨
 
 ### User Features
@@ -113,24 +112,19 @@ next-bus/
 ---
 
 ## Screenshots 📸
-<div style="display: flex; flex-wrap: wrap; gap: 10px;">
-<table>
-    <tr>
-        <td><img src="https://github.com/user-attachments/assets/2842a9a3-e108-4be3-ab67-0c8eea904bdd" alt="Screenshot_20250123_195131" width="100%"></td>
-        <td><img src="https://github.com/user-attachments/assets/f61997bc-7f84-48c5-8b13-feb433c92726" alt="Screenshot_20250123_194820" width="100%"></td>
-    </tr>
-    <tr>
-        <td><img src="https://github.com/user-attachments/assets/ad314106-c706-4d41-8152-e50b9affd147" alt="Screenshot_20250123_194519" width="100%"></td>
-        <td><img src="https://github.com/user-attachments/assets/fc3569f8-002b-4549-8601-8b206f7e08ad" alt="Screenshot_20250123_194505" width="100%"></td>
-    </tr>
-    <tr>
-        <td colspan="2" align="center"><strong>Admin Operations Demo</strong><br><video src="https://github.com/user-attachments/assets/243b39d5-74e1-44eb-80d4-d7fdb15c8aca" width="100%"></video></td>
-    </tr>
-    <tr>
-        <td colspan="2" align="center"><strong>App Theming Demo</strong><br><video src="https://github.com/user-attachments/assets/8f902910-e598-4c2c-a814-e5e06ac38dd0" width="100%"></video></td>
-    </tr>
-</table>
-</div>
+
+Below are screenshots and demo videos for the app.
+
+| Screenshot 1 | Screenshot 2 |
+|---|---|
+| ![Screenshot_20250123_195131](https://github.com/user-attachments/assets/2842a9a3-e108-4be3-ab67-0c8eea904bdd) | ![Screenshot_20250123_194820](https://github.com/user-attachments/assets/f61997bc-7f84-48c5-8b13-feb433c92726) |
+| ![Screenshot_20250123_194519](https://github.com/user-attachments/assets/ad314106-c706-4d41-8152-e50b9affd147) | ![Screenshot_20250123_194505](https://github.com/user-attachments/assets/fc3569f8-002b-4549-8601-8b206f7e08ad) |
+
+**Admin Operations Demo**  
+Watch: https://github.com/user-attachments/assets/243b39d5-74e1-44eb-80d4-d7fdb15c8aca
+
+**App Theming Demo**  
+Watch: https://github.com/user-attachments/assets/8f902910-e598-4c2c-a814-e5e06ac38dd0
 
 ---
 

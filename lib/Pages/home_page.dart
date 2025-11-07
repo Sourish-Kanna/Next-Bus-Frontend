@@ -23,6 +23,7 @@ class HomePageState extends State<HomePage> {
 
     if (newRoute != _currentRoute && newRoute != "56") {
       Future.delayed(Duration.zero, () {
+        if (!mounted) return;
         Provider.of<TimetableProvider>(context, listen: false)
             .fetchTimetable(newRoute);
         _currentRoute = newRoute;
