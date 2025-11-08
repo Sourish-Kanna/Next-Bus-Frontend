@@ -1,11 +1,28 @@
-name: Build and Upload Releases
+Name: Build and Upload Releases
 
 on:
   release:
     types: [published]
 
 jobs:
+  # This job runs first and defines common variables.
+  setup:
+    runs-on: ubuntu-latest
+    outputs:
+      build_name: ${{ steps.vars.outputs.build_name }}
+      build_number: ${{ steps.vars.outputs.build_number }}
+    steps:
+      - name: 🔢 Set common build variables
+        id: vars
+        run: |
+          echo "build_name=${{ github.event.release.tag_name }}" >> $GITHUB_OUTPUT
+          echo "build_number=${{ github.run_number }}" >> $GITHUB_OUTPUT
+          echo "Using Build Name: ${{ github.event.release.tag_name }}"
+          echo "Using Build Number: ${{ github.run_number }}"
+
   android-release:
+    # This job now depends on the 'setup' job.
+    needs: setup
     runs-on: ubuntu-latest
     permissions:
       contents: write
@@ -14,28 +31,24 @@ jobs:
       - name: 📥 Checkout repository at release tag
         uses: actions/checkout@v4
         with:
-          ref: ${{ github.event.release.tag_name }}
+          ref: ${{ needs.setup.outputs.build_name }} # Use build_name (tag) from setup
 
       - name: 🐦 Set up Flutter
         uses: subosito/flutter-action@v2
         with:
           channel: 'stable'
 
-      - name: 🔢 Generate build number 
-        id: build_number
-        run: echo "BUILD_NUMBER=$(date +'%y%m%d%H%M')" >> $GITHUB_OUTPUT
-
       - name: 📱 Build APK
         run: >
           flutter build apk --release
-          --build-name ${{ github.event.release.tag_name }}
-          --build-number ${{ steps.build_number.outputs.BUILD_NUMBER }}
+          --build-name ${{ needs.setup.outputs.build_name }}
+          --build-number ${{ needs.setup.outputs.build_number }}
           --dart-define=API_LINK=${{ secrets.API_LINK }}
 
       - name: ✏️ Rename APK file
         id: rename_apk
         run: |
-          APK_NAME="Next-Bus-${{ github.event.release.tag_name }}.apk"
+          APK_NAME="Next-Bus-${{ needs.setup.outputs.build_name }}.apk"
           APK_PATH="build/app/outputs/flutter-apk/$APK_NAME"
           mv build/app/outputs/flutter-apk/app-release.apk "$APK_PATH"
           echo "path=$APK_PATH" >> "$GITHUB_OUTPUT"
@@ -47,6 +60,8 @@ jobs:
           files: ${{ steps.rename_apk.outputs.path }}
 
   windows-release:
+    # This job also depends on the 'setup' job.
+    needs: setup
     runs-on: windows-latest
     permissions:
       contents: write
@@ -55,36 +70,30 @@ jobs:
       - name: 📥 Checkout repository at release tag
         uses: actions/checkout@v4
         with:
-          ref: ${{ github.event.release.tag_name }}
+          ref: ${{ needs.setup.outputs.build_name }} # Use build_name (tag) from setup
 
       - name: 🐦 Set up Flutter
         uses: subosito/flutter-action@v2
         with:
           channel: 'stable'
 
-      - name: 🔢 Generate build number
-        id: build_number
-        run: echo "BUILD_NUMBER=$(Get-Date -Format 'yyMMddHHmm')" >> $env:GITHUB_OUTPUT
-        shell: powershell
-
       - name: 🖥️ Build Windows Executable
         run: >
           flutter build windows --release
-          --build-name ${{ github.event.release.tag_name }}
-          --build-number ${{ steps.build_number.outputs.BUILD_NUMBER }}
+          --build-name ${{ needs.setup.outputs.build_name }}
+          --build-number ${{ needs.setup.outputs.build_number }}
           --dart-define=API_LINK=${{ secrets.API_LINK }}
 
       - name: 📦 Zip the Release folder
         id: zip_release
+        shell: powershell
         run: |
           $RELEASE_PATH = "build\windows\x64\runner\Release"
-          $ZIP_NAME = "Next-Bus-Windows-${{ github.event.release.tag_name }}.zip"
+          $ZIP_NAME = "Next-Bus-Windows-${{ needs.setup.outputs.build_name }}.zip"
           Compress-Archive -Path $RELEASE_PATH\* -DestinationPath $ZIP_NAME
           echo "path=$ZIP_NAME" >> $env:GITHUB_OUTPUT
-        shell: powershell
 
       - name: 🚀 Upload Windows ZIP to this Release
         uses: softprops/action-gh-release@v2
         with:
           files: ${{ steps.zip_release.outputs.path }}
-
