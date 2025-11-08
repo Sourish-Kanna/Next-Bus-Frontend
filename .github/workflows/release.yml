@@ -1,4 +1,4 @@
-Name: Build and Upload Releases
+name: Build and Upload Releases
 
 on:
   release:
