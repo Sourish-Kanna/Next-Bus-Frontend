@@ -1,5 +1,6 @@
-name: Build and Upload Releases
+name: Build, Release, and Deploy
 
+# This workflow runs only when a new release is published
 on:
   release:
     types: [published]
@@ -97,3 +98,33 @@ jobs:
         uses: softprops/action-gh-release@v2
         with:
           files: ${{ steps.zip_release.outputs.path }}
+
+  web-deploy:
+    # This job now also depends on 'setup'
+    needs: setup
+    runs-on: ubuntu-latest
+    steps:
+      - name: 📥 Checkout repository at release tag
+        uses: actions/checkout@v4
+        with:
+          ref: ${{ needs.setup.outputs.build_name }}
+
+      - name: 🐦 Set up Flutter
+        uses: subosito/flutter-action@v2
+        with:
+          channel: 'stable'
+
+      - name: 🕸️ Build Flutter Web
+        run: >
+          flutter build web --release
+          --build-name ${{ needs.setup.outputs.build_name }}
+          --build-number ${{ needs.setup.outputs.build_number }}
+          --dart-define=API_LINK=${{ secrets.API_LINK }}
+        
+      - name: 🔥 Deploy to Firebase Hosting
+        uses: FirebaseExtended/action-hosting-deploy@v0
+        with:
+          repoToken: ${{ secrets.GITHUB_TOKEN }}
+          firebaseServiceAccount: ${{ secrets.FIREBASE_SERVICE_ACCOUNT_NEXT_BUS_31103 }}
+          channelId: live
+          projectId: next-bus-31103
