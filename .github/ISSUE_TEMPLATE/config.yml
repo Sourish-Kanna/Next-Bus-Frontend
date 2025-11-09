@@ -1,7 +1,3 @@
-# This file configures the "New Issue" page.
-# It's based on the GitHub docs you linked:
-# https://docs.github.com/en/communities/using-templates-to-encourage-useful-issues-and-pull-requests/configuring-issue-templates-for-your-repository#configuring-the-template-chooser
-
 # This setting prevents people from opening a blank issue.
 # It forces them to choose one of your templates.
 blank_issues_enabled: false
