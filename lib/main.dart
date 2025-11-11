@@ -6,7 +6,8 @@ import 'package:firebase_auth/firebase_auth.dart' show FirebaseAuth, User;
 import 'package:firebase_core/firebase_core.dart' show Firebase;
 import 'package:firebase_crashlytics/firebase_crashlytics.dart'
     show FirebaseCrashlytics;
-import 'package:flutter/foundation.dart' show TargetPlatform, defaultTargetPlatform, PlatformDispatcher;
+import 'package:flutter/foundation.dart'
+    show PlatformDispatcher, TargetPlatform, defaultTargetPlatform;
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart' show DeviceOrientation, SystemChrome;
 import 'package:internet_connection_checker_plus/internet_connection_checker_plus.dart'
@@ -16,14 +17,16 @@ import 'package:nextbus/Providers/providers.dart';
 import 'package:nextbus/common.dart' show AppLogger;
 import 'package:nextbus/firebase_options.dart' show DefaultFirebaseOptions;
 import 'package:nextbus/start.dart' show NextBusApp;
-import 'package:provider/provider.dart' show ChangeNotifierProvider, MultiProvider;
+import 'package:nextbus/widgets/ConnectivityBanner.dart';
+import 'package:provider/provider.dart'
+    show ChangeNotifierProvider, MultiProvider;
 
 void main() async {
   // Ensure bindings are initialized before doing anything else
   WidgetsFlutterBinding.ensureInitialized();
 
   // Run the app with the initializer widget
-  runApp(AppInitializer());
+  runApp(const AppInitializer());
 }
 
 enum AppStatus { loading, success, error }
@@ -199,11 +202,22 @@ class _AppInitializerState extends State<AppInitializer> {
             ChangeNotifierProvider(create: (context) => ThemeProvider()),
             ChangeNotifierProvider(create: (context) => UserDetails()),
             ChangeNotifierProvider(create: (context) => TimetableProvider()),
+            ChangeNotifierProvider(create: (context) => ConnectivityProvider()),
           ],
-          // Pass the initialized observer and user to NextBusApp
-          child: NextBusApp(
-            observer: _observer,
-            initialUser: _initialUser,
+          child: Builder(
+            builder: (context) {
+              return Column(
+                children: [
+                  const ConnectivityBanner(),
+                  Expanded(
+                    child: NextBusApp(
+                      observer: _observer,
+                      initialUser: _initialUser,
+                    ),
+                  ),
+                ],
+              );
+            },
           ),
         );
     }
