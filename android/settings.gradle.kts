@@ -1,36 +1,3 @@
-/**
- * 🧭 SETTINGS CONFIGURATION — PLUGIN VERSION MATRIX (Flutter 3.35.7)
- * ------------------------------------------------------------------
- * This file defines plugin versions that are aligned with Flutter 3.35.7.
- * These values are tightly coupled to the Android Gradle Plugin (AGP),
- * Kotlin compiler, and Gradle wrapper versions listed below.
- *
- * 🔒 Plugin Version Matrix:
- *   • Flutter Plugin Loader:       1.0.0
- *   • Android Gradle Plugin (AGP): 8.7.1
- *   • Kotlin Plugin (Android):     2.1.0
- *   • Google Services Plugin:      4.4.4
- *   • Firebase Crashlytics Plugin: 2.8.1
- *
- * ⚠️ DO NOT UPGRADE THESE VERSIONS INDIVIDUALLY.
- *    Always verify against:
- *    - The Flutter SDK release notes
- *    - The Android Gradle Plugin → Kotlin compatibility table:
- *      https://developer.android.com/studio/releases/gradle-plugin#updating-gradle
- *
- * 🧩 Matching Build Environment:
- *   • Gradle Wrapper: 8.13
- *   • JDK: 21 (LTS)
- *   • Firebase BoM: 34.5.0
- *
- * 💡 If Flutter reports a mismatch warning (e.g., Kotlin version outdated),
- *    update both AGP + Kotlin versions together, then re-sync the project.
- *
- * ------------------------------------------------------------------
- * Last verified: November 2025
- */
-
-
 pluginManagement {
     val flutterSdkPath =
         run {
@@ -52,10 +19,13 @@ pluginManagement {
 
 plugins {
     id("dev.flutter.flutter-plugin-loader") version "1.0.0"
-    id("com.android.application") version "8.7.1" apply false           // ✅ Matches Flutter 3.35.x
-    id("org.jetbrains.kotlin.android") version "2.1.0" apply false     // ✅ Stable with Flutter & AGP 8.7
-    id("com.google.gms.google-services") version "4.4.4" apply false
-    id("com.google.firebase.crashlytics") version "2.8.1" apply false
+    id("com.android.application") version "8.11.1" apply false
+    // START: FlutterFire Configuration
+    id("com.google.gms.google-services") version("4.3.15") apply false
+    id("com.google.firebase.firebase-perf") version("1.4.1") apply false
+    id("com.google.firebase.crashlytics") version("2.8.1") apply false
+    // END: FlutterFire Configuration
+    id("org.jetbrains.kotlin.android") version "2.2.20" apply false
 }
 
 include(":app")

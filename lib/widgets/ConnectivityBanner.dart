@@ -4,7 +4,7 @@ import 'package:provider/provider.dart';
 
 class ConnectivityBanner extends StatelessWidget
     implements PreferredSizeWidget {
-  const ConnectivityBanner({Key? key}) : super(key: key);
+  const ConnectivityBanner({super.key});
 
   @override
   Widget build(BuildContext context) {
