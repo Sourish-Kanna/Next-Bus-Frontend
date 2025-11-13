@@ -38,8 +38,8 @@ class AuthService with ChangeNotifier {
         try {
           userCredential = await _auth.signInWithPopup(googleProvider);
         } on FirebaseAuthException catch (e) {
-          AppLogger.log("Popup sign-in failed, $e");
           if (e.code == 'popup-closed-by-user') return null;
+          AppLogger.error("Popup sign-in failed",e);
         }
       } else {
         final GoogleSignInAccount? googleUser = await _googleSignIn.signIn();
@@ -59,18 +59,18 @@ class AuthService with ChangeNotifier {
       if (userCredential != null) {
         _user = userCredential.user;
         notifyListeners();
-        // AppLogger.log("Auth Token: ${await _user?.getIdToken()}");
-        AppLogger.log("Google Sign-In Successful: ${_user?.displayName}");
+        // AppLogger.info("Auth Token: ${await _user?.getIdToken()}");
+        AppLogger.info("Google Sign-In Successful: ${_user?.displayName}");
         if (!context.mounted) return null;
         await Provider.of<UserDetails>(context,listen: false).fetchUserDetails();
         if (!context.mounted) return null;
         var t= Provider.of<UserDetails>(context,listen: false);
-        AppLogger.log("Admin: ${t.isAdmin}, guest: ${t.isGuest}, looged: ${t.isLoggedIn}");
+        AppLogger.info("Admin: ${t.isAdmin}, guest: ${t.isGuest}, looged: ${t.isLoggedIn}");
         return _user;
       }
       return null;
     } catch (e) {
-      AppLogger.log("Google Sign-In Error: $e");
+      AppLogger.error("Google Sign-In Error",e);
       return null;
     }
   }
@@ -81,16 +81,16 @@ class AuthService with ChangeNotifier {
       UserCredential userCredential = await _auth.signInAnonymously();
       _user = userCredential.user;
       notifyListeners();
-      // AppLogger.log("Auth Token: ${await _user?.getIdToken()}");
-      AppLogger.log("Guest Login Successful: ${_user?.displayName}");
+      // AppLogger.info("Auth Token: ${await _user?.getIdToken()}");
+      AppLogger.info("Guest Login Successful: ${_user?.displayName}");
       if (!context.mounted) return null;
       await Provider.of<UserDetails>(context,listen: false).fetchUserDetails();
       if (!context.mounted) return null;
       var t= Provider.of<UserDetails>(context,listen: false);
-      AppLogger.log("Admin: ${t.isAdmin}, guest: ${t.isGuest}, looged: ${t.isLoggedIn}");
+      AppLogger.info("Admin: ${t.isAdmin}, guest: ${t.isGuest}, looged: ${t.isLoggedIn}");
       return _user;
     } catch (e) {
-      AppLogger.log("Guest Login Error: $e");
+      AppLogger.error("Guest Login Error",e);
       return null;
     }
   }
@@ -101,7 +101,7 @@ class AuthService with ChangeNotifier {
       if (_auth.currentUser != null) {
         if (_auth.currentUser!.isAnonymous) {
           await _auth.currentUser!.delete(); // ✅ Delete anonymous user
-          AppLogger.log("Anonymous user deleted successfully.");
+          AppLogger.info("Anonymous user deleted successfully.");
         }
 
         await _googleSignIn.signOut(); // ✅ Ensure Google sign-out
@@ -110,7 +110,7 @@ class AuthService with ChangeNotifier {
         notifyListeners();
       }
     } catch (e) {
-      AppLogger.log("Sign-Out Error: $e");
+      AppLogger.error("Sign-Out Error",e);
     }
   }
 }

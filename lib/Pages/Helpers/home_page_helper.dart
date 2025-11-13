@@ -1,4 +1,3 @@
-
 import 'package:flutter/material.dart';
 import 'package:nextbus/Providers/time_details.dart';
 import 'package:provider/provider.dart';

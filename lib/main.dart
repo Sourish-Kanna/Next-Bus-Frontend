@@ -17,7 +17,6 @@ import 'package:nextbus/Providers/providers.dart';
 import 'package:nextbus/common.dart' show AppLogger;
 import 'package:nextbus/firebase_options.dart' show DefaultFirebaseOptions;
 import 'package:nextbus/start.dart' show NextBusApp;
-import 'package:nextbus/widgets/ConnectivityBanner.dart';
 import 'package:provider/provider.dart'
     show ChangeNotifierProvider, MultiProvider;
 
@@ -204,20 +203,9 @@ class _AppInitializerState extends State<AppInitializer> {
             ChangeNotifierProvider(create: (context) => TimetableProvider()),
             ChangeNotifierProvider(create: (context) => ConnectivityProvider()),
           ],
-          child: Builder(
-            builder: (context) {
-              return Column(
-                children: [
-                  const ConnectivityBanner(),
-                  Expanded(
-                    child: NextBusApp(
-                      observer: _observer,
-                      initialUser: _initialUser,
-                    ),
-                  ),
-                ],
-              );
-            },
+          child: NextBusApp(
+            observer: _observer,
+            initialUser: _initialUser,
           ),
         );
     }

@@ -275,9 +275,9 @@ void _showAdminOptionsDialog(BuildContext context, User? user) {
                 leading: const Icon(Icons.print),
                 title: const Text("Print All Variables"),
                 onTap: () {
-                  AppLogger.log("Route: ${routeProvider.route}");
-                  AppLogger.log("User ID: ${user?.uid}");
-                  AppLogger.log("Auth Status: ${user?.isAnonymous}");
+                  AppLogger.info("Route: ${routeProvider.route}");
+                  AppLogger.info("User ID: ${user?.uid}");
+                  AppLogger.info("Auth Status: ${user?.isAnonymous}");
                 },
               ),
               ListTile(

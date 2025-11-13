@@ -37,8 +37,9 @@ class BusTimingList with ChangeNotifier {
         ..sort((a, b) => stringToDate(a).compareTo(stringToDate(b)));
 
       notifyListeners();
+      AppLogger.info('Fetched bus timings for route: $route');
     } catch (e) {
-      AppLogger.log('🔥 Error fetching bus timings: $e');
+      AppLogger.error('Error fetching bus timings',e);
     }
   }
 
@@ -53,8 +54,9 @@ class BusTimingList with ChangeNotifier {
         ..sort((a, b) => stringToDate(a).compareTo(stringToDate(b)));
 
       notifyListeners();
+      AppLogger.info('Added new bus timing for route: $route');
     } catch (e) {
-      AppLogger.log('🔥 Error adding bus timing: $e');
+      AppLogger.error('Error adding bus timing',e);
     }
   }
 
@@ -68,8 +70,9 @@ class BusTimingList with ChangeNotifier {
       await _firebaseService.deleteBusTiming(route, timeToDelete, user);
       _routeBusTimings[route]!.removeAt(index);
       notifyListeners();
+      AppLogger.info('Deleted bus timing for route: $route');
     } catch (e) {
-      AppLogger.log('🔥 Error deleting bus timing: $e');
+      AppLogger.error('Error deleting bus timing',e);
     }
   }
 
@@ -81,8 +84,9 @@ class BusTimingList with ChangeNotifier {
       await _firebaseService.deleteBusTiming(route, time, user);
       _routeBusTimings[route]!.remove(time);
       notifyListeners();
+      AppLogger.info('Undid adding bus timing for route: $route');
     } catch (e) {
-      AppLogger.log('🔥 Error undoing add bus timing: $e');
+      AppLogger.error('Error undoing add bus timing',e);
     }
   }
 
@@ -98,8 +102,9 @@ class BusTimingList with ChangeNotifier {
       _routeBusTimings[route]!.sort((a, b) => stringToDate(a).compareTo(stringToDate(b)));
 
       notifyListeners();
+      AppLogger.info('Edited bus timing for route: $route');
     } catch (e) {
-      AppLogger.log('🔥 Error editing bus timing: $e');
+      AppLogger.error('Error editing bus timing',e);
     }
   }
 }

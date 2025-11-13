@@ -31,8 +31,11 @@ class RouteProvider with ChangeNotifier {
           _availableRoutes = List<String>.from(response.data['data']);
           await prefs.setStringList('availableRoutes', _availableRoutes);
         }
+        else {
+          AppLogger.warn("Error loading routes from API: ${response.statusCode}");
+        }
       } catch (e) {
-        AppLogger.log("Error loading routes from API: $e");
+        AppLogger.error("Error loading routes from API",e);
       }
     }
 

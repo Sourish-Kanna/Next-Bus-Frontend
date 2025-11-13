@@ -16,7 +16,7 @@ class _RouteSelectState extends State<RouteSelect> {
 
   @override
   void initState() {
-    AppLogger.log("initState called in RouteSelect");
+    AppLogger.info("initState called in RouteSelect");
     super.initState();
     _fetchRoutes();
     selectedRoute = Provider.of<RouteProvider>(context, listen: false).route;
@@ -29,18 +29,18 @@ class _RouteSelectState extends State<RouteSelect> {
       setState(() {
         if (routeProvider.availableRoutes.isNotEmpty && (selectedRoute == null || !routeProvider.availableRoutes.contains(selectedRoute))) {
           selectedRoute = routeProvider.availableRoutes.first;
-          AppLogger.log("Selected route initialized to: $selectedRoute");
+          AppLogger.info("Selected route initialized to: $selectedRoute");
         }
         _isLoading = false;
       });
     } else {
-      AppLogger.log("RouteSelect: _fetchRoutes called but widget is not mounted.");
+      AppLogger.warn("RouteSelect: _fetchRoutes called but widget is not mounted.");
     }
   }
 
   @override
   Widget build(BuildContext context) {
-    AppLogger.log("Build method called in RouteSelect. Current selectedRoute: $selectedRoute");
+    AppLogger.info("Build method called in RouteSelect. Current selectedRoute: $selectedRoute");
     final routeProvider = Provider.of<RouteProvider>(context);
     return Scaffold(
       appBar: AppBar(
@@ -64,7 +64,7 @@ class _RouteSelectState extends State<RouteSelect> {
                     onChanged: (value) {
                       setState(() {
                         selectedRoute = value;
-                        AppLogger.log("Route selected from dropdown: $selectedRoute");
+                        AppLogger.info("Route selected from dropdown: $selectedRoute");
                       });
                     },
                     decoration: const InputDecoration(
@@ -84,7 +84,7 @@ class _RouteSelectState extends State<RouteSelect> {
                           onTap: () {
                             setState(() {
                               selectedRoute = routeProvider.availableRoutes[index];
-                              AppLogger.log("Route selected from list: $selectedRoute");
+                              AppLogger.info("Route selected from list: $selectedRoute");
                             });
                           },
                         );
@@ -96,9 +96,9 @@ class _RouteSelectState extends State<RouteSelect> {
                     child: ElevatedButton(
                       onPressed: selectedRoute != null ? () {
                         if (selectedRoute != null) {
-                          AppLogger.log("Confirming route: $selectedRoute");
+                          AppLogger.info("Confirming route: $selectedRoute");
                           routeProvider.setRoute(selectedRoute!);
-                          AppLogger.log("Route set in provider. Popping context.");
+                          // AppLogger.info("Route set in provider. Popping context.");
                           // Navigator.pop(context);
                         }
                       } : null,

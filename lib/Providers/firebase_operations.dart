@@ -83,9 +83,10 @@ class FirestoreService {
     }).then((_) async {
       // ✅ Logging after transaction completes
       await _logActivity("Added Route $routeName", userId, "Route: $routeName with stops: ${stops.join(', ')}");
+      AppLogger.info("Route $routeName added");
     }).catchError((error) {
       // ❌ Handle errors properly
-      AppLogger.log("Failed to add route: $error");
+      AppLogger.error("Failed to add route", error);
     });
   }
 
@@ -107,9 +108,10 @@ class FirestoreService {
 
     }).then((_) async {
       await _logActivity("Removed Route $routeName", userId, "Route: $routeName deleted");
+      AppLogger.info("Route $routeName removed");
     }).catchError((error) {
       // ❌ Handle errors properly
-      AppLogger.log("Failed to remove route: $error");
+      AppLogger.error("Failed to remove route",error);
     });
   }
 
@@ -137,9 +139,10 @@ class FirestoreService {
 
     }).then((_) async {
       await _logActivity("Added Bus Timing for $routeName", userId, "Added $time to route: $routeName");
+      AppLogger.info("Bus timing $time added to route $routeName");
     }).catchError((error) {
       // ❌ Handle errors properly
-      AppLogger.log("Failed to add time: $error");
+      AppLogger.error("Failed to add time",error);
     });
   }
 
@@ -167,9 +170,10 @@ class FirestoreService {
 
     }).then((_) async {
       await _logActivity("Deleted Bus Timing for $routeName", userId, "Removed $time from route: $routeName");
+      AppLogger.info("Bus timing $time removed from route $routeName");
     }).catchError((error) {
       // ❌ Handle errors properly
-      AppLogger.log("Failed to remove time: $error");
+      AppLogger.error("Failed to remove time",error);
     });
   }
 
@@ -199,9 +203,10 @@ class FirestoreService {
 
     }).then((_) async {
       await _logActivity("Updated Bus Timing for $routeName", userId, "Changed $oldTime to $newTime on route: $routeName");
+      AppLogger.info("Bus timing $oldTime updated to $newTime on route $routeName");
     }).catchError((error) {
       // ❌ Handle errors properly
-      AppLogger.log("Failed to update time: $error");
+      AppLogger.error("Failed to update time",error);
     });
   }
 
@@ -214,7 +219,7 @@ class FirestoreService {
       List<dynamic> timings = routeDoc.data()?['timings'] ?? [];
       return timings.map((entry) => (entry as Map<String, dynamic>)['time'] as String).toList();
     } catch (e) {
-      AppLogger.log("Error fetching bus timings: $e");
+      AppLogger.info("Error fetching bus timings: $e");
       return [];
     }
   }
@@ -261,7 +266,7 @@ class NewFirebaseOperations {
         return {'success': false, 'message': response.data['detail'] ?? 'Failed to add route'};
       }
     } catch (e) {
-      AppLogger.log("Error adding route: $e");
+      AppLogger.info("Error adding route: $e");
       return {'success': false, 'message': 'An error occurred: $e'};
     }
   }
@@ -281,7 +286,7 @@ class NewFirebaseOperations {
         return {'success': false, 'message': response.data['detail'] ?? 'Failed to update time'};
       }
     } catch (e) {
-      AppLogger.log("Error updating time: $e");
+      AppLogger.info("Error updating time: $e");
       return {'success': false, 'message': 'An error occurred: $e'};
     }
   }
@@ -293,11 +298,11 @@ class NewFirebaseOperations {
           response.data["data"] is List) {
         return List<String>.from(response.data["data"]);
       } else {
-        AppLogger.log("Invalid data format received from API");
+        AppLogger.info("Invalid data format received from API");
         return [];
       }
     } catch (e) {
-      AppLogger.log("Error fetching bus routes: $e");
+      AppLogger.info("Error fetching bus routes: $e");
       return [];
     }
   }
@@ -316,11 +321,11 @@ class NewFirebaseOperations {
             .map((json) => TimingDetail.fromJson(json as Map<String, dynamic>))
             .toList();
       } else {
-        AppLogger.log("Invalid data format received from API");
+        AppLogger.info("Invalid data format received from API");
         return [];
       }
     } catch (e) {
-      AppLogger.log("Error fetching bus timings: $e");
+      AppLogger.info("Error fetching bus timings: $e");
       return [];
     }
   }

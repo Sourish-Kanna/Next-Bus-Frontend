@@ -28,19 +28,15 @@ class _AppLayoutState extends State<AppLayout> {
     final userDetails = Provider.of<UserDetails>(context, listen: false);
     bool adminStatus  = false;
     try {
-      bool adminStatus = await userDetails.isAdmin;
-      AppLogger.log("Admin Status: $adminStatus");
+      adminStatus = await userDetails.isAdmin;
+      AppLogger.info("Admin Status fetched: $adminStatus");
     } catch (e) {
-      AppLogger.log("Error fetching admin status: $e");
+      AppLogger.error("Error fetching admin status: $e",e);
     }
 
     if (mounted) {
       setState(() {
         isAdmin = adminStatus;
-        debugPrint("Admin Status after fetch: $isAdmin");
-        if (kDebugMode) {
-          isAdmin = true;
-        }
         _rebuildAppDestinations();
       });
     }
@@ -67,9 +63,8 @@ class _AppLayoutState extends State<AppLayout> {
       builder: (context, constraints) {
         final bool isMobile = constraints.maxWidth < mobileBreakpoint;
 
-        // AppLogger.log('Current Route: ${ModalRoute.of(context)?.settings.name}');
-        AppLogger.log('Is Admin: $isAdmin');
-        AppLogger.log('Current Destinations Count: ${currentAppDestinations.length}');
+        // AppLogger.info('Current Route: ${ModalRoute.of(context)?.settings.name}');
+        AppLogger.info('Current Destinations Count: ${currentAppDestinations.length}');
 
         return Scaffold(
           appBar:appbar(isMobile, context,isAdmin: isAdmin, destination: currentAppDestinations),

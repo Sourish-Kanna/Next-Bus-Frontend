@@ -28,7 +28,6 @@ class UserDetails with ChangeNotifier {
       var result = await api.get("/user/get-user-details");
       if (result.data != null && result.data["data"] != null){
         Map<String, dynamic> data = result.data["data"];
-        debugPrint("User Details fetched: $data");
         AppLogger.info("User Details fetched: $data");
         _isAdmin = data["isAdmin"] ?? false;
         _isLoggedIn = data["isLoggedIn"] ?? false;

@@ -113,7 +113,7 @@ class TimetableDisplay extends StatelessWidget {
         }
 
         final timetable = timetableProvider.timetables[route];
-        AppLogger.log("Timetable for route $route: $timetable");
+        AppLogger.info("Timetable for route $route: $timetable");
         if (timetable == null || timetable.isEmpty) {
           return const Center(child: Text('No timetable data available.'));
         }
