@@ -60,12 +60,15 @@ flutter:
 
 flutter_launcher_icons:
   android: true
-  image_path: "assets/logo.png"
+  ios: true
+  remove_alpha_ios: true
+  image_path: "assets/logo_new.png"
+  adaptive_icon_background: "#039AE4"
+  adaptive_icon_foreground: "assets/logo_new_fg.png"
   web:
     generate: true
   windows:
     generate: true
-  ios: true
 #  dart run flutter_launcher_icons
 
 launcher_name:
