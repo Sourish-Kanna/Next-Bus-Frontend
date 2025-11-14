@@ -34,7 +34,7 @@ jobs:
         with:
           ref: ${{ needs.setup.outputs.build_name }}  # Use build_name (tag) from setup
 
-      - name: ⚡ Enable Flutter cache
+      - name: ⚡ Cache Flutter
         uses: actions/cache@v3
         with:
           path: |
@@ -42,12 +42,28 @@ jobs:
             ~/flutter
           key: ${{ runner.os }}-flutter-${{ hashFiles('pubspec.lock') }}
 
-      - name: 🐦 Set up Flutter
+      - name: 🐦 Install Flutter
         uses: subosito/flutter-action@v2
         with:
-          channel: 'stable'
+          channel: stable
 
-      - name: 📱 Build APK
+      - name: ⚡ Cache Gradle
+        uses: actions/cache@v3
+        with:
+          path: |
+            ~/.gradle/caches
+            ~/.gradle/wrapper
+          key: ${{ runner.os }}-gradle-${{ hashFiles('**/*.gradle*', '**/*.kt') }}
+
+      - name: 🔐 Decode Keystore
+        run: |
+          echo "${{ secrets.ANDROID_KEYSTORE_BASE64 }}" | base64 --decode > android/app/release-keystore.jks
+
+      - name: 📱 Build Signed APK
+        env:
+          KEYSTORE_PASSWORD: ${{ secrets.ANDROID_KEYSTORE_PASSWORD }}
+          KEY_PASSWORD: ${{ secrets.ANDROID_KEY_PASSWORD }}
+          KEY_ALIAS: ${{ secrets.ANDROID_KEY_ALIAS }}
         run: >
           flutter build apk --release
           --build-name ${{ needs.setup.outputs.build_name }}
@@ -63,7 +79,7 @@ jobs:
           echo "path=$APK_PATH" >> "$GITHUB_OUTPUT"
           echo "name=$APK_NAME" >> "$GITHUB_OUTPUT"
 
-      - name: 🚀 Upload APK to Release
+      - name: 🚀 Upload Signed APK to GitHub Release
         uses: softprops/action-gh-release@v2
         with:
           files: ${{ steps.rename_apk.outputs.path }}
@@ -71,13 +87,14 @@ jobs:
   web-deploy:
     needs: setup
     runs-on: ubuntu-latest
+
     steps:
       - name: 📥 Checkout repository at release tag
         uses: actions/checkout@v4
         with:
           ref: ${{ needs.setup.outputs.build_name }}
 
-      - name: ⚡ Enable Flutter cache
+      - name: ⚡ Cache Flutter
         uses: actions/cache@v3
         with:
           path: |
@@ -85,10 +102,18 @@ jobs:
             ~/flutter
           key: ${{ runner.os }}-flutter-${{ hashFiles('pubspec.lock') }}
 
-      - name: 🐦 Set up Flutter
+      - name: ⚡ Cache Gradle
+        uses: actions/cache@v3
+        with:
+          path: |
+            ~/.gradle/caches
+            ~/.gradle/wrapper
+          key: ${{ runner.os }}-gradle-${{ hashFiles('**/*.gradle*', '**/*.kt') }}
+
+      - name: 🐦 Install Flutter
         uses: subosito/flutter-action@v2
         with:
-          channel: 'stable'
+          channel: stable
 
       - name: 🕸️ Build Flutter Web
         run: >
