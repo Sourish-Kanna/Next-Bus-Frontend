@@ -1,4 +1,4 @@
-package com.example.nextbus
+package com.sourish.nextbus
 
 import io.flutter.embedding.android.FlutterActivity
 

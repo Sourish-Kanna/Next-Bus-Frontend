@@ -30,7 +30,10 @@ class DefaultFirebaseOptions {
           'you can reconfigure this by running the FlutterFire CLI again.',
         );
       case TargetPlatform.windows:
-        return windows;
+        throw UnsupportedError(
+          'DefaultFirebaseOptions have not been configured for windows - '
+          'you can reconfigure this by running the FlutterFire CLI again.',
+        );
       case TargetPlatform.linux:
         throw UnsupportedError(
           'DefaultFirebaseOptions have not been configured for linux - '
@@ -55,7 +58,7 @@ class DefaultFirebaseOptions {
 
   static const FirebaseOptions android = FirebaseOptions(
     apiKey: 'AIzaSyDhmxMFTSut-kIg76pXzsgH0jP9gx01NaA',
-    appId: '1:878462952161:android:c0f4ca92e5dbb100400da0',
+    appId: '1:878462952161:android:bc0fa23824749c32400da0',
     messagingSenderId: '878462952161',
     projectId: 'next-bus-31103',
     storageBucket: 'next-bus-31103.firebasestorage.app',
@@ -63,22 +66,12 @@ class DefaultFirebaseOptions {
 
   static const FirebaseOptions ios = FirebaseOptions(
     apiKey: 'AIzaSyD1gauFzGetiPHW7uJ2ViwCiLuSeIHnojs',
-    appId: '1:878462952161:ios:7efe256a33d57ac4400da0',
+    appId: '1:878462952161:ios:7058ef463a701c83400da0',
     messagingSenderId: '878462952161',
     projectId: 'next-bus-31103',
     storageBucket: 'next-bus-31103.firebasestorage.app',
     androidClientId: '878462952161-e3ak4ggputcmip5a27pfq7l0b8kj1v8j.apps.googleusercontent.com',
-    iosClientId: '878462952161-joemnmte4k4ctbbrdsduoal6miqp6dq8.apps.googleusercontent.com',
-    iosBundleId: 'com.example.nextbus',
-  );
-
-  static const FirebaseOptions windows = FirebaseOptions(
-    apiKey: 'AIzaSyAjFrlZiD-xPd7NRfgBe7W_75BRhXDJWeA',
-    appId: '1:878462952161:web:84d2ebb8ec3cd883400da0',
-    messagingSenderId: '878462952161',
-    projectId: 'next-bus-31103',
-    authDomain: 'next-bus-31103.firebaseapp.com',
-    storageBucket: 'next-bus-31103.firebasestorage.app',
-    measurementId: 'G-9K0MM9D2NT',
+    iosClientId: '878462952161-hdtdc9bgqkg2m13futjffmikk1nehaek.apps.googleusercontent.com',
+    iosBundleId: 'com.sourish.nextbus',
   );
 }
