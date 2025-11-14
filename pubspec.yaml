@@ -67,8 +67,6 @@ flutter_launcher_icons:
   adaptive_icon_foreground: "assets/logo_new_fg.png"
   web:
     generate: true
-  windows:
-    generate: true
 #  dart run flutter_launcher_icons
 
 launcher_name:

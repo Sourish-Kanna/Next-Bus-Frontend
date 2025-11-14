@@ -13,7 +13,7 @@ jobs:
       build_name: ${{ steps.vars.outputs.build_name }}
       build_number: ${{ steps.vars.outputs.build_number }}
     steps:
-      - name: 🔢 Set common build variables
+      - name: 🔢 Set build variables
         id: vars
         run: |
           echo "build_name=${{ github.event.release.tag_name }}" >> $GITHUB_OUTPUT
@@ -32,7 +32,15 @@ jobs:
       - name: 📥 Checkout repository at release tag
         uses: actions/checkout@v4
         with:
-          ref: ${{ needs.setup.outputs.build_name }} # Use build_name (tag) from setup
+          ref: ${{ needs.setup.outputs.build_name }}  # Use build_name (tag) from setup
+
+      - name: ⚡ Enable Flutter cache
+        uses: actions/cache@v3
+        with:
+          path: |
+            ~/.pub-cache
+            ~/flutter
+          key: ${{ runner.os }}-flutter-${{ hashFiles('pubspec.lock') }}
 
       - name: 🐦 Set up Flutter
         uses: subosito/flutter-action@v2
@@ -46,7 +54,7 @@ jobs:
           --build-number ${{ needs.setup.outputs.build_number }}
           --dart-define=API_LINK=${{ secrets.API_LINK }}
 
-      - name: ✏️ Rename APK file
+      - name: ✏️ Rename APK
         id: rename_apk
         run: |
           APK_NAME="Next-Bus-${{ needs.setup.outputs.build_name }}.apk"
@@ -55,52 +63,12 @@ jobs:
           echo "path=$APK_PATH" >> "$GITHUB_OUTPUT"
           echo "name=$APK_NAME" >> "$GITHUB_OUTPUT"
 
-      - name: 🚀 Upload APK to this Release
+      - name: 🚀 Upload APK to Release
         uses: softprops/action-gh-release@v2
         with:
           files: ${{ steps.rename_apk.outputs.path }}
 
-  windows-release:
-    # This job also depends on the 'setup' job.
-    needs: setup
-    runs-on: windows-latest
-    permissions:
-      contents: write
-
-    steps:
-      - name: 📥 Checkout repository at release tag
-        uses: actions/checkout@v4
-        with:
-          ref: ${{ needs.setup.outputs.build_name }} # Use build_name (tag) from setup
-
-      - name: 🐦 Set up Flutter
-        uses: subosito/flutter-action@v2
-        with:
-          channel: 'stable'
-
-      - name: 🖥️ Build Windows Executable
-        run: >
-          flutter build windows --release
-          --build-name ${{ needs.setup.outputs.build_name }}
-          --build-number ${{ needs.setup.outputs.build_number }}
-          --dart-define=API_LINK=${{ secrets.API_LINK }}
-
-      - name: 📦 Zip the Release folder
-        id: zip_release
-        shell: powershell
-        run: |
-          $RELEASE_PATH = "build\windows\x64\runner\Release"
-          $ZIP_NAME = "Next-Bus-Windows-${{ needs.setup.outputs.build_name }}.zip"
-          Compress-Archive -Path $RELEASE_PATH\* -DestinationPath $ZIP_NAME
-          echo "path=$ZIP_NAME" >> $env:GITHUB_OUTPUT
-
-      - name: 🚀 Upload Windows ZIP to this Release
-        uses: softprops/action-gh-release@v2
-        with:
-          files: ${{ steps.zip_release.outputs.path }}
-
   web-deploy:
-    # This job now also depends on 'setup'
     needs: setup
     runs-on: ubuntu-latest
     steps:
@@ -108,6 +76,14 @@ jobs:
         uses: actions/checkout@v4
         with:
           ref: ${{ needs.setup.outputs.build_name }}
+
+      - name: ⚡ Enable Flutter cache
+        uses: actions/cache@v3
+        with:
+          path: |
+            ~/.pub-cache
+            ~/flutter
+          key: ${{ runner.os }}-flutter-${{ hashFiles('pubspec.lock') }}
 
       - name: 🐦 Set up Flutter
         uses: subosito/flutter-action@v2
@@ -117,11 +93,9 @@ jobs:
       - name: 🕸️ Build Flutter Web
         run: >
           flutter build web --release
-          --build-name ${{ needs.setup.outputs.build_name }}
-          --build-number ${{ needs.setup.outputs.build_number }}
           --dart-define=API_LINK=${{ secrets.API_LINK }}
-        
-      - name: 🔥 Deploy to Firebase Hosting
+
+      - name: 🔥 Deploy to Firebase Hosting (Live)
         uses: FirebaseExtended/action-hosting-deploy@v0
         with:
           repoToken: ${{ secrets.GITHUB_TOKEN }}
