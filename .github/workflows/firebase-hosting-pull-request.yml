@@ -49,4 +49,4 @@ jobs:
           recreate: true
           message: |
             🚀 **Firebase Preview URL**
-            https://${{ steps.deploy.outputs.details_url }}
+            ${{ steps.deploy.outputs.details_url }}
