@@ -47,6 +47,4 @@ jobs:
         uses: marocchino/sticky-pull-request-comment@v2
         with:
           recreate: true
-          message: |
-            🚀 **Firebase Preview URL**
-            ${{ steps.deploy.outputs.details_url }}
+          message: "🚀 **Firebase Preview URL**: ${{ steps.deploy.outputs.details_url }}"
