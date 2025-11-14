@@ -34,18 +34,13 @@ jobs:
         with:
           ref: ${{ needs.setup.outputs.build_name }}  # Use build_name (tag) from setup
 
-      - name: ⚡ Cache Flutter
+      - name: ⚡ Cache pub & dart tool
         uses: actions/cache@v3
         with:
           path: |
             ~/.pub-cache
-            ~/flutter
-          key: ${{ runner.os }}-flutter-${{ hashFiles('pubspec.lock') }}
-
-      - name: 🐦 Install Flutter
-        uses: subosito/flutter-action@v2
-        with:
-          channel: stable
+            .dart_tool
+          key: ${{ runner.os }}-pub-${{ hashFiles('pubspec.lock') }}
 
       - name: ⚡ Cache Gradle
         uses: actions/cache@v3
@@ -53,7 +48,19 @@ jobs:
           path: |
             ~/.gradle/caches
             ~/.gradle/wrapper
-          key: ${{ runner.os }}-gradle-${{ hashFiles('**/*.gradle*', '**/*.kt') }}
+            ~/.gradle/notifications
+            ~/.gradle/daemon
+            android/.gradle
+          key: ${{ runner.os }}-gradle-${{ hashFiles('**/*.gradle*', '**/*.kts', 'gradle.properties') }}
+          restore-keys: |
+            ${{ runner.os }}-gradle-
+
+
+      - name: 🐦 Install Flutter
+        uses: subosito/flutter-action@v2
+        with:
+          channel: stable
+          cache: true
 
       - name: 🔐 Decode Keystore
         run: |
@@ -94,26 +101,19 @@ jobs:
         with:
           ref: ${{ needs.setup.outputs.build_name }}
 
-      - name: ⚡ Cache Flutter
+      - name: ⚡ Cache pub & dart tool
         uses: actions/cache@v3
         with:
           path: |
             ~/.pub-cache
-            ~/flutter
-          key: ${{ runner.os }}-flutter-${{ hashFiles('pubspec.lock') }}
-
-      - name: ⚡ Cache Gradle
-        uses: actions/cache@v3
-        with:
-          path: |
-            ~/.gradle/caches
-            ~/.gradle/wrapper
-          key: ${{ runner.os }}-gradle-${{ hashFiles('**/*.gradle*', '**/*.kt') }}
+            .dart_tool
+          key: ${{ runner.os }}-pub-${{ hashFiles('pubspec.lock') }}
 
       - name: 🐦 Install Flutter
         uses: subosito/flutter-action@v2
         with:
           channel: stable
+          cache: true
 
       - name: 🕸️ Build Flutter Web
         run: >
