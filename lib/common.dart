@@ -2,7 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter/foundation.dart';
 import 'package:firebase_crashlytics/firebase_crashlytics.dart';
-import 'package:nextbus/widgets/ConnectivityBanner.dart';
+import 'package:nextbus/widgets/connectivity_banner.dart';
 
 import 'package:provider/provider.dart';
 import 'package:nextbus/Pages/pages.dart';

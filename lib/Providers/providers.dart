@@ -1,4 +1,4 @@
-export 'ConnectivityProvider.dart';
+export 'connectivity.dart';
 export 'authentication.dart';
 export 'firebase_operations.dart';
 export 'route_details.dart';

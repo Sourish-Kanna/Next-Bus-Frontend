@@ -57,19 +57,18 @@ class AuthService with ChangeNotifier {
         userCredential = await _auth.signInWithCredential(credential);
       }
 
-      final user = userCredential?.user;
+      final user = userCredential.user;
 
       if (user != null) {
         AppLogger.info("Google Sign-In success → UID: ${user.uid}, Email: ${user.email}");
 
-        if (context.mounted) {
-          await Provider.of<UserDetails>(context, listen: false).fetchUserDetails();
-          final u = Provider.of<UserDetails>(context, listen: false);
-
-          AppLogger.info("UserDetails → Admin: ${u.isAdmin}, Guest: ${u.isGuest}, Logged: ${u.isLoggedIn}");
-        }
-
-        return user;
+      if (context.mounted) {
+        final userDetails = Provider.of<UserDetails>(context, listen: false);
+        await userDetails.fetchUserDetails();
+        AppLogger.info("UserDetails → Admin: ${userDetails.isAdmin}, Guest: ${userDetails.isGuest}, Logged: ${userDetails.isLoggedIn}");
+      }
+      
+      return user;
       }
 
       return null;
@@ -90,10 +89,9 @@ class AuthService with ChangeNotifier {
         AppLogger.info("Guest Login Successful → UID: ${user.uid}");
 
         if (context.mounted) {
-          await Provider.of<UserDetails>(context, listen: false).fetchUserDetails();
-          final u = Provider.of<UserDetails>(context, listen: false);
-
-          AppLogger.info("UserDetails → Admin: ${u.isAdmin}, Guest: ${u.isGuest}, Logged: ${u.isLoggedIn}");
+          final userDetails = Provider.of<UserDetails>(context, listen: false);
+          await userDetails.fetchUserDetails();
+          AppLogger.info("UserDetails → Admin: ${userDetails.isAdmin}, Guest: ${userDetails.isGuest}, Logged: ${userDetails.isLoggedIn}");
         }
       }
 

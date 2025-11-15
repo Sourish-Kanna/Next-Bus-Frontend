@@ -72,24 +72,36 @@ jobs:
           KEY_PASSWORD: ${{ secrets.ANDROID_KEY_PASSWORD }}
           KEY_ALIAS: ${{ secrets.ANDROID_KEY_ALIAS }}
         run: >
-          flutter build apk --release
+          flutter build apk --split-per-abi --release
           --build-name ${{ needs.setup.outputs.build_name }}
           --build-number ${{ needs.setup.outputs.build_number }}
           --dart-define=API_LINK=${{ secrets.API_LINK }}
 
-      - name: ✏️ Rename APK
-        id: rename_apk
+      - name: ✏️ Rename APKs
         run: |
-          APK_NAME="Next-Bus-${{ needs.setup.outputs.build_name }}.apk"
-          APK_PATH="build/app/outputs/flutter-apk/$APK_NAME"
-          mv build/app/outputs/flutter-apk/app-release.apk "$APK_PATH"
-          echo "path=$APK_PATH" >> "$GITHUB_OUTPUT"
-          echo "name=$APK_NAME" >> "$GITHUB_OUTPUT"
+          # Get the build name (e.g., v1.0.0)
+          BUILD_NAME="${{ needs.setup.outputs.build_name }}"
+          
+          # --- 64-bit APK ---
+          OLD_NAME_64="build/app/outputs/flutter-apk/app-arm64-v8a-release.apk"
+          NEW_NAME_64="build/app/outputs/flutter-apk/Next-Bus-${BUILD_NAME}-arm64.apk"
+          
+          echo "Renaming 64-bit APK..."
+          mv $OLD_NAME_64 $NEW_NAME_64
+          echo "Renamed: $OLD_NAME_64  ->  $NEW_NAME_64"
+          
+          # --- 32-bit APK ---
+          OLD_NAME_32="build/app/outputs/flutter-apk/app-armeabi-v7a-release.apk"
+          NEW_NAME_32="build/app/outputs/flutter-apk/Next-Bus-${BUILD_NAME}-arm32.apk"
 
-      - name: 🚀 Upload Signed APK to GitHub Release
+          echo "Renaming 32-bit APK..."
+          mv $OLD_NAME_32 $NEW_NAME_32
+          echo "Renamed: $OLD_NAME_32  ->  $NEW_NAME_32"
+
+      - name: 🚀 Upload Signed APKs to GitHub Release
         uses: softprops/action-gh-release@v2
         with:
-          files: ${{ steps.rename_apk.outputs.path }}
+          files: build/app/outputs/flutter-apk/Next-Bus-*.apk
 
   web-deploy:
     needs: setup
