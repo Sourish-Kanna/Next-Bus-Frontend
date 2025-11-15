@@ -1,0 +1,141 @@
+name: Build, Release, and Deploy
+
+# This workflow runs only when a new release is published
+on:
+  release:
+    types: [published]
+
+jobs:
+  # This job runs first and defines common variables.
+  setup:
+    runs-on: ubuntu-latest
+    outputs:
+      build_name: ${{ steps.vars.outputs.build_name }}
+      build_number: ${{ steps.vars.outputs.build_number }}
+    steps:
+      - name: 🔢 Set build variables
+        id: vars
+        run: |
+          echo "build_name=${{ github.event.release.tag_name }}" >> $GITHUB_OUTPUT
+          echo "build_number=${{ github.run_number }}" >> $GITHUB_OUTPUT
+          echo "Using Build Name: ${{ github.event.release.tag_name }}"
+          echo "Using Build Number: ${{ github.run_number }}"
+
+  android-release:
+    # This job now depends on the 'setup' job.
+    needs: setup
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+
+    steps:
+      - name: 📥 Checkout repository at release tag
+        uses: actions/checkout@v4
+        with:
+          ref: ${{ needs.setup.outputs.build_name }}  # Use build_name (tag) from setup
+
+      - name: ⚡ Cache pub & dart tool
+        uses: actions/cache@v3
+        with:
+          path: |
+            ~/.pub-cache
+            .dart_tool
+          key: ${{ runner.os }}-pub-${{ hashFiles('pubspec.lock') }}
+
+      - name: ⚡ Cache Gradle
+        uses: actions/cache@v3
+        with:
+          path: |
+            ~/.gradle/caches
+            ~/.gradle/wrapper
+            ~/.gradle/notifications
+            ~/.gradle/daemon
+            android/.gradle
+          key: ${{ runner.os }}-gradle-${{ hashFiles('**/*.gradle*', '**/*.kts', 'gradle.properties') }}
+          restore-keys: |
+            ${{ runner.os }}-gradle-
+
+
+      - name: 🐦 Install Flutter
+        uses: subosito/flutter-action@v2
+        with:
+          channel: stable
+          cache: true
+
+      - name: 🔐 Decode Keystore
+        run: |
+          echo "${{ secrets.ANDROID_KEYSTORE_BASE64 }}" | base64 --decode > android/app/release-keystore.jks
+
+      - name: 📱 Build Signed APK
+        env:
+          KEYSTORE_PASSWORD: ${{ secrets.ANDROID_KEYSTORE_PASSWORD }}
+          KEY_PASSWORD: ${{ secrets.ANDROID_KEY_PASSWORD }}
+          KEY_ALIAS: ${{ secrets.ANDROID_KEY_ALIAS }}
+        run: >
+          flutter build apk --split-per-abi --release
+          --build-name ${{ needs.setup.outputs.build_name }}
+          --build-number ${{ needs.setup.outputs.build_number }}
+          --dart-define=API_LINK=${{ secrets.API_LINK }}
+
+      - name: ✏️ Rename APKs
+        run: |
+          # Get the build name (e.g., v1.0.0)
+          BUILD_NAME="${{ needs.setup.outputs.build_name }}"
+          
+          # --- 64-bit APK ---
+          OLD_NAME_64="build/app/outputs/flutter-apk/app-arm64-v8a-release.apk"
+          NEW_NAME_64="build/app/outputs/flutter-apk/Next-Bus-${BUILD_NAME}-arm64.apk"
+          
+          echo "Renaming 64-bit APK..."
+          mv $OLD_NAME_64 $NEW_NAME_64
+          echo "Renamed: $OLD_NAME_64  ->  $NEW_NAME_64"
+          
+          # --- 32-bit APK ---
+          OLD_NAME_32="build/app/outputs/flutter-apk/app-armeabi-v7a-release.apk"
+          NEW_NAME_32="build/app/outputs/flutter-apk/Next-Bus-${BUILD_NAME}-arm32.apk"
+
+          echo "Renaming 32-bit APK..."
+          mv $OLD_NAME_32 $NEW_NAME_32
+          echo "Renamed: $OLD_NAME_32  ->  $NEW_NAME_32"
+
+      - name: 🚀 Upload Signed APKs to GitHub Release
+        uses: softprops/action-gh-release@v2
+        with:
+          files: build/app/outputs/flutter-apk/Next-Bus-*.apk
+
+  web-deploy:
+    needs: setup
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: 📥 Checkout repository at release tag
+        uses: actions/checkout@v4
+        with:
+          ref: ${{ needs.setup.outputs.build_name }}
+
+      - name: ⚡ Cache pub & dart tool
+        uses: actions/cache@v3
+        with:
+          path: |
+            ~/.pub-cache
+            .dart_tool
+          key: ${{ runner.os }}-pub-${{ hashFiles('pubspec.lock') }}
+
+      - name: 🐦 Install Flutter
+        uses: subosito/flutter-action@v2
+        with:
+          channel: stable
+          cache: true
+
+      - name: 🕸️ Build Flutter Web
+        run: >
+          flutter build web --release
+          --dart-define=API_LINK=${{ secrets.API_LINK }}
+
+      - name: 🔥 Deploy to Firebase Hosting (Live)
+        uses: FirebaseExtended/action-hosting-deploy@v0
+        with:
+          repoToken: ${{ secrets.GITHUB_TOKEN }}
+          firebaseServiceAccount: ${{ secrets.FIREBASE_SERVICE_ACCOUNT_NEXT_BUS_31103 }}
+          channelId: live
+          projectId: next-bus-31103

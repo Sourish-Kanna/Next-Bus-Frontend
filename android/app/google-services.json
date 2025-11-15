@@ -7,12 +7,33 @@
   "client": [
     {
       "client_info": {
-        "mobilesdk_app_id": "1:878462952161:android:c0f4ca92e5dbb100400da0",
+        "mobilesdk_app_id": "1:878462952161:android:bc0fa23824749c32400da0",
         "android_client_info": {
-          "package_name": "com.example.nextbus"
+          "package_name": "com.sourish.nextbus"
         }
       },
-      "oauth_client": [],
+      "oauth_client": [
+        {
+          "client_id": "878462952161-37o7gtfmtnr8shiqp4v2lnv6m5pjtca7.apps.googleusercontent.com",
+          "client_type": 1,
+          "android_info": {
+            "package_name": "com.sourish.nextbus",
+            "certificate_hash": "246c90898deaa84d15e80aef9f2f54084101a338"
+          }
+        },
+        {
+          "client_id": "878462952161-qje7qneesd39cbofvs1ps6oktbuf8mti.apps.googleusercontent.com",
+          "client_type": 1,
+          "android_info": {
+            "package_name": "com.sourish.nextbus",
+            "certificate_hash": "9a082b1b18908ca37f58a1270ecf453eb627506d"
+          }
+        },
+        {
+          "client_id": "878462952161-3rfde9am6ad69obp5hbg3kr7afeq63t6.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
       "api_key": [
         {
           "current_key": "AIzaSyDhmxMFTSut-kIg76pXzsgH0jP9gx01NaA"
@@ -20,7 +41,19 @@
       ],
       "services": {
         "appinvite_service": {
-          "other_platform_oauth_client": []
+          "other_platform_oauth_client": [
+            {
+              "client_id": "878462952161-3rfde9am6ad69obp5hbg3kr7afeq63t6.apps.googleusercontent.com",
+              "client_type": 3
+            },
+            {
+              "client_id": "878462952161-hdtdc9bgqkg2m13futjffmikk1nehaek.apps.googleusercontent.com",
+              "client_type": 2,
+              "ios_info": {
+                "bundle_id": "com.sourish.nextbus"
+              }
+            }
+          ]
         }
       }
     }

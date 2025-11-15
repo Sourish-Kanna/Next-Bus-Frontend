@@ -1,11 +1,11 @@
 {
-    "name": "next_bus",
-    "short_name": "next_bus",
+    "name": "Next Bus",
+    "short_name": "NextBus",
     "start_url": ".",
     "display": "standalone",
     "background_color": "#0175C2",
     "theme_color": "#0175C2",
-    "description": "A new Flutter project.",
+    "description": "An App to store bus timing and to show when next bus will come",
     "orientation": "portrait-primary",
     "prefer_related_applications": false,
     "icons": [
