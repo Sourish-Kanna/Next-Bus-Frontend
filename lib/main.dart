@@ -7,7 +7,7 @@ import 'package:firebase_core/firebase_core.dart' show Firebase;
 import 'package:firebase_crashlytics/firebase_crashlytics.dart'
     show FirebaseCrashlytics;
 import 'package:flutter/foundation.dart'
-    show PlatformDispatcher, TargetPlatform, defaultTargetPlatform;
+    show kIsWeb, PlatformDispatcher, TargetPlatform, defaultTargetPlatform;
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart' show DeviceOrientation, SystemChrome;
 import 'package:internet_connection_checker_plus/internet_connection_checker_plus.dart'
@@ -138,17 +138,19 @@ class _AppInitializerState extends State<AppInitializer> {
 
       // Initialize Crashlytics right after Firebase
       final crashlytics = FirebaseCrashlytics.instance;
+
+      if (!kIsWeb) {
+        // Crashlytics Error Handlers for non-web platforms
+        FlutterError.onError = (errorDetails) {
+          crashlytics.recordFlutterFatalError(errorDetails);
+        };
+
+        PlatformDispatcher.instance.onError = (error, stack) {
+          crashlytics.recordError(error, stack, fatal: true);
+          return true;
+        };
+      }
       AppLogger.initialize(crashlytics);
-
-      // Crashlytics Error Handlers
-      FlutterError.onError = (errorDetails) {
-        crashlytics.recordFlutterFatalError(errorDetails);
-      };
-
-      PlatformDispatcher.instance.onError = (error, stack) {
-        crashlytics.recordError(error, stack, fatal: true);
-        return true;
-      };
 
     } catch (e) {
       AppLogger.onlyLocal("error : $e");

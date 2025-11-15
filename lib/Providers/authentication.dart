@@ -8,15 +8,13 @@ import 'package:nextbus/common.dart';
 import 'package:nextbus/Providers/user_details.dart';
 
 class AuthService with ChangeNotifier {
-  static final AuthService _instance = AuthService._internal();
-  factory AuthService() => _instance;
 
   final FirebaseAuth _auth = FirebaseAuth.instance;
   final GoogleSignIn _googleSignIn = GoogleSignIn(scopes: ['email']);
 
   User? get user => _auth.currentUser;
 
-  AuthService._internal() {
+  AuthService() {
     _initializeAuth();
   }
 

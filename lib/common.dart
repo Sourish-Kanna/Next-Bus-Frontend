@@ -144,7 +144,6 @@ class AppLogger {
     _crashlytics = instance;
   }
 
-
   static void onlyLocal(String message) {
     if (kDebugMode) {
       debugPrint(message);
@@ -158,7 +157,9 @@ class AppLogger {
       debugPrint(message);
     }
     // Log to Crashlytics as a breadcrumb
-    _crashlytics?.log(message);
+    if (!kIsWeb) {
+      _crashlytics?.log(message);
+    }
   }
 
   /// For simple informational messages.
@@ -167,7 +168,9 @@ class AppLogger {
       debugPrint("ℹ️ [INFO] $message");
     }
     // Log to Crashlytics as a breadcrumb
-    _crashlytics?.log("[INFO] $message");
+    if (!kIsWeb) {
+      _crashlytics?.log("[INFO] $message");
+    }
   }
 
   /// For warnings that don't stop the app.
@@ -182,7 +185,9 @@ class AppLogger {
       }
     }
     // Log to Crashlytics as a breadcrumb
-    _crashlytics?.log("[WARN] $message");
+    if (!kIsWeb) {
+      _crashlytics?.log("[WARN] $message");
+    }
   }
 
   /// For errors that should be reported as non-fatal issues.
@@ -197,11 +202,13 @@ class AppLogger {
 
     // Log the error to Crashlytics. This will show up as a
     // "non-fatal" issue in your Firebase dashboard.
-    _crashlytics?.recordError(
-      error,
-      stack,
-      reason: reason,
-      fatal: false, // false because the app isn't crashing
-    );
+    if (!kIsWeb) {
+      _crashlytics?.recordError(
+        error,
+        stack,
+        reason: reason,
+        fatal: false, // false because the app isn't crashing
+      );
+    }
   }
 }
