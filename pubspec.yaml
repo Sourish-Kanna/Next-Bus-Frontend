@@ -2,7 +2,7 @@ name: nextbus
 description: "An App to store bus timing and to show when next bus will come"
 publish_to: 'none'
 
-version: 1.2.1-beta
+version: 1.2.4-beta
 
 environment:
   sdk: ^3.9.2
@@ -12,21 +12,19 @@ dependencies:
     sdk: flutter
 
   cupertino_icons: ^1.0.8
-  flutter_slidable: ^4.0.1
   dynamic_color: ^1.8.1
   provider: ^6.1.5+1
   intl: ^0.20.2
-  firebase_core: ^4.2.1
-  cloud_firestore: ^6.1.0
-  firebase_auth: ^6.1.2
   shared_preferences: ^2.5.3
   dio: ^5.9.0
   google_sign_in: 6.3.0
   internet_connection_checker_plus: ^2.9.0
+  firebase_core: ^4.2.1
+  cloud_firestore: ^6.1.0
+  firebase_auth: ^6.1.2
   firebase_crashlytics: ^5.0.4
   firebase_analytics: ^12.0.4
   firebase_performance: ^0.11.1+2
-  connectivity_plus: ^7.0.0
 
 dev_dependencies:
   flutter_test:
