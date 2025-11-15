@@ -45,9 +45,3 @@ jobs:
           firebaseServiceAccount: ${{ secrets.FIREBASE_SERVICE_ACCOUNT_NEXT_BUS_31103 }}
           projectId: next-bus-31103
           channelId: preview
-
-      - name: 💬 Comment Preview URL on PR
-        uses: marocchino/sticky-pull-request-comment@v2
-        with:
-          recreate: true
-          message: "🚀 **Firebase Preview URL**: ${{ steps.deploy.outputs.details_url }}"
