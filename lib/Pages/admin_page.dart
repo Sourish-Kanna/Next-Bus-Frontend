@@ -7,30 +7,13 @@ import 'package:nextbus/Providers/route_details.dart';
 import 'package:nextbus/Providers/time_details.dart';
 import 'package:nextbus/common.dart';
 import 'package:nextbus/Providers/authentication.dart';
-// import 'package:nextbus/Providers/user_details.dart';
 
-void _showAdminOptionsDialog(BuildContext context, User? user) {
-  final routeProvider = Provider.of<RouteProvider>(context, listen: false);
-  final busTimingProvider = Provider.of<BusTimingList>(context, listen: false);
-  var firestoreService = FirestoreService();
+class AdminPage extends StatelessWidget {
+  const AdminPage({super.key});
 
-  // Function to change the route
-  void changeRoute(BuildContext context, RouteProvider routeProvider) {
+  void _changeRoute(BuildContext context, RouteProvider routeProvider) {
     String selectedRoute = routeProvider.route;
-    List<String> routes = [
-      "56",
-      "102",
-      "110",
-      "205",
-      "301",
-      "402",
-      "505",
-      "606",
-      "707",
-      "808",
-      "909",
-      "1010"
-    ]; // Example routes
+    List<String> routes = ["56", "54A", "56A"]; // Example routes
 
     showDialog(
       context: context,
@@ -82,8 +65,11 @@ void _showAdminOptionsDialog(BuildContext context, User? user) {
     );
   }
 
-  // Function to add a new route
-  void addRoute(BuildContext context) {
+  void _addRoute(BuildContext context, FirestoreService firestoreService, User? user) {
+    if (user == null) {
+      CustomSnackBar.show(context, "You must be logged in to add a route.");
+      return;
+    }
     TextEditingController routeController = TextEditingController();
     TextEditingController stopController = TextEditingController();
     TextEditingController timeController = TextEditingController();
@@ -107,8 +93,7 @@ void _showAdminOptionsDialog(BuildContext context, User? user) {
                 ),
                 TextField(
                   controller: timeController,
-                  decoration: const InputDecoration(
-                      labelText: "Timing (e.g., 10:00 AM)"),
+                  decoration: const InputDecoration(labelText: "Timing (e.g., 10:00 AM)"),
                 ),
               ],
             ),
@@ -125,7 +110,7 @@ void _showAdminOptionsDialog(BuildContext context, User? user) {
                   routeController.text,
                   [stopController.text],
                   [timeController.text],
-                  user!.uid,
+                  user.uid,
                 );
                 CustomSnackBar.show(context, "Added Route ${routeController.text}");
                 Navigator.pop(context);
@@ -137,8 +122,11 @@ void _showAdminOptionsDialog(BuildContext context, User? user) {
     );
   }
 
-  // Function to remove a route
-  void removeRoute(BuildContext context) {
+  void _removeRoute(BuildContext context, FirestoreService firestoreService, User? user) {
+    if (user == null) {
+      CustomSnackBar.show(context, "You must be logged in to remove a route.");
+      return;
+    }
     TextEditingController routeController = TextEditingController();
 
     showDialog(
@@ -158,9 +146,8 @@ void _showAdminOptionsDialog(BuildContext context, User? user) {
             TextButton(
               child: const Text("Remove"),
               onPressed: () {
-                firestoreService.removeRoute(routeController.text, user!.uid);
-                CustomSnackBar.show(
-                    context, "Removed Route ${routeController.text}");
+                firestoreService.removeRoute(routeController.text, user.uid);
+                CustomSnackBar.show(context, "Removed Route ${routeController.text}");
                 Navigator.pop(context);
               },
             ),
@@ -170,8 +157,7 @@ void _showAdminOptionsDialog(BuildContext context, User? user) {
     );
   }
 
-  // Function to add bus timing
-  void addBusTiming(BuildContext context) {
+  void _addBusTiming(BuildContext context, BusTimingList busTimingProvider) {
     TextEditingController routeController = TextEditingController();
     TextEditingController stopController = TextEditingController();
     TextEditingController timeController = TextEditingController();
@@ -195,8 +181,7 @@ void _showAdminOptionsDialog(BuildContext context, User? user) {
                 ),
                 TextField(
                   controller: timeController,
-                  decoration: const InputDecoration(
-                      labelText: "Timing (e.g., 10:00 AM)"),
+                  decoration: const InputDecoration(labelText: "Timing (e.g., 10:00 AM)"),
                 ),
               ],
             ),
@@ -214,8 +199,7 @@ void _showAdminOptionsDialog(BuildContext context, User? user) {
                   stopController.text,
                   timeController.text,
                 );
-                CustomSnackBar.show(
-                    context, "Added Timing for Route ${routeController.text}");
+                CustomSnackBar.show(context, "Added Timing for Route ${routeController.text}");
                 Navigator.pop(context);
               },
             ),
@@ -225,53 +209,72 @@ void _showAdminOptionsDialog(BuildContext context, User? user) {
     );
   }
 
-  // Show Admin Options Dialog
-  showDialog(
-    context: context,
-    builder: (BuildContext context) {
-      return AlertDialog(
-        title: const Text("Admin Options"),
-        content: SingleChildScrollView(
-          child: Column(
-            mainAxisSize: MainAxisSize.min,
+  @override
+  Widget build(BuildContext context) {
+    final authService = Provider.of<AuthService>(context);
+    final User? user = authService.user;
+    final routeProvider = Provider.of<RouteProvider>(context, listen: false);
+    final busTimingProvider = Provider.of<BusTimingList>(context, listen: false);
+    final firestoreService = FirestoreService();
+    bool isMobile = MediaQuery.of(context).size.width < 600;
+
+    return Scaffold(
+      appBar: !isMobile
+          ? AppBar(
+              automaticallyImplyLeading: false,
+              title: const Text("Admin Settings"),
+            )
+          : null,
+      body: ListView(
+        padding: const EdgeInsets.symmetric(horizontal: 16.0, vertical: 8.0),
+        children: [
+          _SettingsGroupCard(
+            title: 'Route Options',
+            icon: Icons.directions_bus,
             children: [
-              ExpansionTile(
-                title: const Text("Route Options"),
-                leading: const Icon(Icons.directions),
-                childrenPadding: const EdgeInsets.only(left: 20.0),
-                children: [
-                  ListTile(
-                    leading: const Icon(Icons.swap_horiz),
-                    title: const Text("Change Route"),
-                    onTap: () => changeRoute(context, routeProvider),
-                  ),
-                  ListTile(
-                    leading: const Icon(Icons.add),
-                    title: const Text("Add Route"),
-                    onTap: () => addRoute(context),
-                  ),
-                  ListTile(
-                    leading: const Icon(Icons.delete),
-                    title: const Text("Remove Route"),
-                    onTap: () => removeRoute(context),
-                  ),
-                ],
+              ListTile(
+                leading: const Icon(Icons.swap_horiz),
+                title: const Text("Change Route"),
+                onTap: () => _changeRoute(context, routeProvider),
               ),
+              ListTile(
+                leading: const Icon(Icons.add_road),
+                title: const Text("Add Route"),
+                onTap: () => _addRoute(context, firestoreService, user),
+              ),
+              ListTile(
+                leading: const Icon(Icons.remove_road),
+                title: const Text("Remove Route"),
+                onTap: () => _removeRoute(context, firestoreService, user),
+              ),
+            ],
+          ),
+          const SizedBox(height: 16),
+          _SettingsGroupCard(
+            title: 'Timings',
+            icon: Icons.access_time,
+            children: [
               ListTile(
                 leading: const Icon(Icons.search),
                 title: const Text("View Timings"),
                 onTap: () {
                   busTimingProvider.getBusTimings(routeProvider.route);
-                  CustomSnackBar.show(context,
-                      "Fetching timings for Route ${routeProvider.route}");
+                  CustomSnackBar.show(context, "Fetching timings for Route ${routeProvider.route}");
                 },
               ),
               ListTile(
-                leading: const Icon(Icons.access_time),
+                leading: const Icon(Icons.add_alert),
                 title: const Text("Add Bus Timing"),
-                onTap: () => addBusTiming(context),
+                onTap: () => _addBusTiming(context, busTimingProvider),
               ),
-              ListTile(
+            ],
+          ),
+          const SizedBox(height: 16),
+           _SettingsGroupCard(
+            title: 'Debugging',
+            icon: Icons.bug_report,
+            children: [
+               ListTile(
                 leading: const Icon(Icons.print),
                 title: const Text("Print All Variables"),
                 onTap: () {
@@ -289,62 +292,52 @@ void _showAdminOptionsDialog(BuildContext context, User? user) {
               )
             ],
           ),
-        ),
-        actions: [
-          TextButton(
-            onPressed: () => Navigator.pop(context),
-            child: const Text("Close"),
-          ),
         ],
-      );
-    },
-  );
+      ),
+    );
+  }
 }
 
-Widget adminFAB(BuildContext context, User? user) {
-  bool isAdmin = true;
-  // if (user != null) {
-  //   isAdmin = !user.isAnonymous;
-  // }
-  return Visibility(
-    visible: isAdmin, // Only show if the user is an admin
-    child: ElevatedButton.icon(
-      onPressed: () => _showAdminOptionsDialog(context, user),
-      icon: const Icon(Icons.settings_suggest),
-      label: const Text('Admin Options'),
-    ),
-  );
-}
+class _SettingsGroupCard extends StatelessWidget {
+  final String title;
+  final IconData icon;
+  final List<Widget> children;
 
-class AdminPage extends StatelessWidget {
-  const AdminPage({super.key});
+  const _SettingsGroupCard({
+    required this.title,
+    required this.icon,
+    required this.children,
+  });
 
   @override
   Widget build(BuildContext context) {
-    final authService = Provider.of<AuthService>(context);
-    final User? user = authService.user;
-    bool isMobile = MediaQuery.of(context).size.width < 600;
-
-    return Scaffold( // Added Scaffold for proper layout
-      appBar: !isMobile ? AppBar(
-        automaticallyImplyLeading: false,
-        title: const Text("Settings"),
-      ) : null,
-      body: SingleChildScrollView( // Wrapped in SingleChildScrollView
-        child: Padding(
-          padding: const EdgeInsets.all(16.0),
-          child: Column(
-            mainAxisAlignment: MainAxisAlignment.start, // Align to start
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              adminFAB(context, user),
-              const SizedBox(height: 16.0), // Added more spacing
-              TextButton(
-                  onPressed: () => throw Exception(),
-                  child: const Text("Test Crash")
-              ),
-            ],
-          ),
+    return Card(
+      elevation: 0,
+      shape: RoundedRectangleBorder(
+        borderRadius: BorderRadius.circular(28.0),
+        side: BorderSide(
+          color: Theme.of(context).colorScheme.outline.withAlpha(128),
+        ),
+      ),
+      color: Theme.of(context).colorScheme.surface,
+      child: Padding(
+        padding: const EdgeInsets.all(20.0),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Row(
+              children: [
+                Icon(icon, color: Theme.of(context).colorScheme.primary),
+                const SizedBox(width: 12),
+                Text(
+                  title,
+                  style: Theme.of(context).textTheme.headlineSmall,
+                ),
+              ],
+            ),
+            const SizedBox(height: 12),
+            ...children,
+          ],
         ),
       ),
     );
