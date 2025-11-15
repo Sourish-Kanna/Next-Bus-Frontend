@@ -48,12 +48,12 @@ class DefaultFirebaseOptions {
 
   static const FirebaseOptions web = FirebaseOptions(
     apiKey: 'AIzaSyAjFrlZiD-xPd7NRfgBe7W_75BRhXDJWeA',
-    appId: '1:878462952161:web:0d724492919fd642400da0',
+    appId: '1:878462952161:web:c6e285a3093c7f31400da0',
     messagingSenderId: '878462952161',
     projectId: 'next-bus-31103',
     authDomain: 'next-bus-31103.firebaseapp.com',
     storageBucket: 'next-bus-31103.firebasestorage.app',
-    measurementId: 'G-B1XZ55EWQL',
+    measurementId: 'G-XXD0MLMMH5',
   );
 
   static const FirebaseOptions android = FirebaseOptions(
@@ -70,8 +70,9 @@ class DefaultFirebaseOptions {
     messagingSenderId: '878462952161',
     projectId: 'next-bus-31103',
     storageBucket: 'next-bus-31103.firebasestorage.app',
-    androidClientId: '878462952161-e3ak4ggputcmip5a27pfq7l0b8kj1v8j.apps.googleusercontent.com',
+    androidClientId: '878462952161-37o7gtfmtnr8shiqp4v2lnv6m5pjtca7.apps.googleusercontent.com',
     iosClientId: '878462952161-hdtdc9bgqkg2m13futjffmikk1nehaek.apps.googleusercontent.com',
     iosBundleId: 'com.sourish.nextbus',
   );
+
 }

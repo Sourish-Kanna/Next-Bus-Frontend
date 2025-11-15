@@ -33,7 +33,6 @@ enum AppStatus { loading, success, error }
 /// This widget will handle the async initialization and show the correct UI
 /// based on the state (loading, error, or success).
 class AppInitializer extends StatefulWidget {
-  // Removed observer from constructor
   const AppInitializer({super.key});
 
   @override
@@ -89,7 +88,7 @@ class _AppInitializerState extends State<AppInitializer> {
       });
     }
 
-    // 1. (FAST) Instant "No Wi-Fi/Mobile" Check
+    // "No Wi-Fi/Mobile" Check
     final connectivityResult = await Connectivity().checkConnectivity();
     if (connectivityResult.contains(ConnectivityResult.none)) {
       AppLogger.onlyLocal("No Internet Connection (Instant Check)");
@@ -103,8 +102,7 @@ class _AppInitializerState extends State<AppInitializer> {
       return;
     }
 
-    // 2. (FAST) Real "Has Internet" Check (pings Google/Cloudflare by default)
-    // We use the DEFAULT instance here because it's fast.
+    // Real "Has Internet" Check (pings Google/Cloudflare by default)
     final bool isConnected = await InternetConnection().hasInternetAccess;
 
     if (!isConnected) {
@@ -119,11 +117,10 @@ class _AppInitializerState extends State<AppInitializer> {
       return;
     }
 
-    // --- At this point, we are ONLINE ---
-    // 3. (FIRE-AND-FORGET) Wake up the server
+    // Wake up the server
     _wakeUpServer();
 
-    // 4. Set app orientation
+    // Set app orientation
     if (TargetPlatform.android == defaultTargetPlatform) {
       await SystemChrome.setPreferredOrientations([
         DeviceOrientation.portraitUp,
@@ -131,13 +128,28 @@ class _AppInitializerState extends State<AppInitializer> {
       ]);
     }
 
-    // 5. Set Up Firebase
+    // Set Up Firebase and Crashlytics
     try {
       await Firebase.initializeApp(
         options: DefaultFirebaseOptions.currentPlatform,
       );
       _analytics = FirebaseAnalytics.instance;
       _observer = FirebaseAnalyticsObserver(analytics: _analytics);
+
+      // Initialize Crashlytics right after Firebase
+      final crashlytics = FirebaseCrashlytics.instance;
+      AppLogger.initialize(crashlytics);
+
+      // Crashlytics Error Handlers
+      FlutterError.onError = (errorDetails) {
+        crashlytics.recordFlutterFatalError(errorDetails);
+      };
+
+      PlatformDispatcher.instance.onError = (error, stack) {
+        crashlytics.recordError(error, stack, fatal: true);
+        return true;
+      };
+
     } catch (e) {
       AppLogger.onlyLocal("error : $e");
       if (mounted) {
@@ -150,17 +162,7 @@ class _AppInitializerState extends State<AppInitializer> {
       return;
     }
 
-    // 6. Crashlytics
-    FlutterError.onError = (errorDetails) {
-      FirebaseCrashlytics.instance.recordFlutterFatalError(errorDetails);
-    };
-
-    PlatformDispatcher.instance.onError = (error, stack) {
-      FirebaseCrashlytics.instance.recordError(error, stack, fatal: true);
-      return true;
-    };
-
-    // 7. Get Initial Auth State
+    // Get Initial Auth State
     _initialUser = await FirebaseAuth.instance.authStateChanges().first;
 
     // If all successful
