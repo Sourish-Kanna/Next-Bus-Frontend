@@ -3,7 +3,7 @@ name: Bug report
 about: Create a report to help track and fix a bug.
 title: "BUG: [Short description of bug]"
 labels: bug
-assignees: Sourish-Kanna
+# assignees: Sourish-Kanna
 
 ---
 

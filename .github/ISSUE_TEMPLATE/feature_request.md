@@ -3,7 +3,7 @@ name: Feature request
 about: Suggest an idea or new feature for this project.
 title: 'FEAT: [Short description of feature]'
 labels: enhancement
-assignees: Sourish-Kanna
+# assignees: Sourish-Kanna
 
 ---
 
