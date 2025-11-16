@@ -15,5 +15,4 @@
 [[plugins]]
 package = "netlify-plugin-flutter"
   [plugins.inputs]
-  # Use the 'stable' channel of Flutter
-  flutter-version = "stable"
+  channel = "stable"
