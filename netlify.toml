@@ -1,4 +1,19 @@
+# --- Redirects for Flutter Web (SPA) ---
 [[redirects]]
-from = "/*"
-to = "/index.html"
-status = 200
+  from = "/*"
+  to = "/index.html"
+  status = 200
+
+# --- Base settings ---
+[build]
+  # Tell Netlify where Flutter's web output is.
+  publish = "build/web"
+  
+  command = "flutter build web --dart-define=ENVIRONMENT=dev --dart-define=API_LINK=$API_LINK"
+
+# --- Flutter Plugin ---
+[[plugins]]
+package = "netlify-plugin-flutter"
+  [plugins.inputs]
+  # Use the 'stable' channel of Flutter
+  flutter-version = "stable"
