@@ -1,6 +1,7 @@
 import 'package:dio/dio.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:firebase_performance/firebase_performance.dart';
+import 'package:nextbus/common.dart';
 
 class ApiService {
   final Dio _dio = Dio();
@@ -16,6 +17,7 @@ class ApiService {
 
     final idToken = await user.getIdToken();
     final url = '$baseUrl/v1$path';
+    AppLogger.info("Hitting $url in POST request") ;
 
     final response = await _dio.post(
       url,
@@ -42,6 +44,7 @@ class ApiService {
 
     final idToken = await user.getIdToken();
     final url = '$baseUrl/v1$path';
+    AppLogger.info("Hitting $url in GET request") ;
 
     final response = await _dio.get(
       url,

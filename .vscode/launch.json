@@ -7,7 +7,8 @@
             "type": "dart",
             "program": "lib/main.dart",
             "args": [
-                "--dart-define=API_LINK=https://next-bus-backend-0i52.onrender.com"
+                "--dart-define=API_LINK=https://next-bus-backend-0i52.onrender.com",
+                "--dart-define=ENVIRONMENT=dev"
             ]
         },
         {
@@ -27,6 +28,16 @@
             "args": [
                 "--dart-define=API_LINK=http://127.0.0.1:8000"
             ]
+        },
+        {
+          "name": "Next-Bus-Frontend (Online)",
+          "request": "launch",
+          "type": "dart",
+          "program": "lib/main.dart",
+          "args": [
+            "--dart-define=API_LINK=https://next-bus-backend.onrender.com",
+            "--dart-define=ENVIRONMENT=prod"
+          ]
         }
     ]
 }

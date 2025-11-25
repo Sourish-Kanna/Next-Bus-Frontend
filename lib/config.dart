@@ -1,6 +1,7 @@
 import 'package:nextbus/firebase_options_dev.dart'; // Import Dev
 import 'package:nextbus/firebase_options_prod.dart'; // Import Prod
 import 'package:firebase_core/firebase_core.dart';
+import 'package:nextbus/common.dart';
 
 // Get the environment for Netlify builds (defaults to 'dev')
 const String _environment = String.fromEnvironment('ENVIRONMENT', defaultValue: 'dev');
@@ -15,12 +16,14 @@ class Config {
   }
 
   static FirebaseOptions get firebaseOptions {
-    
+    AppLogger.onlyLocal("Environment: $_environment") ;
     if (_environment == 'prod') {
+      AppLogger.onlyLocal("Firebase Production Environment") ;
       return ProdFirebaseOptions.currentPlatform;
     }
 
     // Default to dev
+    AppLogger.onlyLocal("Firebase Development Environment") ;
     return DevFirebaseOptions.currentPlatform;
   }
 }
