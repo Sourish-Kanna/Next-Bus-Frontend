@@ -3,23 +3,21 @@
 <plist version="1.0">
 <dict>
 	<key>CLIENT_ID</key>
-	<string>878462952161-hdtdc9bgqkg2m13futjffmikk1nehaek.apps.googleusercontent.com</string>
+	<string>525382805804-keo6nkkucts1m15afvbj854srur8kluo.apps.googleusercontent.com</string>
 	<key>REVERSED_CLIENT_ID</key>
-	<string>com.googleusercontent.apps.878462952161-hdtdc9bgqkg2m13futjffmikk1nehaek</string>
-	<key>ANDROID_CLIENT_ID</key>
-	<string>878462952161-e3ak4ggputcmip5a27pfq7l0b8kj1v8j.apps.googleusercontent.com</string>
+	<string>com.googleusercontent.apps.525382805804-keo6nkkucts1m15afvbj854srur8kluo</string>
 	<key>API_KEY</key>
-	<string>AIzaSyD1gauFzGetiPHW7uJ2ViwCiLuSeIHnojs</string>
+	<string>AIzaSyBQ97rmf7IFtSptJ5zjtaquGqv1XAb5vKU</string>
 	<key>GCM_SENDER_ID</key>
-	<string>878462952161</string>
+	<string>525382805804</string>
 	<key>PLIST_VERSION</key>
 	<string>1</string>
 	<key>BUNDLE_ID</key>
 	<string>com.sourish.nextbus</string>
 	<key>PROJECT_ID</key>
-	<string>next-bus-31103</string>
+	<string>next-bus-dev</string>
 	<key>STORAGE_BUCKET</key>
-	<string>next-bus-31103.firebasestorage.app</string>
+	<string>next-bus-dev.firebasestorage.app</string>
 	<key>IS_ADS_ENABLED</key>
 	<false></false>
 	<key>IS_ANALYTICS_ENABLED</key>
@@ -31,6 +29,6 @@
 	<key>IS_SIGNIN_ENABLED</key>
 	<true></true>
 	<key>GOOGLE_APP_ID</key>
-	<string>1:878462952161:ios:7058ef463a701c83400da0</string>
+	<string>1:525382805804:ios:340619432b717f93f52489</string>
 </dict>
 </plist>

@@ -3,18 +3,18 @@
     "platforms": {
       "android": {
         "default": {
-          "projectId": "next-bus-31103",
-          "appId": "1:878462952161:android:bc0fa23824749c32400da0",
+          "projectId": "app-nextbus",
+          "appId": "1:439297986668:android:c02a4e9e28d89add534849",
           "fileOutput": "android/app/google-services.json"
         }
       },
       "dart": {
         "lib/firebase_options.dart": {
-          "projectId": "next-bus-31103",
+          "projectId": "app-nextbus",
           "configurations": {
-            "android": "1:878462952161:android:bc0fa23824749c32400da0",
-            "ios": "1:878462952161:ios:7058ef463a701c83400da0",
-            "web": "1:878462952161:web:c6e285a3093c7f31400da0"
+            "android": "1:439297986668:android:c02a4e9e28d89add534849",
+            "ios": "1:439297986668:ios:3464828250f17440534849",
+            "web": "1:439297986668:web:fcd722a5ca86ff10534849"
           }
         }
       }

@@ -1,0 +1,54 @@
+{
+  "project_info": {
+    "project_number": "439297986668",
+    "project_id": "app-nextbus",
+    "storage_bucket": "app-nextbus.firebasestorage.app"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:439297986668:android:c02a4e9e28d89add534849",
+        "android_client_info": {
+          "package_name": "com.sourish.nextbus"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "439297986668-lr0ol4ijg55d18utuckg274k78e4egol.apps.googleusercontent.com",
+          "client_type": 1,
+          "android_info": {
+            "package_name": "com.sourish.nextbus",
+            "certificate_hash": "c9a8f636064680cc242bcf48bb8953f5d8eb5c3e"
+          }
+        },
+        {
+          "client_id": "439297986668-ujlh2r16afjbkrrak7cnka4kdf76gnrq.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyBx7mWptKwvoExhajm-5WwDgxsT3z9fq5E"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": [
+            {
+              "client_id": "439297986668-ujlh2r16afjbkrrak7cnka4kdf76gnrq.apps.googleusercontent.com",
+              "client_type": 3
+            },
+            {
+              "client_id": "439297986668-v0isoa48flfc16drsaibhcsqb9nn0vug.apps.googleusercontent.com",
+              "client_type": 2,
+              "ios_info": {
+                "bundle_id": "com.sourish.nextbus"
+              }
+            }
+          ]
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}

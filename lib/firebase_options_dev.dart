@@ -14,7 +14,7 @@ import 'package:flutter/foundation.dart'
 ///   options: DefaultFirebaseOptions.currentPlatform,
 /// );
 /// ```
-class DefaultFirebaseOptions {
+class DevFirebaseOptions {
   static FirebaseOptions get currentPlatform {
     if (kIsWeb) {
       return web;
@@ -47,32 +47,30 @@ class DefaultFirebaseOptions {
   }
 
   static const FirebaseOptions web = FirebaseOptions(
-    apiKey: 'AIzaSyAjFrlZiD-xPd7NRfgBe7W_75BRhXDJWeA',
-    appId: '1:878462952161:web:c6e285a3093c7f31400da0',
-    messagingSenderId: '878462952161',
-    projectId: 'next-bus-31103',
-    authDomain: 'next-bus-31103.firebaseapp.com',
-    storageBucket: 'next-bus-31103.firebasestorage.app',
-    measurementId: 'G-XXD0MLMMH5',
+    apiKey: 'AIzaSyA0_wAa0VCWsyU4KKE-AmXL5uVDEv_ZfQE',
+    appId: '1:525382805804:web:032132e2936ce451f52489',
+    messagingSenderId: '525382805804',
+    projectId: 'next-bus-dev',
+    authDomain: 'next-bus-dev.firebaseapp.com',
+    storageBucket: 'next-bus-dev.firebasestorage.app',
   );
 
   static const FirebaseOptions android = FirebaseOptions(
-    apiKey: 'AIzaSyDhmxMFTSut-kIg76pXzsgH0jP9gx01NaA',
-    appId: '1:878462952161:android:bc0fa23824749c32400da0',
-    messagingSenderId: '878462952161',
-    projectId: 'next-bus-31103',
-    storageBucket: 'next-bus-31103.firebasestorage.app',
+    apiKey: 'AIzaSyCT44nTDHTu26M7kjpJrRoZNW_ugvJjpsY',
+    appId: '1:525382805804:android:28e3c934fe059f64f52489',
+    messagingSenderId: '525382805804',
+    projectId: 'next-bus-dev',
+    storageBucket: 'next-bus-dev.firebasestorage.app',
   );
 
   static const FirebaseOptions ios = FirebaseOptions(
-    apiKey: 'AIzaSyD1gauFzGetiPHW7uJ2ViwCiLuSeIHnojs',
-    appId: '1:878462952161:ios:7058ef463a701c83400da0',
-    messagingSenderId: '878462952161',
-    projectId: 'next-bus-31103',
-    storageBucket: 'next-bus-31103.firebasestorage.app',
-    androidClientId: '878462952161-37o7gtfmtnr8shiqp4v2lnv6m5pjtca7.apps.googleusercontent.com',
-    iosClientId: '878462952161-hdtdc9bgqkg2m13futjffmikk1nehaek.apps.googleusercontent.com',
+    apiKey: 'AIzaSyBQ97rmf7IFtSptJ5zjtaquGqv1XAb5vKU',
+    appId: '1:525382805804:ios:340619432b717f93f52489',
+    messagingSenderId: '525382805804',
+    projectId: 'next-bus-dev',
+    storageBucket: 'next-bus-dev.firebasestorage.app',
+    androidClientId: '525382805804-0cqj328385bgvgrh447le5ef8ej9qkrq.apps.googleusercontent.com',
+    iosClientId: '525382805804-keo6nkkucts1m15afvbj854srur8kluo.apps.googleusercontent.com',
     iosBundleId: 'com.sourish.nextbus',
   );
-
 }

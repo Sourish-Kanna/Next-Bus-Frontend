@@ -1,24 +1,18 @@
-import 'package:connectivity_plus/connectivity_plus.dart'
-    show Connectivity, ConnectivityResult;
-import 'package:firebase_analytics/firebase_analytics.dart'
-    show FirebaseAnalytics, FirebaseAnalyticsObserver;
+import 'package:connectivity_plus/connectivity_plus.dart' show Connectivity, ConnectivityResult;
+import 'package:firebase_analytics/firebase_analytics.dart' show FirebaseAnalytics, FirebaseAnalyticsObserver;
 import 'package:firebase_auth/firebase_auth.dart' show FirebaseAuth, User;
 import 'package:firebase_core/firebase_core.dart' show Firebase;
-import 'package:firebase_crashlytics/firebase_crashlytics.dart'
-    show FirebaseCrashlytics;
-import 'package:flutter/foundation.dart'
-    show kIsWeb, PlatformDispatcher, TargetPlatform, defaultTargetPlatform;
+import 'package:firebase_crashlytics/firebase_crashlytics.dart' show FirebaseCrashlytics;
+import 'package:flutter/foundation.dart' show kIsWeb, PlatformDispatcher, TargetPlatform, defaultTargetPlatform;
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart' show DeviceOrientation, SystemChrome;
-import 'package:internet_connection_checker_plus/internet_connection_checker_plus.dart'
-    show InternetCheckOption, InternetConnection;
+import 'package:internet_connection_checker_plus/internet_connection_checker_plus.dart' show InternetCheckOption, InternetConnection;
 import 'package:nextbus/Pages/pages.dart' show ErrorScreen;
 import 'package:nextbus/Providers/providers.dart';
 import 'package:nextbus/common.dart' show AppLogger;
-import 'package:nextbus/firebase_options.dart' show DefaultFirebaseOptions;
+import 'package:nextbus/config.dart';
 import 'package:nextbus/start.dart' show NextBusApp;
-import 'package:provider/provider.dart'
-    show ChangeNotifierProvider, MultiProvider;
+import 'package:provider/provider.dart' show ChangeNotifierProvider, MultiProvider;
 
 void main() async {
   // Ensure bindings are initialized before doing anything else
@@ -64,14 +58,16 @@ class _AppInitializerState extends State<AppInitializer> {
         checkInterval: const Duration(seconds: 60), // Give it 60s to wake up
         customCheckOptions: [
           InternetCheckOption(
-              uri: Uri.parse(const String.fromEnvironment('API_LINK'))),
+            // UPDATED: Use Config.apiUrl to ping the correct server
+            uri: Uri.parse(Config.apiUrl),
+          ),
         ],
       );
 
       // We 'await' it here, but this function itself is not
       // awaited in _initializeApp, so it won't block startup.
       await connection.hasInternetAccess;
-      AppLogger.onlyLocal("Server wake-up ping sent.");
+      AppLogger.onlyLocal("Server wake-up ping sent to ${Config.apiUrl}");
     } catch (e) {
       // This is not a critical error, so we just log it.
       // The server will just wake up on the first "real" API call.
@@ -130,9 +126,9 @@ class _AppInitializerState extends State<AppInitializer> {
 
     // Set Up Firebase and Crashlytics
     try {
-      await Firebase.initializeApp(
-        options: DefaultFirebaseOptions.currentPlatform,
-      );
+      // UPDATED: Use Config.firebaseOptions to load the correct environment
+      await Firebase.initializeApp(options: Config.firebaseOptions);
+
       _analytics = FirebaseAnalytics.instance;
       _observer = FirebaseAnalyticsObserver(analytics: _analytics);
 
@@ -151,7 +147,6 @@ class _AppInitializerState extends State<AppInitializer> {
         };
       }
       AppLogger.initialize(crashlytics);
-
     } catch (e) {
       AppLogger.onlyLocal("error : $e");
       if (mounted) {
@@ -179,24 +174,21 @@ class _AppInitializerState extends State<AppInitializer> {
   Widget build(BuildContext context) {
     switch (_status) {
       case AppStatus.loading:
-      // Show a simple loading screen
+        // Show a simple loading screen
         return const MaterialApp(
           debugShowCheckedModeBanner: false,
-          home: Scaffold(
-            body: Center(
-              child: CircularProgressIndicator(),
-            ),
-          ),
+          home: Scaffold(body: Center(child: CircularProgressIndicator())),
         );
       case AppStatus.error:
-      // Show the error screen with a retry button
+        // Show the error screen with a retry button
         return ErrorScreen(
           title: _errorTitle,
           message: _errorMessage,
-          onRetry: _initializeApp, // Pass the init function as the retry callback
+          onRetry:
+              _initializeApp, // Pass the init function as the retry callback
         );
       case AppStatus.success:
-      // Show the main app
+        // Show the main app
         return MultiProvider(
           providers: [
             ChangeNotifierProvider(create: (context) => AuthService()),
@@ -207,10 +199,7 @@ class _AppInitializerState extends State<AppInitializer> {
             ChangeNotifierProvider(create: (context) => TimetableProvider()),
             ChangeNotifierProvider(create: (context) => ConnectivityProvider()),
           ],
-          child: NextBusApp(
-            observer: _observer,
-            initialUser: _initialUser,
-          ),
+          child: NextBusApp(observer: _observer, initialUser: _initialUser),
         );
     }
   }
