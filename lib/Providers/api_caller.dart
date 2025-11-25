@@ -34,6 +34,34 @@ class ApiService {
     return response;
   }
 
+  Future<Response> put(String path, {Map<String,dynamic>? data}) async {
+    final trace = FirebasePerformance.instance.newTrace('post_request');
+    await trace.start();
+    final user = FirebaseAuth.instance.currentUser;
+    if (user == null) {
+      throw Exception('No user logged in');
+    }
+
+    final idToken = await user.getIdToken();
+    final url = '$baseUrl/v1$path';
+    AppLogger.info("Hitting $url in PUT request") ;
+
+    final response = await _dio.put(
+        url,
+        options: Options(
+          headers: {
+            'Authorization': 'Bearer $idToken',
+            'Content-Type': 'application/json',
+          },
+        ),
+        data: data
+    );
+    await trace.stop();
+
+    return response;
+  }
+
+
   Future<Response> get(String path, {Map<String,dynamic>? queryParameters}) async {
     final trace = FirebasePerformance.instance.newTrace('get_request');
     await trace.start();

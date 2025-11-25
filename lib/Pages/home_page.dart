@@ -1,7 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:nextbus/common.dart';
 import 'package:provider/provider.dart';
-import 'package:nextbus/Pages/Helpers/home_page_helper.dart';
 import 'package:nextbus/Providers/route_details.dart';
 import 'package:nextbus/Providers/timetable_provider.dart';
 
@@ -21,7 +20,7 @@ class HomePageState extends State<HomePage> {
     final routeProvider = Provider.of<RouteProvider>(context);
     final newRoute = routeProvider.route;
 
-    if (newRoute != _currentRoute && newRoute != "56") {
+    if (newRoute != _currentRoute) {
       Future.delayed(Duration.zero, () {
         if (!mounted) return;
         Provider.of<TimetableProvider>(context, listen: false)
@@ -47,55 +46,8 @@ class HomePageState extends State<HomePage> {
           : null,
       body: Padding(
         padding: const EdgeInsets.symmetric(vertical: 13.0, horizontal: 10.0),
-        child: route == "56"
-            ? LegacyTimetable(route: route)
-            : TimetableDisplay(route: route),
+        child: TimetableDisplay(route: route),
       ),
-    );
-  }
-}
-
-class LegacyTimetable extends StatelessWidget {
-  final String route;
-  const LegacyTimetable({super.key, required this.route});
-
-  @override
-  Widget build(BuildContext context) {
-    return Column(
-      mainAxisAlignment: MainAxisAlignment.center,
-      children: [
-        NextTime(route: route),
-        const SizedBox(height: 10),
-        Expanded(
-          child: Row(
-            children: [
-              Expanded(
-                child: Column(
-                  children: [
-                    Text("Past",
-                        style: TextStyle(
-                            fontSize: 24, fontWeight: FontWeight.bold)),
-                    ListHome(title: "Past", isPast: true, route: route),
-                  ],
-                ),
-              ),
-              SizedBox(
-                width: 10,
-              ),
-              Expanded(
-                child: Column(
-                  children: [
-                    Text("Next",
-                        style: TextStyle(
-                            fontSize: 24, fontWeight: FontWeight.bold)),
-                    ListHome(title: "Next", isPast: false, route: route),
-                  ],
-                ),
-              ),
-            ],
-          ),
-        ),
-      ],
     );
   }
 }

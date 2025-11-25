@@ -2,9 +2,7 @@ import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 
-import 'package:nextbus/Providers/firebase_operations.dart';
 import 'package:nextbus/Providers/route_details.dart';
-import 'package:nextbus/Providers/time_details.dart';
 import 'package:nextbus/common.dart';
 import 'package:nextbus/Providers/authentication.dart';
 
@@ -13,7 +11,7 @@ class AdminPage extends StatelessWidget {
 
   void _changeRoute(BuildContext context, RouteProvider routeProvider) {
     String selectedRoute = routeProvider.route;
-    List<String> routes = ["56", "54A", "56A"]; // Example routes
+    List<String> routes = routeProvider.availableRoutes;
 
     showDialog(
       context: context,
@@ -65,157 +63,12 @@ class AdminPage extends StatelessWidget {
     );
   }
 
-  void _addRoute(BuildContext context, FirestoreService firestoreService, User? user) {
-    if (user == null) {
-      CustomSnackBar.show(context, "You must be logged in to add a route.");
-      return;
-    }
-    TextEditingController routeController = TextEditingController();
-    TextEditingController stopController = TextEditingController();
-    TextEditingController timeController = TextEditingController();
-
-    showDialog(
-      context: context,
-      builder: (BuildContext context) {
-        return AlertDialog(
-          title: const Text("Add Route"),
-          content: SingleChildScrollView(
-            child: Column(
-              mainAxisSize: MainAxisSize.min,
-              children: [
-                TextField(
-                  controller: routeController,
-                  decoration: const InputDecoration(labelText: "Route Number"),
-                ),
-                TextField(
-                  controller: stopController,
-                  decoration: const InputDecoration(labelText: "Stop Name"),
-                ),
-                TextField(
-                  controller: timeController,
-                  decoration: const InputDecoration(labelText: "Timing (e.g., 10:00 AM)"),
-                ),
-              ],
-            ),
-          ),
-          actions: [
-            TextButton(
-              child: const Text("Cancel"),
-              onPressed: () => Navigator.pop(context),
-            ),
-            TextButton(
-              child: const Text("Add"),
-              onPressed: () {
-                firestoreService.addRoute(
-                  routeController.text,
-                  [stopController.text],
-                  [timeController.text],
-                  user.uid,
-                );
-                CustomSnackBar.show(context, "Added Route ${routeController.text}");
-                Navigator.pop(context);
-              },
-            ),
-          ],
-        );
-      },
-    );
-  }
-
-  void _removeRoute(BuildContext context, FirestoreService firestoreService, User? user) {
-    if (user == null) {
-      CustomSnackBar.show(context, "You must be logged in to remove a route.");
-      return;
-    }
-    TextEditingController routeController = TextEditingController();
-
-    showDialog(
-      context: context,
-      builder: (BuildContext context) {
-        return AlertDialog(
-          title: const Text("Remove Route"),
-          content: TextField(
-            controller: routeController,
-            decoration: const InputDecoration(labelText: "Enter Route Number"),
-          ),
-          actions: [
-            TextButton(
-              child: const Text("Cancel"),
-              onPressed: () => Navigator.pop(context),
-            ),
-            TextButton(
-              child: const Text("Remove"),
-              onPressed: () {
-                firestoreService.removeRoute(routeController.text, user.uid);
-                CustomSnackBar.show(context, "Removed Route ${routeController.text}");
-                Navigator.pop(context);
-              },
-            ),
-          ],
-        );
-      },
-    );
-  }
-
-  void _addBusTiming(BuildContext context, BusTimingList busTimingProvider) {
-    TextEditingController routeController = TextEditingController();
-    TextEditingController stopController = TextEditingController();
-    TextEditingController timeController = TextEditingController();
-
-    showDialog(
-      context: context,
-      builder: (BuildContext context) {
-        return AlertDialog(
-          title: const Text("Add Bus Timing"),
-          content: SingleChildScrollView(
-            child: Column(
-              mainAxisSize: MainAxisSize.min,
-              children: [
-                TextField(
-                  controller: routeController,
-                  decoration: const InputDecoration(labelText: "Route Number"),
-                ),
-                TextField(
-                  controller: stopController,
-                  decoration: const InputDecoration(labelText: "Stop Name"),
-                ),
-                TextField(
-                  controller: timeController,
-                  decoration: const InputDecoration(labelText: "Timing (e.g., 10:00 AM)"),
-                ),
-              ],
-            ),
-          ),
-          actions: [
-            TextButton(
-              child: const Text("Cancel"),
-              onPressed: () => Navigator.pop(context),
-            ),
-            TextButton(
-              child: const Text("Add"),
-              onPressed: () {
-                busTimingProvider.addBusTiming(
-                  routeController.text,
-                  stopController.text,
-                  timeController.text,
-                );
-                CustomSnackBar.show(context, "Added Timing for Route ${routeController.text}");
-                Navigator.pop(context);
-              },
-            ),
-          ],
-        );
-      },
-    );
-  }
 
   @override
   Widget build(BuildContext context) {
     final authService = Provider.of<AuthService>(context);
     final User? user = authService.user;
     final routeProvider = Provider.of<RouteProvider>(context, listen: false);
-    final busTimingProvider = Provider.of<BusTimingList>(context, listen: false);
-    final firestoreService = FirestoreService();
     bool isMobile = MediaQuery.of(context).size.width < 600;
 
     return Scaffold(
@@ -237,16 +90,16 @@ class AdminPage extends StatelessWidget {
                 title: const Text("Change Route"),
                 onTap: () => _changeRoute(context, routeProvider),
               ),
-              ListTile(
-                leading: const Icon(Icons.add_road),
-                title: const Text("Add Route"),
-                onTap: () => _addRoute(context, firestoreService, user),
-              ),
-              ListTile(
-                leading: const Icon(Icons.remove_road),
-                title: const Text("Remove Route"),
-                onTap: () => _removeRoute(context, firestoreService, user),
-              ),
+              // ListTile(
+              //   leading: const Icon(Icons.add_road),
+              //   title: const Text("Add Route"),
+              //   onTap: () => _addRoute(context, firestoreService, user),
+              // ),
+              // ListTile(
+              //   leading: const Icon(Icons.remove_road),
+              //   title: const Text("Remove Route"),
+              //   onTap: () => _removeRoute(context, firestoreService, user),
+              // ),
             ],
           ),
           const SizedBox(height: 16),
@@ -254,19 +107,19 @@ class AdminPage extends StatelessWidget {
             title: 'Timings',
             icon: Icons.access_time,
             children: [
-              ListTile(
-                leading: const Icon(Icons.search),
-                title: const Text("View Timings"),
-                onTap: () {
-                  busTimingProvider.getBusTimings(routeProvider.route);
-                  CustomSnackBar.show(context, "Fetching timings for Route ${routeProvider.route}");
-                },
-              ),
-              ListTile(
-                leading: const Icon(Icons.add_alert),
-                title: const Text("Add Bus Timing"),
-                onTap: () => _addBusTiming(context, busTimingProvider),
-              ),
+              // ListTile(
+              //   leading: const Icon(Icons.search),
+              //   title: const Text("View Timings"),
+              //   onTap: () {
+              //     busTimingProvider.getBusTimings(routeProvider.route);
+              //     CustomSnackBar.show(context, "Fetching timings for Route ${routeProvider.route}");
+              //   },
+              // ),
+              // ListTile(
+              //   leading: const Icon(Icons.add_alert),
+              //   title: const Text("Add Bus Timing"),
+              //   onTap: () => _addBusTiming(context, busTimingProvider),
+              // ),
             ],
           ),
           const SizedBox(height: 16),

@@ -192,7 +192,6 @@ class _AppInitializerState extends State<AppInitializer> {
         return MultiProvider(
           providers: [
             ChangeNotifierProvider(create: (context) => AuthService()),
-            ChangeNotifierProvider(create: (context) => BusTimingList()),
             ChangeNotifierProvider(create: (context) => RouteProvider()),
             ChangeNotifierProvider(create: (context) => ThemeProvider()),
             ChangeNotifierProvider(create: (context) => UserDetails()),
