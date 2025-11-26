@@ -10,15 +10,12 @@ class SettingPage extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    bool isMobile = MediaQuery.of(context).size.width < 600;
 
     return Scaffold(
-      appBar: !isMobile
-          ? AppBar(
+      appBar: AppBar(
         automaticallyImplyLeading: false,
         title: const Text("Settings"),
-      )
-          : null,
+      ),
       body: ListView(
         padding: const EdgeInsets.symmetric(horizontal: 16.0, vertical: 8.0),
         children: [

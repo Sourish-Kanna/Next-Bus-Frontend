@@ -2,7 +2,6 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter/foundation.dart';
 import 'package:firebase_crashlytics/firebase_crashlytics.dart';
-import 'package:nextbus/widgets/connectivity_banner.dart';
 
 import 'package:provider/provider.dart';
 import 'package:nextbus/Pages/pages.dart';
@@ -68,26 +67,6 @@ final List<Widget> newRoutes = [
 
 // --- App Bar Helper ---
 
-PreferredSizeWidget? appbar(bool isMobile, BuildContext context,
-    {bool isAdmin = false, List<NavigationItem> destination = const []}) {
-  return isMobile
-      ? AppBar(
-          backgroundColor: Theme.of(context).colorScheme.inversePrimary,
-          automaticallyImplyLeading: false,
-          title: (!isAdmin)
-              ? Text(appDestinations[selectedIndex].label)
-              : Text(destination[selectedIndex]
-                  .label),
-          leading: Builder(
-            builder: (context) => IconButton(
-              icon: const Icon(Icons.menu),
-              onPressed: () => Scaffold.of(context).openDrawer(),
-            ),
-          ),
-          bottom: const ConnectivityBanner(),
-        )
-      : const ConnectivityBanner();
-}
 
 // --- Utility Classes ---
 

@@ -107,6 +107,7 @@ class NewFirebaseOperations {
   }
 }
 
+// Template Class for a model
 class TimingDetail {
   final String time;
   final String stop;

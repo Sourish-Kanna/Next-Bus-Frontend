@@ -2,12 +2,11 @@ import 'package:flutter/material.dart';
 import 'package:nextbus/common.dart';
 import 'package:nextbus/constant.dart' show mobileBreakpoint;
 import 'package:nextbus/Providers/user_details.dart' show UserDetails;
+import 'package:nextbus/widgets/connectivity_banner.dart';
 import 'package:provider/provider.dart' show Provider;
 
 class AppLayout extends StatefulWidget {
-
   const AppLayout({super.key});
-
   @override
   State<AppLayout> createState() => _AppLayoutState();
 }
@@ -66,7 +65,7 @@ class _AppLayoutState extends State<AppLayout> {
         AppLogger.info('Current Destinations Count: ${currentAppDestinations.length}');
 
         return Scaffold(
-          appBar:appbar(isMobile, context,isAdmin: isAdmin, destination: currentAppDestinations),
+          appBar:const ConnectivityBanner(),
           body: isMobile ? newRoutes[selectedIndex] : Row(
             children: [
               _navigationRail(context, currentAppDestinations),

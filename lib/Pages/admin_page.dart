@@ -69,15 +69,12 @@ class AdminPage extends StatelessWidget {
     final authService = Provider.of<AuthService>(context);
     final User? user = authService.user;
     final routeProvider = Provider.of<RouteProvider>(context, listen: false);
-    bool isMobile = MediaQuery.of(context).size.width < 600;
 
     return Scaffold(
-      appBar: !isMobile
-          ? AppBar(
-              automaticallyImplyLeading: false,
+      appBar: AppBar(
+              // automaticallyImplyLeading: false,
               title: const Text("Admin Settings"),
-            )
-          : null,
+            ),
       body: ListView(
         padding: const EdgeInsets.symmetric(horizontal: 16.0, vertical: 8.0),
         children: [

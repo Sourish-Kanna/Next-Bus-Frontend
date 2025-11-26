@@ -2,8 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:nextbus/Providers/providers.dart';
 import 'package:provider/provider.dart';
 
-class ConnectivityBanner extends StatelessWidget
-    implements PreferredSizeWidget {
+class ConnectivityBanner extends StatelessWidget implements PreferredSizeWidget {
   const ConnectivityBanner({super.key});
 
   @override
@@ -19,8 +18,7 @@ class ConnectivityBanner extends StatelessWidget
             width: double.infinity,
             color: Colors.redAccent,
             padding: const EdgeInsets.symmetric(vertical: 4, horizontal: 16),
-            child: const Text(
-              'No internet connection',
+            child: const Text('No internet connection',
               style: TextStyle(color: Colors.white, fontSize: 14),
               textAlign: TextAlign.center,
             ),

@@ -2,10 +2,11 @@ import 'package:dio/dio.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:firebase_performance/firebase_performance.dart';
 import 'package:nextbus/common.dart';
+import 'package:nextbus/config.dart';
 
 class ApiService {
   final Dio _dio = Dio();
-  final String baseUrl = const String.fromEnvironment('API_LINK');
+  final String baseUrl = Config.apiUrl;
 
   Future<Response> post(String path, {Map<String,dynamic>? data}) async {
     final trace = FirebasePerformance.instance.newTrace('post_request');

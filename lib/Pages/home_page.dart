@@ -34,16 +34,13 @@ class HomePageState extends State<HomePage> {
   Widget build(BuildContext context) {
     final routeProvider = Provider.of<RouteProvider>(context);
     String route = routeProvider.route;
-    bool isMobile = MediaQuery.of(context).size.width < 600;
 
     return Scaffold(
-      appBar: !isMobile
-          ? AppBar(
+      appBar: AppBar(
               backgroundColor: Theme.of(context).colorScheme.inversePrimary,
               automaticallyImplyLeading: false,
               title: Text("Route $route"),
-            )
-          : null,
+            ),
       body: Padding(
         padding: const EdgeInsets.symmetric(vertical: 13.0, horizontal: 10.0),
         child: TimetableDisplay(route: route),
