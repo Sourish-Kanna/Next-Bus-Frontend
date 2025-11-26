@@ -16,10 +16,10 @@ class ConnectivityBanner extends StatelessWidget implements PreferredSizeWidget 
         return Material(
           child: Container(
             width: double.infinity,
-            color: Colors.redAccent,
+            color: Theme.of(context).colorScheme.errorContainer,
             padding: const EdgeInsets.symmetric(vertical: 4, horizontal: 16),
-            child: const Text('No internet connection',
-              style: TextStyle(color: Colors.white, fontSize: 14),
+            child: Text('No internet connection',
+              style: TextStyle(color: Theme.of(context).colorScheme.onErrorContainer, fontSize: 14),
               textAlign: TextAlign.center,
             ),
           ),
