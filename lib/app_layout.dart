@@ -65,12 +65,29 @@ class _AppLayoutState extends State<AppLayout> {
         AppLogger.info('Current Destinations Count: ${currentAppDestinations.length}');
 
         return Scaffold(
-          appBar:const ConnectivityBanner(),
-          body: isMobile ? newRoutes[selectedIndex] : Row(
+          body: isMobile ? Column(
+            children: [
+              Expanded(child: newRoutes[selectedIndex]),
+              const SafeArea(
+                top: false,
+                child: ConnectivityBanner(),
+              )
+            ],
+          ) : Row(
             children: [
               _navigationRail(context, currentAppDestinations),
               const VerticalDivider(thickness: 1, width: 1),
-              Expanded(child: newRoutes[selectedIndex],),
+              Expanded(
+                child: Column(
+                  children: [
+                    const SafeArea(
+                      top: false,
+                      child: ConnectivityBanner(),
+                    ),
+                    Expanded(child: newRoutes[selectedIndex],),
+                  ],
+                ),
+              ),
             ],
           ),
           bottomNavigationBar: isMobile ? _bottomNavigationBar(isMobile, context,
