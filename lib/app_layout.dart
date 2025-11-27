@@ -4,6 +4,7 @@ import 'package:nextbus/constant.dart' show mobileBreakpoint;
 import 'package:nextbus/Providers/user_details.dart' show UserDetails;
 import 'package:nextbus/widgets/connectivity_banner.dart';
 import 'package:provider/provider.dart' show Provider;
+import 'package:nextbus/Pages/pages.dart';
 
 class AppLayout extends StatefulWidget {
   const AppLayout({super.key});
@@ -55,44 +56,68 @@ class _AppLayoutState extends State<AppLayout> {
     currentAppDestinations = updatedDestinations;
   }
 
+  Widget _getCurrentPage() {
+    // Safety check
+    if (selectedIndex < 0 || selectedIndex >= currentAppDestinations.length) {
+      return const Center(child: Text("Error: Page index out of bounds"));
+    }
+
+    final destination = currentAppDestinations[selectedIndex].destination;
+
+    switch (destination) {
+      case NavigationDestinations.home:
+        return const HomePage();
+      case NavigationDestinations.route:
+        return const RouteSelect();
+      case NavigationDestinations.settings:
+        return const SettingPage();
+      case NavigationDestinations.admin:
+        return const AdminPage();
+      default:
+        return const Center(child: Text("Page not found"));
+    }
+  }
+
   @override
   Widget build(BuildContext context) {
     return LayoutBuilder(
       builder: (context, constraints) {
         final bool isMobile = constraints.maxWidth < mobileBreakpoint;
 
-        // AppLogger.info('Current Route: ${ModalRoute.of(context)?.settings.name}');
         AppLogger.info('Current Destinations Count: ${currentAppDestinations.length}');
 
         return Scaffold(
-          body: isMobile ? Column(
+          body: isMobile
+              ? Column(
             children: [
-              Expanded(child: newRoutes[selectedIndex]),
+              Expanded(child: _getCurrentPage()), // Use helper method
               const SafeArea(
                 top: false,
                 child: ConnectivityBanner(),
               )
             ],
-          ) : Row(
+          )
+              : Row(
             children: [
               _navigationRail(context, currentAppDestinations),
               const VerticalDivider(thickness: 1, width: 1),
               Expanded(
                 child: Column(
                   children: [
+                    Expanded(child: _getCurrentPage()), // Use helper method
                     const SafeArea(
                       top: false,
                       child: ConnectivityBanner(),
-                    ),
-                    Expanded(child: newRoutes[selectedIndex],),
+                    )
                   ],
                 ),
               ),
             ],
           ),
-          bottomNavigationBar: isMobile ? _bottomNavigationBar(isMobile, context,
-              _onItemTapped, currentAppDestinations) : null,
-          drawer: isMobile ? _buildAppDrawer(currentAppDestinations) : null,
+          bottomNavigationBar: isMobile
+              ? _bottomNavigationBar(
+              isMobile, context, _onItemTapped, currentAppDestinations)
+              : null,
         );
       },
     );
@@ -100,55 +125,17 @@ class _AppLayoutState extends State<AppLayout> {
 
   void _onItemTapped(int index ) {
     if (index < 0 || index >= currentAppDestinations.length) return;
-    if (selectedIndex == index) return; // Avoid pushing the same route
+    if (selectedIndex == index) return;
 
     setState(() {
       selectedIndex = index;
     });
-    // Navigator.push(
-    //   context,
-    //   MaterialPageRoute(builder: (context) => newRoutes[index]),
-    // );
-  }
-
-  Widget _buildAppDrawer(List<NavigationItem> destinations) {
-    return Drawer(
-      child: ListView(
-        padding: EdgeInsets.zero,
-        children: <Widget>[
-          DrawerHeader(
-            decoration: BoxDecoration(
-              color: Theme.of(context).colorScheme.primaryContainer,
-            ),
-            child: Text(
-              'App Menu',
-              style: TextStyle(
-                  fontSize: 24,
-                  color: Theme.of(context).colorScheme.onPrimaryContainer),
-            ),
-          ),
-          ...currentAppDestinations.asMap().entries.map((entry) {
-            int idx = entry.key;
-            NavigationItem item = entry.value;
-            return ListTile(
-              leading: Icon(item.icon),
-              title: Text(item.label),
-              selected: selectedIndex == idx,
-              onTap: () {
-                Navigator.pop(context); // Close the drawer FIRST
-                _onItemTapped(idx); // Then navigate
-              },
-            );
-          }),
-        ],
-      ),
-    );
   }
 
   Widget _navigationRail(BuildContext context, List<NavigationItem> destinations) {
     return NavigationRail(
       selectedIndex: selectedIndex,
-      onDestinationSelected: _onItemTapped, // Use the new handler
+      onDestinationSelected: _onItemTapped,
       labelType: NavigationRailLabelType.all,
       destinations: destinations
           .map((item) =>
@@ -173,9 +160,8 @@ class _AppLayoutState extends State<AppLayout> {
           ))
           .toList(),
       currentIndex: selectedIndex,
-      onTap: onItemTapped, // Use the new handler
+      onTap: onItemTapped,
       type: BottomNavigationBarType.fixed,
     );
   }
-
 }

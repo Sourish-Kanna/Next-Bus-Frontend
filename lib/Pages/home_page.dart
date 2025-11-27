@@ -62,30 +62,24 @@ class TimetableDisplay extends StatelessWidget {
         }
 
         final timetable = timetableProvider.timetables[route];
-        AppLogger.info("Timetable for route $route: $timetable");
+        AppLogger.info("Timetable for route $route");
         if (timetable == null || timetable.isEmpty) {
           return const Center(child: Text('No timetable data available.'));
         }
-
         return ListView.builder(
           itemCount: timetable.length,
           itemBuilder: (context, index) {
             final entry = timetable[index];
             final stopName = entry['stop'];
-            final timing = entry['timing'];
-            final delay = entry['delay'] ?? 'No delay'; // Assuming 'delay' might be null
+            final timing = entry['time'];
+            final delay = entry['delay'];
 
             return Card(
               margin: const EdgeInsets.symmetric(vertical: 8, horizontal: 4),
               child: ListTile(
-                title: Text(stopName, style: TextStyle(fontWeight: FontWeight.bold)),
-                subtitle: Text('Arrival: $timing'),
-                trailing: Text(
-                  'Delay: $delay',
-                  style: TextStyle(
-                    color: delay == 'No delay' ? Colors.green : Colors.red,
-                  ),
-                ),
+                subtitle: Text(stopName),
+                title: Text('Arrival: $timing', style: TextStyle(fontWeight: FontWeight.bold)),
+                trailing: Text('Delay: $delay'),
               ),
             );
           },

@@ -99,26 +99,26 @@ class AdminPage extends StatelessWidget {
               // ),
             ],
           ),
-          const SizedBox(height: 16),
-          _SettingsGroupCard(
-            title: 'Timings',
-            icon: Icons.access_time,
-            children: [
-              // ListTile(
-              //   leading: const Icon(Icons.search),
-              //   title: const Text("View Timings"),
-              //   onTap: () {
-              //     busTimingProvider.getBusTimings(routeProvider.route);
-              //     CustomSnackBar.show(context, "Fetching timings for Route ${routeProvider.route}");
-              //   },
-              // ),
-              // ListTile(
-              //   leading: const Icon(Icons.add_alert),
-              //   title: const Text("Add Bus Timing"),
-              //   onTap: () => _addBusTiming(context, busTimingProvider),
-              // ),
-            ],
-          ),
+          // const SizedBox(height: 16),
+          // _SettingsGroupCard(
+          //   title: 'Timings',
+          //   icon: Icons.access_time,
+          //   children: [
+          //     ListTile(
+          //       leading: const Icon(Icons.search),
+          //       title: const Text("View Timings"),
+          //       onTap: () {
+          //         busTimingProvider.getBusTimings(routeProvider.route);
+          //         CustomSnackBar.show(context, "Fetching timings for Route ${routeProvider.route}");
+          //       },
+          //     ),
+          //     ListTile(
+          //       leading: const Icon(Icons.add_alert),
+          //       title: const Text("Add Bus Timing"),
+          //       onTap: () => _addBusTiming(context, busTimingProvider),
+          //     ),
+          //   ],
+          // ),
           const SizedBox(height: 16),
            _SettingsGroupCard(
             title: 'Debugging',
@@ -126,20 +126,39 @@ class AdminPage extends StatelessWidget {
             children: [
                ListTile(
                 leading: const Icon(Icons.print),
-                title: const Text("Print All Variables"),
+                title: const Text("Show All Variables"),
                 onTap: () {
-                  AppLogger.info("Route: ${routeProvider.route}");
-                  AppLogger.info("User ID: ${user?.uid}");
-                  AppLogger.info("Auth Status: ${user?.isAnonymous}");
+                  showDialog(
+                    context: context,
+                    builder: (BuildContext context) {
+                      return AlertDialog(
+                        title: const Text("Debugging Info"),
+                        content: SingleChildScrollView(
+                          child: Text(
+                            "Route: ${routeProvider.route}\n"
+                            "Auth Status : ${user?.isAnonymous}\n"
+                            "User Name: ${user?.displayName}\n"
+                            "Available Routes: ${routeProvider.availableRoutes}",
+                          ),
+                        ),
+                        actions: [
+                          TextButton(
+                            child: const Text("Close"),
+                            onPressed: () => Navigator.of(context).pop(),
+                          ),
+                        ],
+                      );
+                    },
+                  );
                 },
               ),
-              ListTile(
-                title: const Text("Route Selector"),
-                leading: const Icon(Icons.select_all),
-                onTap: () {
-                  Navigator.pushNamed(context, '/route');
-                },
-              )
+              // ListTile(
+              //   title: const Text("Route Selector"),
+              //   leading: const Icon(Icons.select_all),
+              //   onTap: () {
+              //     Navigator.pushNamed(context, '/route');
+              //   },
+              // )
             ],
           ),
         ],
