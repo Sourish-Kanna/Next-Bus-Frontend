@@ -168,71 +168,86 @@ class _MaterialYouSettings extends StatelessWidget {
   Widget build(BuildContext context) {
     final themeProvider = Provider.of<ThemeProvider>(context);
 
-    return Column(
-      crossAxisAlignment: CrossAxisAlignment.start,
-      children: [
-        // Using a more prominent text style
-        Text('Color Scheme', style: Theme.of(context).textTheme.titleLarge),
-        const SizedBox(height: 4.0),
-        SwitchListTile(
-          title: const Text('Use Dynamic Color'),
-          subtitle: const Text('Android 12+'),
-          value: themeProvider.isDynamicColor,
-          onChanged: (value) {
-            themeProvider.setDynamicColor(value);
-          },
-          secondary: const Icon(Icons.color_lens_outlined),
-          contentPadding: const EdgeInsets.symmetric(horizontal: 4),
-        ),
-        if (!themeProvider.isDynamicColor) ...[
-          const SizedBox(height: 16),
-          Padding(
-            padding: const EdgeInsets.only(left: 4.0, bottom: 16.0),
-            child: Text(
-              'Choose a Seed Color:',
-              style: Theme.of(context).textTheme.bodyLarge,
+    return LayoutBuilder(
+      builder: (context, constraints) {
+        // 1. Determine device type based on available width
+        final bool isMobile = constraints.maxWidth < mobileBreakpoint;
+
+        // 2. Define responsive sizes
+        final double boxSize = isMobile ? 50.0 : 72.0;
+        final double iconSize = isMobile ? 28.0 : 36.0;
+        final double spacing = isMobile ? 12.0 : 20.0;
+
+        // 3. Define responsive shape (Squircle)
+        // Adjusting radius slightly for larger boxes keeps the shape consistent
+        final squircleRadius = BorderRadius.circular(isMobile ? 14.0 : 18.0);
+
+        return Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Text('Color Scheme', style: Theme.of(context).textTheme.titleLarge),
+            const SizedBox(height: 4.0),
+            SwitchListTile(
+              title: const Text('Use Dynamic Color'),
+              subtitle: const Text('Android 12+'),
+              value: themeProvider.isDynamicColor,
+              onChanged: (value) {
+                themeProvider.setDynamicColor(value);
+              },
+              secondary: const Icon(Icons.color_lens_outlined),
+              contentPadding: const EdgeInsets.symmetric(horizontal: 4),
             ),
-          ),
-          Wrap(
-            spacing: 12.0,
-            runSpacing: 12.0,
-            children: seedColorList.map((color) {
-              final isSelected = themeProvider.selectedSeedColor == color;
-              return InkWell(
-                onTap: () => themeProvider.setSelectedSeedColor(color),
-                borderRadius: BorderRadius.circular(50),
-                child: Container(
-                  // Bolder, larger circle for a more expressive feel
-                  width: 50,
-                  height: 50,
-                  decoration: BoxDecoration(
-                    color: color,
-                    shape: BoxShape.circle,
-                    border: isSelected
-                        ? Border.all(
-                      color: Theme.of(context).colorScheme.primary,
-                      // Thicker border for selected state
-                      width: 3.5,
-                    )
-                        : Border.all(
-                      color: Theme.of(context).colorScheme.outline,
-                    ),
-                  ),
-                  child: isSelected
-                      ? Center(
-                    child: Icon(
-                      Icons.check,
-                      color: Theme.of(context).colorScheme.primary,
-                      size: 28,
-                    ),
-                  )
-                      : null,
+            if (!themeProvider.isDynamicColor) ...[
+              const SizedBox(height: 16),
+              Padding(
+                padding: const EdgeInsets.only(left: 4.0, bottom: 16.0),
+                child: Text(
+                  'Choose a Seed Color:',
+                  style: Theme.of(context).textTheme.bodyLarge,
                 ),
-              );
-            }).toList(),
-          ),
-        ],
-      ],
+              ),
+              Wrap(
+                spacing: spacing,
+                runSpacing: spacing,
+                children: seedColorList.map((color) {
+                  final isSelected = themeProvider.selectedSeedColor == color;
+                  return InkWell(
+                    onTap: () => themeProvider.setSelectedSeedColor(color),
+                    borderRadius: squircleRadius,
+                    child: Container(
+                      // 4. Apply dynamic sizes here
+                      width: boxSize,
+                      height: boxSize,
+                      decoration: BoxDecoration(
+                        color: color,
+                        borderRadius: squircleRadius,
+                        shape: BoxShape.rectangle,
+                        border: isSelected
+                            ? Border.all(
+                          color: Theme.of(context).colorScheme.primary,
+                          width: isMobile ? 3.5 : 4.5, // Thicker border on desktop
+                        )
+                            : Border.all(
+                          color: Theme.of(context).colorScheme.outline,
+                        ),
+                      ),
+                      child: isSelected
+                          ? Center(
+                        child: Icon(
+                          Icons.check,
+                          color: Theme.of(context).colorScheme.onPrimaryContainer,
+                          size: iconSize, // Scaled icon
+                        ),
+                      )
+                          : null,
+                    ),
+                  );
+                }).toList(),
+              ),
+            ],
+          ],
+        );
+      },
     );
   }
 }
