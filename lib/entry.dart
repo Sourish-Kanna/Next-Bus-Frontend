@@ -4,8 +4,8 @@ import 'package:provider/provider.dart' show Consumer;
 import 'package:firebase_auth/firebase_auth.dart' show FirebaseAuth, User;
 import 'package:firebase_analytics/firebase_analytics.dart' show FirebaseAnalyticsObserver;
 
-import 'package:nextbus/Providers/providers.dart' show ThemeProvider;
-import 'package:nextbus/Pages/pages.dart' show AuthScreen;
+import 'package:nextbus/providers/providers.dart' show ThemeProvider;
+import 'package:nextbus/pages/pages.dart' show AuthScreen;
 import 'package:nextbus/layout.dart' show AppLayout;
 import 'package:nextbus/constant.dart' show fallbackColor;
 

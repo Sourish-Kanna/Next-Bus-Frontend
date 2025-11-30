@@ -1,7 +1,7 @@
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
-import 'package:nextbus/Providers/providers.dart' show AuthService, RouteProvider, TimetableProvider;
+import 'package:nextbus/providers/providers.dart' show AuthService, RouteProvider, TimetableProvider;
 import 'package:nextbus/common.dart';
 
 class AdminPage extends StatelessWidget {

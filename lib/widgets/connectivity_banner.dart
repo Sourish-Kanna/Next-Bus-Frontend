@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import 'package:nextbus/Providers/providers.dart';
+import 'package:nextbus/providers/providers.dart';
 import 'package:provider/provider.dart';
 
 class ConnectivityBanner extends StatelessWidget {

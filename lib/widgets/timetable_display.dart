@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:nextbus/common.dart';
 import 'package:provider/provider.dart';
-import 'package:nextbus/Providers/providers.dart' show TimetableProvider;
+import 'package:nextbus/providers/providers.dart' show TimetableProvider;
 
 class TimetableDisplay extends StatelessWidget {
   final String route;

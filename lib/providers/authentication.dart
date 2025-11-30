@@ -5,7 +5,7 @@ import 'package:flutter/foundation.dart';
 import 'package:provider/provider.dart';
 
 import 'package:nextbus/common.dart';
-import 'package:nextbus/Providers/user_details.dart';
+import 'package:nextbus/providers/user_details.dart';
 
 class AuthService with ChangeNotifier {
 

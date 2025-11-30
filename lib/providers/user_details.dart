@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:nextbus/common.dart';
 import 'package:nextbus/constant.dart';
-import 'package:nextbus/Providers/api_caller.dart';
+import 'package:nextbus/providers/api_caller.dart';
 
 class UserDetails with ChangeNotifier {
   bool _isAdmin = false;

@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
-import 'package:nextbus/Providers/providers.dart' show ThemeProvider;
+import 'package:nextbus/providers/providers.dart' show ThemeProvider;
 import 'package:nextbus/constant.dart';
 
 class SettingsGroupCard extends StatelessWidget {

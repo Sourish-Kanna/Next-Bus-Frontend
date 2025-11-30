@@ -1,8 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:nextbus/widgets/widgets.dart' show SettingsGroupCard, ThemeSettings;
-import 'package:nextbus/Providers/providers.dart' show AuthService;
+import 'package:nextbus/providers/providers.dart' show AuthService;
 import 'package:provider/provider.dart';
-import 'package:nextbus/Pages/pages.dart' show AuthScreen;
+import 'package:nextbus/pages/pages.dart' show AuthScreen;
 
 
 class SettingPage extends StatelessWidget {

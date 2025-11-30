@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:nextbus/common.dart';
 import 'package:nextbus/constant.dart';
-import 'package:nextbus/Providers/user_details.dart' show UserDetails;
+import 'package:nextbus/providers/user_details.dart' show UserDetails;
 import 'package:nextbus/widgets/widgets.dart' show ConnectivityBanner;
 import 'package:provider/provider.dart' show Provider;
 

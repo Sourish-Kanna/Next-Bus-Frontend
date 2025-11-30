@@ -8,8 +8,8 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart' show DeviceOrientation, SystemChrome;
 import 'package:internet_connection_checker_plus/internet_connection_checker_plus.dart' show InternetCheckOption, InternetConnection;
 
-import 'package:nextbus/Pages/pages.dart' show ErrorScreen;
-import 'package:nextbus/Providers/providers.dart';
+import 'package:nextbus/pages/pages.dart' show ErrorScreen;
+import 'package:nextbus/providers/providers.dart';
 import 'package:nextbus/common.dart' show AppLogger;
 import 'package:nextbus/config.dart' show Config;
 import 'package:nextbus/entry.dart' show NextBusApp;

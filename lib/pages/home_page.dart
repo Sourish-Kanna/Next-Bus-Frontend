@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:nextbus/widgets/widgets.dart' show TimetableDisplay;
 import 'package:provider/provider.dart';
-import 'package:nextbus/Providers/providers.dart' show RouteProvider, TimetableProvider;
+import 'package:nextbus/providers/providers.dart' show RouteProvider, TimetableProvider;
 
 class HomePage extends StatefulWidget {
   const HomePage({super.key});
