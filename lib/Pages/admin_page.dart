@@ -1,10 +1,8 @@
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
-
-import 'package:nextbus/Providers/route_details.dart';
+import 'package:nextbus/Providers/providers.dart' show AuthService, RouteProvider, TimetableProvider;
 import 'package:nextbus/common.dart';
-import 'package:nextbus/Providers/authentication.dart';
 
 class AdminPage extends StatelessWidget {
   const AdminPage({super.key});
@@ -63,12 +61,18 @@ class AdminPage extends StatelessWidget {
     );
   }
 
+  void _addRoute(BuildContext context, TimetableProvider busTimingProvider) {
+
+  }
+
 
   @override
   Widget build(BuildContext context) {
     final authService = Provider.of<AuthService>(context);
     final User? user = authService.user;
     final routeProvider = Provider.of<RouteProvider>(context, listen: false);
+    final busTimingProvider = Provider.of<TimetableProvider>(context, listen: false);
+
 
     return Scaffold(
       appBar: AppBar(
@@ -87,11 +91,11 @@ class AdminPage extends StatelessWidget {
                 title: const Text("Change Route"),
                 onTap: () => _changeRoute(context, routeProvider),
               ),
-              // ListTile(
-              //   leading: const Icon(Icons.add_road),
-              //   title: const Text("Add Route"),
-              //   onTap: () => _addRoute(context, firestoreService, user),
-              // ),
+              ListTile(
+                leading: const Icon(Icons.add_road),
+                title: const Text("Add Route"),
+                onTap: () => _addRoute(context, busTimingProvider),
+              ),
               // ListTile(
               //   leading: const Icon(Icons.remove_road),
               //   title: const Text("Remove Route"),

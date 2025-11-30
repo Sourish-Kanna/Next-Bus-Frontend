@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import 'package:nextbus/Providers/route_details.dart';
+import 'package:nextbus/Providers/providers.dart' show RouteProvider;
 import 'package:nextbus/common.dart';
 import 'package:provider/provider.dart';
 

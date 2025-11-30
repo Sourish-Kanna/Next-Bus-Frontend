@@ -1,6 +1,6 @@
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
-import 'package:nextbus/Providers/authentication.dart';
+import 'package:nextbus/Providers/providers.dart' show AuthService;
 import 'package:nextbus/app_layout.dart';
 
 class AuthScreen extends StatelessWidget {

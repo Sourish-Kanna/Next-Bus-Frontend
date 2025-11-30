@@ -1,8 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
-
 import 'package:nextbus/common.dart';
-import 'package:nextbus/Providers/theme.dart';
+import 'package:nextbus/Providers/providers.dart' show ThemeProvider;
 import 'package:nextbus/constant.dart';
 
 class SettingPage extends StatelessWidget {
