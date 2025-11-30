@@ -2,12 +2,12 @@ import 'package:flutter/material.dart';
 import 'package:dynamic_color/dynamic_color.dart' show ColorSchemeHarmonization, DynamicColorBuilder;
 import 'package:provider/provider.dart' show Consumer;
 import 'package:firebase_auth/firebase_auth.dart' show FirebaseAuth, User;
-import 'package:firebase_analytics/firebase_analytics.dart';
+import 'package:firebase_analytics/firebase_analytics.dart' show FirebaseAnalyticsObserver;
 
-import 'package:nextbus/Providers/providers.dart';
-import 'package:nextbus/Pages/pages.dart';
-import 'package:nextbus/app_layout.dart';
-import 'package:nextbus/constant.dart';
+import 'package:nextbus/Providers/providers.dart' show ThemeProvider;
+import 'package:nextbus/Pages/pages.dart' show AuthScreen;
+import 'package:nextbus/layout.dart' show AppLayout;
+import 'package:nextbus/constant.dart' show fallbackColor;
 
 class NextBusApp extends StatelessWidget {
   final FirebaseAnalyticsObserver observer;

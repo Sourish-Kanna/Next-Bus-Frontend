@@ -3,73 +3,6 @@ import 'package:flutter/services.dart';
 import 'package:flutter/foundation.dart';
 import 'package:firebase_crashlytics/firebase_crashlytics.dart';
 
-import 'package:provider/provider.dart';
-import 'package:nextbus/Pages/pages.dart';
-import 'package:nextbus/Providers/authentication.dart';
-
-// --- Navigation Config ---
-
-enum NavigationDestinations {
-  login,
-  home,
-  route,
-  settings,
-  admin,
-}
-
-int selectedIndex = 0;
-
-final List<NavigationItem> appDestinations = [
-  NavigationItem(
-      destination: NavigationDestinations.home,
-      icon: Icons.home,
-      label: 'Home'),
-  NavigationItem(
-      destination: NavigationDestinations.route,
-      icon: Icons.route,
-      label: 'Route'),
-  NavigationItem(
-      destination: NavigationDestinations.settings,
-      icon: Icons.settings,
-      label: 'Settings'),
-];
-
-class NavigationItem {
-  final NavigationDestinations destination;
-  final IconData icon;
-  final String label;
-
-  NavigationItem({
-    required this.destination,
-    required this.icon,
-    required this.label,
-  });
-}
-
-// --- Route Definitions ---
-
-final List<Widget> newRoutes = [
-  const HomePage(),
-  const RouteSelect(),
-  const SettingPage(),
-  const AdminPage(),
-  const ErrorScreen(),
-  const AuthScreen(),
-];
-
-// final Map<String, WidgetBuilder> routes = {
-//   AppRoutes.login: (context) => AuthScreen(),
-//   AppRoutes.route: (context) => AppLayout(),
-//   AppRoutes.home: (context) => AppLayout(),
-//   AppRoutes.settings: (context) => AppLayout(),
-//   AppRoutes.admin: (context) => AppLayout(),
-// };
-
-// --- App Bar Helper ---
-
-
-// --- Utility Classes ---
-
 /// A utility class for creating a custom SnackBar.
 class CustomSnackBar {
   /// Shows a custom SnackBar.
@@ -98,19 +31,6 @@ class CustomSnackBar {
       ),
     );
     HapticFeedback.lightImpact();
-  }
-}
-
-/// A utility class for handling user logout.
-class LogoutUser {
-  /// Handles signing out the user and navigating to the login screen.
-  static void execute(BuildContext context) async {
-    final authService = Provider.of<AuthService>(context, listen: false);
-    await authService.signOut();
-    if (!context.mounted) return;
-    Navigator.pushReplacement(context, MaterialPageRoute(builder: (context) {
-      return const AuthScreen();
-    }));
   }
 }
 

@@ -1,63 +1,14 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
-import 'package:nextbus/common.dart';
 import 'package:nextbus/Providers/providers.dart' show ThemeProvider;
 import 'package:nextbus/constant.dart';
 
-class SettingPage extends StatelessWidget {
-  const SettingPage({super.key});
-
-  @override
-  Widget build(BuildContext context) {
-
-    return Scaffold(
-      appBar: AppBar(
-        automaticallyImplyLeading: false,
-        title: const Text("Settings"),
-      ),
-      body: ListView(
-        padding: const EdgeInsets.symmetric(horizontal: 16.0, vertical: 8.0),
-        children: [
-          // "Appearance" card with an expressive style
-          _SettingsGroupCard(
-            title: 'Appearance',
-            icon: Icons.palette_outlined,
-            children: [
-              const ThemeSettings(),
-            ],
-          ),
-          const SizedBox(height: 16),
-          // "Account" card, now using your original logoutButton
-          _SettingsGroupCard(
-            title: 'Account',
-            icon: Icons.person_outline_rounded,
-            children: [
-              Padding(
-                padding: const EdgeInsets.all(8.0),
-                child: Padding(
-                  padding: const EdgeInsets.all(12.0),
-                  child: ElevatedButton.icon(
-                    onPressed: () => {LogoutUser.execute(context)},
-                    icon: const Icon(Icons.logout),
-                    label: const Text("Logout"),
-                  ),
-                ),
-              ),
-            ],
-          ),
-        ],
-      ),
-    );
-  }
-}
-
-/// A reusable card with an expressive M3 style for grouping settings.
-class _SettingsGroupCard extends StatelessWidget {
+class SettingsGroupCard extends StatelessWidget {
   final String title;
   final IconData icon;
   final List<Widget> children;
 
-  const _SettingsGroupCard({
+  const SettingsGroupCard({
     required this.title,
     required this.icon,
     required this.children,
@@ -100,7 +51,6 @@ class _SettingsGroupCard extends StatelessWidget {
   }
 }
 
-/// Container for all theme-related setting widgets.
 class ThemeSettings extends StatelessWidget {
   const ThemeSettings({super.key});
 
@@ -109,17 +59,16 @@ class ThemeSettings extends StatelessWidget {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: const [
-        _ThemeModeSelector(),
+        ThemeModeSelector(),
         Divider(height: 32),
-        _MaterialYouSettings(),
+        MaterialYouSettings(),
       ],
     );
   }
 }
 
-/// Widget for selecting the app's theme mode.
-class _ThemeModeSelector extends StatelessWidget {
-  const _ThemeModeSelector();
+class ThemeModeSelector extends StatelessWidget {
+  const ThemeModeSelector();
 
   @override
   Widget build(BuildContext context) {
@@ -159,9 +108,8 @@ class _ThemeModeSelector extends StatelessWidget {
   }
 }
 
-/// Widget for managing Material You and color scheme settings.
-class _MaterialYouSettings extends StatelessWidget {
-  const _MaterialYouSettings();
+class MaterialYouSettings extends StatelessWidget {
+  const MaterialYouSettings();
 
   @override
   Widget build(BuildContext context) {

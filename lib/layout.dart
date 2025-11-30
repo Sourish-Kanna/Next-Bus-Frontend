@@ -1,10 +1,9 @@
 import 'package:flutter/material.dart';
 import 'package:nextbus/common.dart';
-import 'package:nextbus/constant.dart' show mobileBreakpoint;
+import 'package:nextbus/constant.dart';
 import 'package:nextbus/Providers/user_details.dart' show UserDetails;
-import 'package:nextbus/widgets/connectivity_banner.dart';
+import 'package:nextbus/widgets/widgets.dart' show ConnectivityBanner;
 import 'package:provider/provider.dart' show Provider;
-import 'package:nextbus/Pages/pages.dart';
 
 class AppLayout extends StatefulWidget {
   const AppLayout({super.key});
@@ -66,13 +65,13 @@ class _AppLayoutState extends State<AppLayout> {
 
     switch (destination) {
       case NavigationDestinations.home:
-        return const HomePage();
+        return routesPage['home']!;
       case NavigationDestinations.route:
-        return const RouteSelect();
+        return routesPage['route']!;
       case NavigationDestinations.settings:
-        return const SettingPage();
+        return routesPage['settings']!;
       case NavigationDestinations.admin:
-        return const AdminPage();
+        return routesPage["admin"]!;
       default:
         return const Center(child: Text("Page not found"));
     }
@@ -164,4 +163,31 @@ class _AppLayoutState extends State<AppLayout> {
       type: BottomNavigationBarType.fixed,
     );
   }
+}
+
+final List<NavigationItem> appDestinations = [
+  NavigationItem(
+      destination: NavigationDestinations.home,
+      icon: Icons.home,
+      label: 'Home'),
+  NavigationItem(
+      destination: NavigationDestinations.route,
+      icon: Icons.route,
+      label: 'Route'),
+  NavigationItem(
+      destination: NavigationDestinations.settings,
+      icon: Icons.settings,
+      label: 'Settings'),
+];
+
+class NavigationItem {
+  final NavigationDestinations destination;
+  final IconData icon;
+  final String label;
+
+  NavigationItem({
+    required this.destination,
+    required this.icon,
+    required this.label,
+  });
 }

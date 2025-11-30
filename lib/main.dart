@@ -7,11 +7,12 @@ import 'package:flutter/foundation.dart' show kIsWeb, PlatformDispatcher, Target
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart' show DeviceOrientation, SystemChrome;
 import 'package:internet_connection_checker_plus/internet_connection_checker_plus.dart' show InternetCheckOption, InternetConnection;
+
 import 'package:nextbus/Pages/pages.dart' show ErrorScreen;
 import 'package:nextbus/Providers/providers.dart';
 import 'package:nextbus/common.dart' show AppLogger;
-import 'package:nextbus/config.dart';
-import 'package:nextbus/start.dart' show NextBusApp;
+import 'package:nextbus/config.dart' show Config;
+import 'package:nextbus/entry.dart' show NextBusApp;
 import 'package:provider/provider.dart' show ChangeNotifierProvider, MultiProvider;
 
 void main() async {

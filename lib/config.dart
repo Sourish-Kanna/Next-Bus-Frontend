@@ -1,5 +1,5 @@
-import 'package:nextbus/firebase_options_dev.dart'; // Import Dev
-import 'package:nextbus/firebase_options_prod.dart'; // Import Prod
+import 'package:nextbus/firebase/firebase_options_dev.dart'; // Import Dev
+import 'package:nextbus/firebase/firebase_options_prod.dart'; // Import Prod
 import 'package:firebase_core/firebase_core.dart';
 import 'package:nextbus/common.dart';
 
