@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:nextbus/Providers/api_caller.dart';
-
 import 'package:nextbus/common.dart';
+import 'package:nextbus/constant.dart';
 
 class TimetableProvider with ChangeNotifier {
   final ApiService _apiService = ApiService();
@@ -18,7 +18,7 @@ class TimetableProvider with ChangeNotifier {
     notifyListeners();
 
     try {
-      final response = await _apiService.get('/timings/$route');
+      final response = await _apiService.get(urls['busTimes']!.replaceAll('{route}', route));
       if (response.statusCode == 200) {
         _timetables[route] = response.data['data'];
       }

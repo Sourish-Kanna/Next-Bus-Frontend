@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:nextbus/common.dart';
+import 'package:nextbus/constant.dart';
 import 'package:nextbus/Providers/api_caller.dart';
 
 class UserDetails with ChangeNotifier {
@@ -25,7 +26,7 @@ class UserDetails with ChangeNotifier {
   Future<void> fetchUserDetails() async {
     ApiService api = ApiService();
     try {
-      var result = await api.get("/user/get-user-details");
+      var result = await api.get(urls["user"]!);
       if (result.data != null && result.data["data"] != null){
         Map<String, dynamic> data = result.data["data"];
         AppLogger.info("User Details fetched: $data");

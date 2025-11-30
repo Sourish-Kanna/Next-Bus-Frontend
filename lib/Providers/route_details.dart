@@ -2,6 +2,8 @@ import 'package:flutter/material.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:nextbus/Providers/api_caller.dart';
 import 'package:nextbus/common.dart';
+import 'package:nextbus/constant.dart';
+
 
 // Route Provider with String-based Route Persistence
 class RouteProvider with ChangeNotifier {
@@ -26,7 +28,7 @@ class RouteProvider with ChangeNotifier {
       // Fallback to API if not found in SharedPreferences
       ApiService apiService = ApiService();
       try {
-        var response = await apiService.get('/route/routes');
+        var response = await apiService.get(urls['busRoutes']!);
         if (response.statusCode == 200) {
           _availableRoutes = List<String>.from(response.data['data']);
           await prefs.setStringList('availableRoutes', _availableRoutes);
