@@ -35,20 +35,13 @@ class TimetableProvider with ChangeNotifier {
   }
 
   Future<Map<String, dynamic>> addRoute(String routeName, List<String> stops, String timing, String start, String end) async {
-    Map<String, dynamic> time = {
-      "stop_name": start,
-      "time": timing,
-      "delay_by": 0,
-      "deviation_count": 1,
-      "deviation_sum": 0
-    };
 
     Map<String, dynamic> data = {
       "route_name": routeName,
       "stops": stops,
       "start": start,
       "end": end,
-      "timing": time,
+      "timing": timing,
     };
 
     try {

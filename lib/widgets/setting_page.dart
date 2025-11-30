@@ -8,7 +8,7 @@ class SettingsGroupCard extends StatelessWidget {
   final IconData icon;
   final List<Widget> children;
 
-  const SettingsGroupCard({
+  const SettingsGroupCard({super.key,
     required this.title,
     required this.icon,
     required this.children,
@@ -68,7 +68,7 @@ class ThemeSettings extends StatelessWidget {
 }
 
 class ThemeModeSelector extends StatelessWidget {
-  const ThemeModeSelector();
+  const ThemeModeSelector({super.key});
 
   @override
   Widget build(BuildContext context) {
@@ -109,7 +109,7 @@ class ThemeModeSelector extends StatelessWidget {
 }
 
 class MaterialYouSettings extends StatelessWidget {
-  const MaterialYouSettings();
+  const MaterialYouSettings({super.key});
 
   @override
   Widget build(BuildContext context) {

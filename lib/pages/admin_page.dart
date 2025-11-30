@@ -61,10 +61,15 @@ class AdminPage extends StatelessWidget {
     );
   }
 
-  void _addRoute(BuildContext context, TimetableProvider busTimingProvider) {
-
+  Future<void> _addRoute(BuildContext context, TimetableProvider busTimingProvider) async {
+    var aa = await busTimingProvider.addRoute("56A",["tt"],"10:00 AM", "tt","tt");
+    AppLogger.onlyLocal(aa.toString());
   }
 
+  Future<void> _updateBusTiming(BuildContext context, TimetableProvider busTimingProvider) async {
+    var aa = await busTimingProvider.updateTime("56A","tt","10:00 AM");
+    AppLogger.onlyLocal(aa.toString());
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -103,26 +108,28 @@ class AdminPage extends StatelessWidget {
               // ),
             ],
           ),
-          // const SizedBox(height: 16),
-          // _SettingsGroupCard(
-          //   title: 'Timings',
-          //   icon: Icons.access_time,
-          //   children: [
-          //     ListTile(
-          //       leading: const Icon(Icons.search),
-          //       title: const Text("View Timings"),
-          //       onTap: () {
-          //         busTimingProvider.getBusTimings(routeProvider.route);
-          //         CustomSnackBar.show(context, "Fetching timings for Route ${routeProvider.route}");
-          //       },
-          //     ),
-          //     ListTile(
-          //       leading: const Icon(Icons.add_alert),
-          //       title: const Text("Add Bus Timing"),
-          //       onTap: () => _addBusTiming(context, busTimingProvider),
-          //     ),
-          //   ],
-          // ),
+          const SizedBox(height: 16),
+          _SettingsGroupCard(
+            title: 'Timings',
+            icon: Icons.access_time,
+            children: [
+              ListTile(
+                leading: const Icon(Icons.search),
+                title: const Text("View Timings"),
+                onTap: () async {
+                  await busTimingProvider.fetchTimetable("56A");
+                  var aa = busTimingProvider.timetables["56A"];
+                  AppLogger.onlyLocal(aa.toString());
+                  CustomSnackBar.show(context, "Fetching timings for Route 56A}");
+                },
+              ),
+              ListTile(
+                leading: const Icon(Icons.add_alert),
+                title: const Text("Add Bus Timing"),
+                onTap: () => _updateBusTiming(context, busTimingProvider),
+              ),
+            ],
+          ),
           const SizedBox(height: 16),
            _SettingsGroupCard(
             title: 'Debugging',
