@@ -74,6 +74,7 @@ class TimetableProvider with ChangeNotifier {
         // Optional: Invalidate the cache for this route so the next fetch gets updated data
         if (_timetables.containsKey(routeName)) {
           _timetables.remove(routeName);
+          fetchTimetable(routeName);
           notifyListeners();
         }
 

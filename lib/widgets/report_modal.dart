@@ -7,14 +7,16 @@ import 'package:nextbus/common.dart';
 class ReportBusSheet extends StatelessWidget {
   const ReportBusSheet({super.key});
 
-  void _submitReport(BuildContext context, String timeStr) {
+  Future<void> _submitReport(BuildContext context, String timeStr) async {
     final routeProvider = Provider.of<RouteProvider>(context, listen: false);
     final timeProvider = Provider.of<TimetableProvider>(context, listen: false);
 
     // TODO: Replace "test" with the actual Stop ID or Bus Status if needed
-    // timeProvider.updateTime(routeProvider.route, "test", timeStr);
+    await timeProvider.updateTime(routeProvider.route, "test", timeStr);
 
-    AppLogger.onlyLocal('Reported: Route ${routeProvider.route} at $timeStr');
+    AppLogger.info('Reported: Route ${routeProvider.route} at $timeStr');
+    if (!context.mounted) return;
+    CustomSnackBar.show(context, 'Reported: Route ${routeProvider.route} at $timeStr');
     Navigator.pop(context);
   }
 
@@ -40,7 +42,6 @@ class ReportBusSheet extends StatelessWidget {
             onPressed: () {
               String formattedTime = DateFormat('h:mm a').format(DateTime.now());
               _submitReport(context, formattedTime);
-              Navigator.pop(context);
             },
             icon: const Icon(Icons.directions_bus),
             label: const Text("Arrived Now", style: TextStyle(fontSize: 16)),
@@ -63,8 +64,6 @@ class ReportBusSheet extends StatelessWidget {
                 if (!context.mounted) return;
                 _submitReport(context, formattedTime);
               }
-              if (!context.mounted) return;
-              Navigator.pop(context);
             },
             icon: const Icon(Icons.schedule),
             label: const Text("Report Time", style: TextStyle(fontSize: 16)),

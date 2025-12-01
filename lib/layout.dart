@@ -5,7 +5,8 @@ import 'package:nextbus/providers/providers.dart' show UserDetails, NavigationPr
 import 'package:nextbus/widgets/widgets.dart' show ConnectivityBanner;
 import 'package:provider/provider.dart';
 
-final List<NavigationItem> appDestinations = [
+// Define base destinations outside the widget to avoid recreation
+final List<NavigationItem> _baseDestinations = [
   NavigationItem(
       destination: NavigationDestinations.home,
       icon: Icons.home,
@@ -39,56 +40,41 @@ class AppLayout extends StatefulWidget {
 }
 
 class _AppLayoutState extends State<AppLayout> {
-
-  late bool isAdmin = false;
-  late List<NavigationItem> currentAppDestinations = List.from(appDestinations);
+  bool _isInit = true; // Flag to ensure fetch only runs once
 
   @override
-  void initState() {
-    super.initState();
-    _fetchAdminStatus();
-  }
+  void didChangeDependencies() {
+    super.didChangeDependencies();
 
-  Future<void> _fetchAdminStatus() async {
-    final userDetails = Provider.of<UserDetails>(context, listen: false);
-    bool adminStatus  = false;
-    try {
-      adminStatus = userDetails.isAdmin;
-      AppLogger.info("Admin Status fetched: $adminStatus");
-    } catch (e) {
-      AppLogger.error("Error fetching admin status: $e",e);
-    }
-
-    if (mounted) {
-      setState(() {
-        isAdmin = adminStatus;
-        _rebuildAppDestinations();
-      });
+    // Trigger the user details fetch only once when the widget initializes
+    if (_isInit) {
+      // listen: false because we don't want to rebuild THIS function, just trigger the action
+      Provider.of<UserDetails>(context, listen: false).fetchUserDetails();
+      _isInit = false;
     }
   }
 
-  void _rebuildAppDestinations() {
-    List<NavigationItem> updatedDestinations = List.from(appDestinations);
+  // Helper to generate the list dynamically based on Admin status
+  List<NavigationItem> _getDestinations(bool isAdmin) {
+    List<NavigationItem> destinations = List.from(_baseDestinations);
+
     if (isAdmin) {
-      if (!updatedDestinations.any((dest) =>
-      dest.destination == NavigationDestinations.admin)) {
-        updatedDestinations.add(NavigationItem(
-            destination: NavigationDestinations.admin,
-            icon: Icons.admin_panel_settings,
-            label: 'Admin'
-        ));
-      }
+      destinations.add(NavigationItem(
+          destination: NavigationDestinations.admin,
+          icon: Icons.admin_panel_settings,
+          label: 'Admin'
+      ));
     }
-    currentAppDestinations = updatedDestinations;
+    return destinations;
   }
 
-  Widget _getCurrentPage(int currentIndex) {
+  Widget _getCurrentPage(int currentIndex, List<NavigationItem> destinations) {
     // Safety check
-    if (currentIndex < 0 || currentIndex >= currentAppDestinations.length) {
+    if (currentIndex < 0 || currentIndex >= destinations.length) {
       return const Center(child: Text("Error: Page index out of bounds"));
     }
 
-    final destination = currentAppDestinations[currentIndex].destination;
+    final destination = destinations[currentIndex].destination;
 
     switch (destination) {
       case NavigationDestinations.home:
@@ -105,15 +91,21 @@ class _AppLayoutState extends State<AppLayout> {
   }
 
   void _onItemTapped(int index) {
-    // UPDATED: Use the provider to update the index
     Provider.of<NavigationProvider>(context, listen: false).setIndex(index);
   }
 
   @override
   Widget build(BuildContext context) {
-    // UPDATED: Listen to the provider state
+    // 1. Listen to UserDetails. If fetchUserDetails finishes, this rebuilds automatically.
+    final userDetails = Provider.of<UserDetails>(context);
+
+    // 2. Listen to NavigationProvider for tab switching
     final navigationProvider = Provider.of<NavigationProvider>(context);
+
+    // 3. Calculate derived state
     final int currentIndex = navigationProvider.selectedIndex;
+    final List<NavigationItem> currentAppDestinations = _getDestinations(userDetails.isAdmin);
+
     return LayoutBuilder(
       builder: (context, constraints) {
         final bool isMobile = constraints.maxWidth < mobileBreakpoint;
@@ -124,7 +116,8 @@ class _AppLayoutState extends State<AppLayout> {
           body: isMobile
               ? Column(
             children: [
-              Expanded(child: _getCurrentPage(currentIndex)), // Use helper method
+              // Pass the list so the helper knows which page corresponds to the index
+              Expanded(child: _getCurrentPage(currentIndex, currentAppDestinations)),
               const SafeArea(
                 top: false,
                 child: ConnectivityBanner(),
@@ -138,7 +131,7 @@ class _AppLayoutState extends State<AppLayout> {
               Expanded(
                 child: Column(
                   children: [
-                    Expanded(child: _getCurrentPage(currentIndex)), // Use helper method
+                    Expanded(child: _getCurrentPage(currentIndex, currentAppDestinations)),
                     const SafeArea(
                       top: false,
                       child: ConnectivityBanner(),
@@ -150,7 +143,7 @@ class _AppLayoutState extends State<AppLayout> {
           ),
           bottomNavigationBar: isMobile
               ? _bottomNavigationBar(
-              isMobile, context, _onItemTapped, currentAppDestinations,currentIndex)
+              isMobile, context, _onItemTapped, currentAppDestinations, currentIndex)
               : null,
         );
       },
@@ -180,6 +173,10 @@ class _AppLayoutState extends State<AppLayout> {
       Function(int) onItemTapped,
       List<NavigationItem> destinations,
       int currentIndex) {
+
+    // Safety check: if current index is out of bounds (e.g., waiting for Admin tab), default to 0
+    final safeIndex = (currentIndex >= destinations.length) ? 0 : currentIndex;
+
     return BottomNavigationBar(
       items: destinations
           .map((item) =>
@@ -188,7 +185,7 @@ class _AppLayoutState extends State<AppLayout> {
             label: item.label,
           ))
           .toList(),
-      currentIndex: currentIndex,
+      currentIndex: safeIndex,
       onTap: onItemTapped,
       type: BottomNavigationBarType.fixed,
     );

@@ -2,7 +2,6 @@ import 'package:flutter/material.dart';
 import 'package:nextbus/providers/providers.dart' show RouteProvider, NavigationProvider;
 import 'package:nextbus/common.dart';
 import 'package:provider/provider.dart';
-import 'package:nextbus/constant.dart';
 
 class RouteSelect extends StatefulWidget {
   const RouteSelect({super.key});
