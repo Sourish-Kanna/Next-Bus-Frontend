@@ -1,10 +1,14 @@
-import 'package:nextbus/firebase/firebase_options_dev.dart'; // Import Dev
-import 'package:nextbus/firebase/firebase_options_prod.dart'; // Import Prod
+import 'package:flutter/foundation.dart';
+import 'package:nextbus/firebase/firebase_options_dev.dart';
+import 'package:nextbus/firebase/firebase_options_prod.dart';
 import 'package:firebase_core/firebase_core.dart';
 import 'package:nextbus/common.dart';
 
-// Get the environment for Netlify builds (defaults to 'dev')
-const String _environment = String.fromEnvironment('ENVIRONMENT', defaultValue: 'dev');
+// 1. Smart Default: If release mode, default to 'prod'. If debug, default to 'dev'.
+const String _defaultEnv = kReleaseMode ? 'prod' : 'dev';
+
+// 2. Allow manual override via command line if needed
+const String _environment = String.fromEnvironment('ENVIRONMENT', defaultValue: _defaultEnv);
 
 const String _localApiUrl = String.fromEnvironment('API_LINK');
 
@@ -12,14 +16,15 @@ class Config {
   static String get apiUrl {
     return _localApiUrl;
   }
+
   static FirebaseOptions get firebaseOptions {
-    AppLogger.onlyLocal("Environment: $_environment") ;
+    AppLogger.onlyLocal("Build Mode: ${kReleaseMode ? 'Release' : 'Debug'}");
+    AppLogger.onlyLocal("Environment: $_environment");
+
+    // 3. Select Options based on Environment
     if (_environment == 'prod') {
-      AppLogger.onlyLocal("Firebase Production Environment") ;
       return ProdFirebaseOptions.currentPlatform;
     }
-    // Default to dev
-    AppLogger.onlyLocal("Firebase Development Environment") ;
     return DevFirebaseOptions.currentPlatform;
   }
 }

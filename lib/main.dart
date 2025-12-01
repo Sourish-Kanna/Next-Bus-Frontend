@@ -127,8 +127,16 @@ class _AppInitializerState extends State<AppInitializer> {
 
     // Set Up Firebase and Crashlytics
     try {
-      // UPDATED: Use Config.firebaseOptions to load the correct environment
-      await Firebase.initializeApp(options: Config.firebaseOptions);
+
+      // --- FIX START: Check for existing instance ---
+      if (Firebase.apps.isEmpty) {
+        // Only initialize if no apps exist
+        await Firebase.initializeApp(options: Config.firebaseOptions);
+        AppLogger.onlyLocal("Firebase initialized successfully.");
+      } else {
+        // If already initialized (e.g. by Android native layer or Hot Restart), use existing
+        AppLogger.onlyLocal("Firebase was already initialized. Using existing instance.");
+      }
 
       _analytics = FirebaseAnalytics.instance;
       _observer = FirebaseAnalyticsObserver(analytics: _analytics);
