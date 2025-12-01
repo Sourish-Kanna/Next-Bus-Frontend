@@ -30,7 +30,13 @@ jobs:
 
       - name: 🔐 Decode Keystore
         run: |
-          echo "${{ secrets.ANDROID_KEYSTORE_BASE64 }}" | base64 --decode > android/app/release-keystore.jks
+          # UPDATED: Output name changed to 'upload-keystore.jks' to match your config
+          echo "${{ secrets.ANDROID_KEYSTORE_BASE64 }}" | base64 --decode > android/app/upload-keystore.jks
+
+      - name: 🔥 Decode Firebase Config (Prod)
+        run: |
+          mkdir -p android/app/src/release
+          echo "${{ secrets.FIREBASE_JSON_RELEASE }}" | base64 --decode > android/app/src/release/google-services.json
 
       - name: 📱 Build Signed APK (Prod)
         env:

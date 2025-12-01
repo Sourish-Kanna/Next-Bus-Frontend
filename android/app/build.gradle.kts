@@ -47,7 +47,7 @@ android {
             val finalStoreFilePath = if (localStoreFilePath != null) {
                 localStoreFilePath
             } else {
-                "release-keystore.jks"
+                "upload-keystore.jks"
             }
             storeFile = file(finalStoreFilePath)
             storePassword = System.getenv("KEYSTORE_PASSWORD")
