@@ -1,0 +1,52 @@
+name: 🧪 Manual Test Build
+
+# Trigger manually from the Actions tab
+on:
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  test-android-release:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: 📥 Checkout repository
+        uses: actions/checkout@v4
+
+#      # Recommended: Keep Java setup to prevent environment mismatch errors
+#      - name: ☕ Setup Java
+#        uses: actions/setup-java@v4
+#        with:
+#          distribution: 'temurin'
+#          java-version: '17'
+
+      - name: 🐦 Install Flutter
+        uses: subosito/flutter-action@v2
+        with:
+          channel: stable
+          cache: true
+
+      - name: 🔐 Decode Keystore
+        run: |
+          echo "${{ secrets.ANDROID_KEYSTORE_BASE64 }}" | base64 --decode > android/app/release-keystore.jks
+
+      - name: 📱 Build Signed APK (Prod)
+        env:
+          KEYSTORE_PASSWORD: ${{ secrets.ANDROID_KEYSTORE_PASSWORD }}
+          KEY_PASSWORD: ${{ secrets.ANDROID_KEY_PASSWORD }}
+          KEY_ALIAS: ${{ secrets.ANDROID_KEY_ALIAS }}
+        run: >
+          flutter build apk --split-per-abi --release
+          --build-name 1.0.${{ github.run_number }}
+          --build-number ${{ github.run_number }}
+          --dart-define=API_LINK=${{ secrets.API_LINK }}
+          --dart-define=ENVIRONMENT=prod
+
+      - name: 📦 Upload APKs for Testing
+        uses: actions/upload-artifact@v4
+        with:
+          name: test-release-apks
+          path: build/app/outputs/flutter-apk/*.apk
+          retention-days: 1
