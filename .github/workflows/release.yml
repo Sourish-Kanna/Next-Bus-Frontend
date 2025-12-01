@@ -5,6 +5,10 @@ on:
   release:
     types: [published]
 
+# --- CODEQL FIX: Set default permissions to read-only for all jobs ---
+permissions:
+  contents: read
+
 jobs:
   # This job runs first and defines common variables.
   setup:
@@ -22,9 +26,10 @@ jobs:
           echo "Using Build Number: ${{ github.run_number }}"
 
   android-release:
-    # This job now depends on the 'setup' job.
     needs: setup
     runs-on: ubuntu-latest
+
+    # --- SPECIFIC PERMISSION: Needs 'write' to upload APKs to the Release ---
     permissions:
       contents: write
 
@@ -32,7 +37,13 @@ jobs:
       - name: 📥 Checkout repository at release tag
         uses: actions/checkout@v4
         with:
-          ref: ${{ needs.setup.outputs.build_name }}  # Use build_name (tag) from setup
+          ref: ${{ needs.setup.outputs.build_name }}
+
+#      - name: ☕ Setup Java
+#        uses: actions/setup-java@v4
+#        with:
+#          distribution: 'temurin'
+#          java-version: '17'
 
       - name: ⚡ Cache pub & dart tool
         uses: actions/cache@v3
@@ -55,7 +66,6 @@ jobs:
           restore-keys: |
             ${{ runner.os }}-gradle-
 
-
       - name: 🐦 Install Flutter
         uses: subosito/flutter-action@v2
         with:
@@ -76,27 +86,33 @@ jobs:
           --build-name ${{ needs.setup.outputs.build_name }}
           --build-number ${{ needs.setup.outputs.build_number }}
           --dart-define=API_LINK=${{ secrets.API_LINK }}
+          --dart-define=ENVIRONMENT=prod
 
       - name: ✏️ Rename APKs
         run: |
-          # Get the build name (e.g., v1.0.0)
           BUILD_NAME="${{ needs.setup.outputs.build_name }}"
           
-          # --- 64-bit APK ---
+          # 64-bit APK
           OLD_NAME_64="build/app/outputs/flutter-apk/app-arm64-v8a-release.apk"
           NEW_NAME_64="build/app/outputs/flutter-apk/Next-Bus-${BUILD_NAME}-arm64.apk"
           
-          echo "Renaming 64-bit APK..."
-          mv $OLD_NAME_64 $NEW_NAME_64
-          echo "Renamed: $OLD_NAME_64  ->  $NEW_NAME_64"
+          if [ -f "$OLD_NAME_64" ]; then
+            echo "Renaming 64-bit APK..."
+            mv $OLD_NAME_64 $NEW_NAME_64
+          else
+             echo "⚠️ 64-bit APK not found!"
+          fi
           
-          # --- 32-bit APK ---
+          # 32-bit APK
           OLD_NAME_32="build/app/outputs/flutter-apk/app-armeabi-v7a-release.apk"
           NEW_NAME_32="build/app/outputs/flutter-apk/Next-Bus-${BUILD_NAME}-arm32.apk"
 
-          echo "Renaming 32-bit APK..."
-          mv $OLD_NAME_32 $NEW_NAME_32
-          echo "Renamed: $OLD_NAME_32  ->  $NEW_NAME_32"
+          if [ -f "$OLD_NAME_32" ]; then
+            echo "Renaming 32-bit APK..."
+            mv $OLD_NAME_32 $NEW_NAME_32
+          else
+             echo "⚠️ 32-bit APK not found!"
+          fi
 
       - name: 🚀 Upload Signed APKs to GitHub Release
         uses: softprops/action-gh-release@v2
@@ -106,6 +122,12 @@ jobs:
   web-deploy:
     needs: setup
     runs-on: ubuntu-latest
+
+    # --- SPECIFIC PERMISSION: Required by Firebase Action for status checks ---
+    permissions:
+      contents: read
+      checks: write
+      pull-requests: write
 
     steps:
       - name: 📥 Checkout repository at release tag
@@ -131,11 +153,12 @@ jobs:
         run: >
           flutter build web --release
           --dart-define=API_LINK=${{ secrets.API_LINK }}
+          --dart-define=ENVIRONMENT=prod
 
       - name: 🔥 Deploy to Firebase Hosting (Live)
         uses: FirebaseExtended/action-hosting-deploy@v0
         with:
           repoToken: ${{ secrets.GITHUB_TOKEN }}
-          firebaseServiceAccount: ${{ secrets.FIREBASE_SERVICE_ACCOUNT_NEXT_BUS_31103 }}
+          firebaseServiceAccount: ${{ secrets.FIREBASE_SERVICE_ACCOUNT_APP_NEXTBUS }}
           channelId: live
-          projectId: next-bus-31103
+          projectId:  app-nextbus
