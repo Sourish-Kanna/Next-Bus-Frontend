@@ -10,8 +10,6 @@ final List<Color> seedColorList = [
 
 final double mobileBreakpoint = 600;
 final fallbackColor = seedColorList[0];
-int selectedIndex = 0;
-
 
 final Map<String, String> urls = {
   'addRoute': '/route/add',

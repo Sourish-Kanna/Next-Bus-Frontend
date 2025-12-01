@@ -198,6 +198,7 @@ class _AppInitializerState extends State<AppInitializer> {
             ChangeNotifierProvider(create: (context) => UserDetails()),
             ChangeNotifierProvider(create: (context) => TimetableProvider()),
             ChangeNotifierProvider(create: (context) => ConnectivityProvider()),
+            ChangeNotifierProvider(create: (context) => NavigationProvider()),
           ],
           child: NextBusApp(observer: _observer, initialUser: _initialUser),
         );

@@ -120,6 +120,7 @@ class AdminPage extends StatelessWidget {
                   await busTimingProvider.fetchTimetable("56A");
                   var aa = busTimingProvider.timetables["56A"];
                   AppLogger.onlyLocal(aa.toString());
+                  if (!context.mounted) return;
                   CustomSnackBar.show(context, "Fetching timings for Route 56A}");
                 },
               ),

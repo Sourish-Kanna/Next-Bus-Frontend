@@ -7,8 +7,8 @@ class TimetableDisplay extends StatelessWidget {
   final String route;
   const TimetableDisplay({super.key, required this.route});
 
-  String secTomin(int sec) {
-    final duration = Duration(seconds: sec);
+  String secTomin(num sec) {
+    final duration = Duration(seconds: sec.toInt());
     // Get total minutes as a double
     double minutes = duration.inMinutes.toDouble() + (duration.inSeconds % 60) / 60.0;
     return minutes.toStringAsFixed(2);
@@ -35,7 +35,7 @@ class TimetableDisplay extends StatelessWidget {
             final entry = timetable[index];
             final stopName = entry['stop'];
             final timing = entry['time'];
-            final delay = "${secTomin(entry['delay'] as int)} mins";
+            final delay = "${secTomin(entry['delay'] as num)} mins";
 
             return Card(
               margin: const EdgeInsets.symmetric(vertical: 8, horizontal: 4),

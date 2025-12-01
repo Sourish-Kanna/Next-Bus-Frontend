@@ -43,6 +43,7 @@ class HomePageState extends State<HomePage> {
     showModalBottomSheet(
       context: context,
       isScrollControlled: true,
+      backgroundColor: Theme.of(context).colorScheme.surface,
       shape: const RoundedRectangleBorder(
         borderRadius: BorderRadius.vertical(top: Radius.circular(24)),
       ),
@@ -74,6 +75,8 @@ class HomePageState extends State<HomePage> {
           ? null
           : FloatingActionButton(
         onPressed: () => _showReportModal(context),
+        foregroundColor: Theme.of(context).colorScheme.onTertiaryContainer,
+        backgroundColor: Theme.of(context).colorScheme.tertiaryContainer,
         child: const Icon(Icons.add),
       ),
     );

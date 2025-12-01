@@ -49,18 +49,6 @@ class AppLogger {
     }
   }
 
-  /// Legacy log method.
-  /// Consider migrating to info(), warn(), or error() for more specific context.
-  static void log(String message) {
-    if (kDebugMode) {
-      debugPrint(message);
-    }
-    // Log to Crashlytics as a breadcrumb
-    if (!kIsWeb) {
-      _crashlytics?.log(message);
-    }
-  }
-
   /// For simple informational messages.
   static void info(String message) {
     if (kDebugMode) {

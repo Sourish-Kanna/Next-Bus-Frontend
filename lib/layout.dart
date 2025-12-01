@@ -1,9 +1,36 @@
 import 'package:flutter/material.dart';
 import 'package:nextbus/common.dart';
 import 'package:nextbus/constant.dart';
-import 'package:nextbus/providers/user_details.dart' show UserDetails;
+import 'package:nextbus/providers/providers.dart' show UserDetails, NavigationProvider;
 import 'package:nextbus/widgets/widgets.dart' show ConnectivityBanner;
-import 'package:provider/provider.dart' show Provider;
+import 'package:provider/provider.dart';
+
+final List<NavigationItem> appDestinations = [
+  NavigationItem(
+      destination: NavigationDestinations.home,
+      icon: Icons.home,
+      label: 'Home'),
+  NavigationItem(
+      destination: NavigationDestinations.route,
+      icon: Icons.route,
+      label: 'Route'),
+  NavigationItem(
+      destination: NavigationDestinations.settings,
+      icon: Icons.settings,
+      label: 'Settings'),
+];
+
+class NavigationItem {
+  final NavigationDestinations destination;
+  final IconData icon;
+  final String label;
+
+  NavigationItem({
+    required this.destination,
+    required this.icon,
+    required this.label,
+  });
+}
 
 class AppLayout extends StatefulWidget {
   const AppLayout({super.key});
@@ -26,7 +53,7 @@ class _AppLayoutState extends State<AppLayout> {
     final userDetails = Provider.of<UserDetails>(context, listen: false);
     bool adminStatus  = false;
     try {
-      adminStatus = await userDetails.isAdmin;
+      adminStatus = userDetails.isAdmin;
       AppLogger.info("Admin Status fetched: $adminStatus");
     } catch (e) {
       AppLogger.error("Error fetching admin status: $e",e);
@@ -55,13 +82,13 @@ class _AppLayoutState extends State<AppLayout> {
     currentAppDestinations = updatedDestinations;
   }
 
-  Widget _getCurrentPage() {
+  Widget _getCurrentPage(int currentIndex) {
     // Safety check
-    if (selectedIndex < 0 || selectedIndex >= currentAppDestinations.length) {
+    if (currentIndex < 0 || currentIndex >= currentAppDestinations.length) {
       return const Center(child: Text("Error: Page index out of bounds"));
     }
 
-    final destination = currentAppDestinations[selectedIndex].destination;
+    final destination = currentAppDestinations[currentIndex].destination;
 
     switch (destination) {
       case NavigationDestinations.home:
@@ -77,8 +104,16 @@ class _AppLayoutState extends State<AppLayout> {
     }
   }
 
+  void _onItemTapped(int index) {
+    // UPDATED: Use the provider to update the index
+    Provider.of<NavigationProvider>(context, listen: false).setIndex(index);
+  }
+
   @override
   Widget build(BuildContext context) {
+    // UPDATED: Listen to the provider state
+    final navigationProvider = Provider.of<NavigationProvider>(context);
+    final int currentIndex = navigationProvider.selectedIndex;
     return LayoutBuilder(
       builder: (context, constraints) {
         final bool isMobile = constraints.maxWidth < mobileBreakpoint;
@@ -89,7 +124,7 @@ class _AppLayoutState extends State<AppLayout> {
           body: isMobile
               ? Column(
             children: [
-              Expanded(child: _getCurrentPage()), // Use helper method
+              Expanded(child: _getCurrentPage(currentIndex)), // Use helper method
               const SafeArea(
                 top: false,
                 child: ConnectivityBanner(),
@@ -98,12 +133,12 @@ class _AppLayoutState extends State<AppLayout> {
           )
               : Row(
             children: [
-              _navigationRail(context, currentAppDestinations),
+              _navigationRail(context, currentAppDestinations, currentIndex),
               const VerticalDivider(thickness: 1, width: 1),
               Expanded(
                 child: Column(
                   children: [
-                    Expanded(child: _getCurrentPage()), // Use helper method
+                    Expanded(child: _getCurrentPage(currentIndex)), // Use helper method
                     const SafeArea(
                       top: false,
                       child: ConnectivityBanner(),
@@ -115,25 +150,16 @@ class _AppLayoutState extends State<AppLayout> {
           ),
           bottomNavigationBar: isMobile
               ? _bottomNavigationBar(
-              isMobile, context, _onItemTapped, currentAppDestinations)
+              isMobile, context, _onItemTapped, currentAppDestinations,currentIndex)
               : null,
         );
       },
     );
   }
 
-  void _onItemTapped(int index ) {
-    if (index < 0 || index >= currentAppDestinations.length) return;
-    if (selectedIndex == index) return;
-
-    setState(() {
-      selectedIndex = index;
-    });
-  }
-
-  Widget _navigationRail(BuildContext context, List<NavigationItem> destinations) {
+  Widget _navigationRail(BuildContext context, List<NavigationItem> destinations, int currentIndex) {
     return NavigationRail(
-      selectedIndex: selectedIndex,
+      selectedIndex: currentIndex,
       onDestinationSelected: _onItemTapped,
       labelType: NavigationRailLabelType.all,
       destinations: destinations
@@ -148,8 +174,12 @@ class _AppLayoutState extends State<AppLayout> {
     );
   }
 
-  BottomNavigationBar? _bottomNavigationBar(bool isMobile, BuildContext context,
-      Function(int) onItemTapped, List<NavigationItem> destinations) {
+  BottomNavigationBar? _bottomNavigationBar(
+      bool isMobile,
+      BuildContext context,
+      Function(int) onItemTapped,
+      List<NavigationItem> destinations,
+      int currentIndex) {
     return BottomNavigationBar(
       items: destinations
           .map((item) =>
@@ -158,36 +188,9 @@ class _AppLayoutState extends State<AppLayout> {
             label: item.label,
           ))
           .toList(),
-      currentIndex: selectedIndex,
+      currentIndex: currentIndex,
       onTap: onItemTapped,
       type: BottomNavigationBarType.fixed,
     );
   }
-}
-
-final List<NavigationItem> appDestinations = [
-  NavigationItem(
-      destination: NavigationDestinations.home,
-      icon: Icons.home,
-      label: 'Home'),
-  NavigationItem(
-      destination: NavigationDestinations.route,
-      icon: Icons.route,
-      label: 'Route'),
-  NavigationItem(
-      destination: NavigationDestinations.settings,
-      icon: Icons.settings,
-      label: 'Settings'),
-];
-
-class NavigationItem {
-  final NavigationDestinations destination;
-  final IconData icon;
-  final String label;
-
-  NavigationItem({
-    required this.destination,
-    required this.icon,
-    required this.label,
-  });
 }
