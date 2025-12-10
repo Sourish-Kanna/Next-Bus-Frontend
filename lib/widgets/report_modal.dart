@@ -121,7 +121,9 @@ class _ReportBusSheetState extends State<ReportBusSheet> {
                 _submitReport(context, formattedTime);
               }
             },
-            icon: const Icon(Icons.schedule),
+            icon: _isLoading
+              ? _buildSpinner(context, onPrimary: true)
+            : const Icon(Icons.schedule),
             label: const Text("Report Time", style: TextStyle(fontSize: 16)),
           ),
           const SizedBox(height: 15),
@@ -138,7 +140,9 @@ class _ReportBusSheetState extends State<ReportBusSheet> {
                 CustomSnackBar.show(context, 'Will be added soon...');
                 Navigator.pop(context);
               },
-              icon: const Icon(Icons.report_problem),
+              icon: _isLoading
+                  ? _buildSpinner(context, onPrimary: true)
+                  : const Icon(Icons.report_problem),
               label: const Text("Request New Routes", style: TextStyle(fontSize: 16)),
             ),
           ),
