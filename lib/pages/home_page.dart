@@ -21,6 +21,7 @@ class HomePageState extends State<HomePage> {
     final routeProvider = Provider.of<RouteProvider>(context);
     final newRoute = routeProvider.route;
 
+    // Fetch timetable only if route changes
     if (newRoute != _currentRoute) {
       Future.microtask(() {
         if (!mounted) return;
@@ -30,6 +31,7 @@ class HomePageState extends State<HomePage> {
       });
     }
 
+    // Fetch user data once
     if (!_isUserDataFetched) {
       _isUserDataFetched = true;
       Future.microtask(() {
@@ -37,6 +39,15 @@ class HomePageState extends State<HomePage> {
         Provider.of<UserDetails>(context, listen: false).fetchUserDetails();
       });
     }
+  }
+
+  // 1. THE REFRESH FUNCTION
+  Future<void> _refreshData() async {
+    final routeProvider = Provider.of<RouteProvider>(context, listen: false);
+
+    // Force a re-fetch of the timetable for the current route
+    await Provider.of<TimetableProvider>(context, listen: false)
+        .fetchTimetable(routeProvider.route);
   }
 
   void _showReportModal(BuildContext context) {
@@ -67,10 +78,22 @@ class HomePageState extends State<HomePage> {
         automaticallyImplyLeading: false,
         title: Text("Route $route"),
       ),
-      body: Padding(
-        padding: const EdgeInsets.symmetric(vertical: 13.0, horizontal: 10.0),
-        child: TimetableDisplay(route: route),
+
+      // 2. WRAP BODY IN REFRESH INDICATOR
+      body: RefreshIndicator(
+        onRefresh: _refreshData,
+        // Optional: Offset determines how far down the spinner appears
+        edgeOffset: 10.0,
+        child: Padding(
+          padding: const EdgeInsets.symmetric(vertical: 13.0, horizontal: 10.0),
+
+          // NOTE: Ensure TimetableDisplay uses a Scrollable widget (like ListView)
+          // with 'physics: AlwaysScrollableScrollPhysics()' inside it.
+          // If TimetableDisplay is not scrollable, the Refresh gesture won't trigger.
+          child: TimetableDisplay(route: route),
+        ),
       ),
+
       floatingActionButton: isGuest
           ? null
           : FloatingActionButton(

@@ -4,20 +4,66 @@ import 'package:provider/provider.dart';
 import 'package:intl/intl.dart';
 import 'package:nextbus/common.dart';
 
-class ReportBusSheet extends StatelessWidget {
+class ReportBusSheet extends StatefulWidget {
   const ReportBusSheet({super.key});
 
+  @override
+  State<ReportBusSheet> createState() => _ReportBusSheetState();
+}
+
+class _ReportBusSheetState extends State<ReportBusSheet> {
+  // 1. Loading State Variable
+  bool _isLoading = false;
+
   Future<void> _submitReport(BuildContext context, String timeStr) async {
-    final routeProvider = Provider.of<RouteProvider>(context, listen: false);
-    final timeProvider = Provider.of<TimetableProvider>(context, listen: false);
+    // 2. Start Loading
+    setState(() {
+      _isLoading = true;
+    });
 
-    // TODO: Replace "test" with the actual Stop ID or Bus Status if needed
-    await timeProvider.updateTime(routeProvider.route, "test", timeStr);
+    try {
+      final routeProvider = Provider.of<RouteProvider>(context, listen: false);
+      final timeProvider = Provider.of<TimetableProvider>(context, listen: false);
 
-    AppLogger.info('Reported: Route ${routeProvider.route} at $timeStr');
-    if (!context.mounted) return;
-    CustomSnackBar.show(context, 'Reported: Route ${routeProvider.route} at $timeStr');
-    Navigator.pop(context);
+      // TODO: Replace "test" with the actual Stop ID or Bus Status if needed
+      await timeProvider.updateTime(routeProvider.route, "test", timeStr);
+
+      AppLogger.info('Reported: Route ${routeProvider.route} at $timeStr');
+      if (!context.mounted) return;
+
+      Navigator.pop(context);
+      CustomSnackBar.show(context, 'Reported: Route ${routeProvider.route} at $timeStr');
+
+    } catch (e) {
+      // Handle errors gracefully (optional)
+      if (context.mounted) {
+        CustomSnackBar.show(context, 'Failed to report: $e');
+        AppLogger.error('Failed to report', e);
+        Navigator.pop(context);
+      }
+    } finally {
+      // 3. Stop Loading (if the widget is still mounted and didn't pop)
+      if (mounted) {
+        setState(() {
+          _isLoading = false;
+        });
+      }
+    }
+  }
+
+  // Helper widget for the M3 Spinner
+  Widget _buildSpinner(BuildContext context, {bool onPrimary = true}) {
+    return SizedBox(
+      height: 20,
+      width: 20,
+      child: CircularProgressIndicator(
+        strokeWidth: 2.5,
+        strokeCap: StrokeCap.round,
+        color: onPrimary
+            ? Theme.of(context).colorScheme.onPrimary
+            : Theme.of(context).colorScheme.onSecondaryContainer,
+      ),
+    );
   }
 
   @override
@@ -25,7 +71,7 @@ class ReportBusSheet extends StatelessWidget {
     return Padding(
       padding: const EdgeInsets.symmetric(vertical: 20.0, horizontal: 16.0),
       child: Column(
-        mainAxisSize: MainAxisSize.min, // Takes minimum space needed
+        mainAxisSize: MainAxisSize.min,
         crossAxisAlignment: CrossAxisAlignment.stretch,
         children: [
           const Text(
@@ -38,18 +84,28 @@ class ReportBusSheet extends StatelessWidget {
           ),
           const SizedBox(height: 25),
 
+          // --- BUTTON 1: Arrived Now ---
           FilledButton.icon(
-            onPressed: () {
+            onPressed: _isLoading
+                ? null // Disable button while loading
+                : () {
               String formattedTime = DateFormat('h:mm a').format(DateTime.now());
               _submitReport(context, formattedTime);
             },
-            icon: const Icon(Icons.directions_bus),
-            label: const Text("Arrived Now", style: TextStyle(fontSize: 16)),
+            // Swap icon for spinner if loading
+            icon: _isLoading
+                ? _buildSpinner(context, onPrimary: true)
+                : const Icon(Icons.directions_bus),
+            label: Text(_isLoading ? "Sending..." : "Arrived Now",
+                style: const TextStyle(fontSize: 16)),
           ),
           const SizedBox(height: 15),
 
+          // --- BUTTON 2: Report Time (Picker) ---
           FilledButton.tonalIcon(
-            onPressed: () async {
+            onPressed: _isLoading
+                ? null
+                : () async {
               final TimeOfDay? pickedTime = await showTimePicker(
                 context: context,
                 initialTime: TimeOfDay.now(),
@@ -70,21 +126,22 @@ class ReportBusSheet extends StatelessWidget {
           ),
           const SizedBox(height: 15),
 
-          // SizedBox(
-          //   width: double.infinity,
-          //   height: 55,
-          //   child: FilledButton.tonalIcon(
-          //     onPressed: () {
-          //       Navigator.pop(context);
-          //     },
-          //     style: FilledButton.styleFrom(
-          //       backgroundColor: Theme.of(context).colorScheme.error,
-          //       foregroundColor: Theme.of(context).colorScheme.onError,
-          //     ),
-          //     icon: const Icon(Icons.report_problem),
-          //     label: const Text("Report Delay", style: TextStyle(fontSize: 16)),
-          //   ),
-          // ),
+          // --- BUTTON 3: Request New Routes ---
+          SizedBox(
+            width: double.infinity,
+            height: 55,
+            child: FilledButton.tonalIcon(
+              onPressed: _isLoading
+                  ? null
+                  : () {
+                if (!context.mounted) return;
+                CustomSnackBar.show(context, 'Will be added soon...');
+                Navigator.pop(context);
+              },
+              icon: const Icon(Icons.report_problem),
+              label: const Text("Request New Routes", style: TextStyle(fontSize: 16)),
+            ),
+          ),
         ],
       ),
     );

@@ -20,33 +20,57 @@ class _RouteSelectState extends State<RouteSelect> {
     super.didChangeDependencies();
 
     if (_isInit) {
+      // 1. Initial Load Logic
       final routeProvider = Provider.of<RouteProvider>(context);
-
-      if (routeProvider.availableRoutes.isNotEmpty) {
-        if (selectedRoute == null) {
-          if (routeProvider.route.isNotEmpty && routeProvider.availableRoutes.contains(routeProvider.route)) {
-            selectedRoute = routeProvider.route;
-          } else {
-            selectedRoute = routeProvider.availableRoutes.first;
-          }
-          AppLogger.info("Selected route initialized to: $selectedRoute");
-        }
-        _isLoading = false;
-      } else {
-        AppLogger.warn("RouteSelect: availableRoutes is empty.");
-        _isLoading = false;
-      }
-
+      _resolveSelectedRoute(routeProvider);
       _isInit = false;
     }
+  }
+
+  /// REUSABLE LOGIC: Matches your didChangeDependencies logic exactly
+  void _resolveSelectedRoute(RouteProvider routeProvider) {
+    if (routeProvider.availableRoutes.isNotEmpty) {
+
+      // Only set if null (or you can force reset if you prefer)
+      if (selectedRoute == null) {
+        if (routeProvider.route.isNotEmpty && routeProvider.availableRoutes.contains(routeProvider.route)) {
+          selectedRoute = routeProvider.route;
+        } else {
+          selectedRoute = routeProvider.availableRoutes.first;
+        }
+        AppLogger.info("Selected route resolved to: $selectedRoute");
+      }
+      _isLoading = false;
+    } else {
+      AppLogger.warn("RouteSelect: availableRoutes is empty.");
+      _isLoading = false;
+    }
+  }
+
+  // 2. REFRESH LOGIC
+  Future<void> _refreshRoutes() async {
+    final routeProvider = Provider.of<RouteProvider>(context, listen: false);
+
+    // A. Force a re-fetch from API
+    await routeProvider.fetchRoutes();
+
+    if (!mounted) return;
+
+    // B. Re-run the dependency logic to update UI/Selection
+    setState(() {
+      // Optional: Reset selectedRoute to null if you want 'refresh' to pick the default again
+      // selectedRoute = null;
+
+      _resolveSelectedRoute(routeProvider);
+    });
   }
 
   @override
   Widget build(BuildContext context) {
     final navProvider = Provider.of<NavigationProvider>(context, listen: false);
-    AppLogger.info("Build method called in RouteSelect. Current selectedRoute: $selectedRoute");
-
     final routeProvider = Provider.of<RouteProvider>(context);
+
+    AppLogger.info("Build method called. Current selectedRoute: $selectedRoute");
 
     return Scaffold(
       appBar: AppBar(
@@ -61,33 +85,33 @@ class _RouteSelectState extends State<RouteSelect> {
           children: [
             const Text("Select a route from the list below:", style: TextStyle(fontSize: 16)),
             const SizedBox(height: 10),
-            // LIST VIEW
+
+            // 3. REFRESH INDICATOR
             Expanded(
-              child: ListView.builder(
-                itemCount: routeProvider.availableRoutes.length,
-                itemBuilder: (context, index) {
-                  final routeItem = routeProvider.availableRoutes[index];
-                  // Determine if this specific item is the currently selected one for styling
-                  final bool isSelected = selectedRoute == routeItem;
+              child: RefreshIndicator(
+                onRefresh: _refreshRoutes,
+                child: ListView.builder(
+                  physics: const AlwaysScrollableScrollPhysics(), // Required for pull-to-refresh on short lists
+                  itemCount: routeProvider.availableRoutes.length,
+                  itemBuilder: (context, index) {
+                    final routeItem = routeProvider.availableRoutes[index];
+                    final bool isSelected = selectedRoute == routeItem;
 
-                  return ListTile(
-                    title: Text("Route $routeItem"),
-                    leading: Icon(
-                        Icons.directions_bus,
-                        color: isSelected ? Theme.of(context).primaryColor : Colors.grey
-                    ),
-                    tileColor: isSelected ? Theme.of(context).primaryColor.withValues(alpha: 0.1) : null,
-                    onTap: () {
-                      AppLogger.info("Route selected and confirmed: $routeItem");
-
-                      // 1. Update the provider immediately
-                      routeProvider.setRoute(routeItem);
-
-                      // 2. Close the screen immediately
-                      navProvider.setIndex(0);
-                    },
-                  );
-                },
+                    return ListTile(
+                      title: Text("Route $routeItem"),
+                      leading: Icon(
+                          Icons.directions_bus,
+                          color: isSelected ? Theme.of(context).primaryColor : Colors.grey
+                      ),
+                      tileColor: isSelected ? Theme.of(context).primaryColor.withValues(alpha: 0.1) : null,
+                      onTap: () {
+                        AppLogger.info("Route selected and confirmed: $routeItem");
+                        routeProvider.setRoute(routeItem);
+                        navProvider.setIndex(0);
+                      },
+                    );
+                  },
+                ),
               ),
             ),
           ],

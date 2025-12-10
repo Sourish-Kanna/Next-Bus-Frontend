@@ -94,6 +94,45 @@ class _AppLayoutState extends State<AppLayout> {
     Provider.of<NavigationProvider>(context, listen: false).setIndex(index);
   }
 
+  void _showDisclaimerDialog() {
+    showDialog(
+      context: context,
+      barrierDismissible: false,
+      builder: (BuildContext context) {
+        return AlertDialog(
+          icon: Icon(
+            Icons.info_outline,
+            color: Theme.of(context).colorScheme.primary,
+          ),
+
+          title: const Text("Data Notice"),
+
+          content: const Text(
+            "This application uses crowdsourced data which may not be fully verified. Please use with discretion.",
+            textAlign: TextAlign.center,
+          ),
+
+          actions: [
+            TextButton(
+              onPressed: () {
+                Navigator.of(context).pop();
+              },
+              child: const Text("I Understand"),
+            ),
+          ],
+        );
+      },
+    );
+  }
+
+  @override
+  void initState() {
+    super.initState();
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      _showDisclaimerDialog();
+    });
+  }
+
   @override
   Widget build(BuildContext context) {
     // 1. Listen to UserDetails. If fetchUserDetails finishes, this rebuilds automatically.

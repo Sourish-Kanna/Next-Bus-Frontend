@@ -76,46 +76,35 @@ class _AppInitializerState extends State<AppInitializer> {
     }
   }
 
-  /// Runs all initialization logic and updates the state.
+    /// Runs all initialization logic and updates the state.
   Future<void> _initializeApp() async {
-    // Set state to loading when retrying
+    // Set state to loading
     if (mounted) {
       setState(() {
         _status = AppStatus.loading;
       });
     }
 
-    // "No Wi-Fi/Mobile" Check
+    // 1. OFFLINE CHECK (Modified: Don't block, just warn)
     final connectivityResult = await Connectivity().checkConnectivity();
-    if (connectivityResult.contains(ConnectivityResult.none)) {
-      AppLogger.onlyLocal("No Internet Connection (Instant Check)");
-      if (mounted) {
-        setState(() {
-          _status = AppStatus.error;
-          _errorTitle = "No Connection";
-          _errorMessage = "Please check your network settings and try again.";
-        });
+    bool isOffline = connectivityResult.contains(ConnectivityResult.none);
+
+    if (isOffline) {
+      AppLogger.onlyLocal("No Internet Connection (Instant Check) - Starting in Offline Mode");
+      // We do NOT return here anymore. We let the app proceed to load cached data.
+    } else {
+      // If we have connection types, check for actual data access
+      final bool hasInternet = await InternetConnection().hasInternetAccess;
+      if (!hasInternet) {
+        AppLogger.onlyLocal("Connected to Router but No Internet Access - Starting in Offline Mode");
+        isOffline = true;
       }
-      return;
     }
 
-    // Real "Has Internet" Check (pings Google/Cloudflare by default)
-    final bool isConnected = await InternetConnection().hasInternetAccess;
-
-    if (!isConnected) {
-      AppLogger.onlyLocal("No Internet Access");
-      if (mounted) {
-        setState(() {
-          _status = AppStatus.error;
-          _errorTitle = "No Internet Access";
-          _errorMessage = "Please check your internet connection and try again.";
-        });
-      }
-      return;
+    // 2. Wake up server (Only if we think we are online)
+    if (!isOffline) {
+      _wakeUpServer();
     }
-
-    // Wake up the server
-    _wakeUpServer();
 
     // Set app orientation
     if (TargetPlatform.android == defaultTargetPlatform) {
@@ -125,31 +114,23 @@ class _AppInitializerState extends State<AppInitializer> {
       ]);
     }
 
-    // Set Up Firebase and Crashlytics
+    // 3. Set Up Firebase (Works offline due to local persistence)
     try {
-
-      // --- FIX START: Check for existing instance ---
       if (Firebase.apps.isEmpty) {
-        // Only initialize if no apps exist
         await Firebase.initializeApp(options: Config.firebaseOptions);
         AppLogger.onlyLocal("Firebase initialized successfully.");
       } else {
-        // If already initialized (e.g. by Android native layer or Hot Restart), use existing
-        AppLogger.onlyLocal("Firebase was already initialized. Using existing instance.");
+        AppLogger.onlyLocal("Firebase was already initialized.");
       }
 
       _analytics = FirebaseAnalytics.instance;
       _observer = FirebaseAnalyticsObserver(analytics: _analytics);
-
-      // Initialize Crashlytics right after Firebase
       final crashlytics = FirebaseCrashlytics.instance;
 
       if (!kIsWeb) {
-        // Crashlytics Error Handlers for non-web platforms
         FlutterError.onError = (errorDetails) {
           crashlytics.recordFlutterFatalError(errorDetails);
         };
-
         PlatformDispatcher.instance.onError = (error, stack) {
           crashlytics.recordError(error, stack, fatal: true);
           return true;
@@ -157,21 +138,29 @@ class _AppInitializerState extends State<AppInitializer> {
       }
       AppLogger.initialize(crashlytics);
     } catch (e) {
-      AppLogger.onlyLocal("error : $e");
+      AppLogger.onlyLocal("Firebase Init Error: $e");
+      // Even if Firebase fails, we might still want to let the user see cached Bus Data
+      // But usually, if Firebase init fails, it's a config issue, not network.
+      // We will keep the error screen here ONLY for critical config failures.
       if (mounted) {
         setState(() {
           _status = AppStatus.error;
-          _errorTitle = "Failed to Initialize Firebase";
-          _errorMessage = "An error occurred while connecting to our services.";
+          _errorTitle = "Initialization Failed";
+          _errorMessage = "Could not initialize core services.";
         });
       }
       return;
     }
 
-    // Get Initial Auth State
-    _initialUser = await FirebaseAuth.instance.authStateChanges().first;
+    // 4. Get Auth State (FirebaseAuth works offline via cache)
+    try {
+      _initialUser = await FirebaseAuth.instance.authStateChanges().first;
+    } catch (e) {
+      AppLogger.onlyLocal("Auth Check Failed (likely offline): $e");
+      _initialUser = null; // Proceed as guest or logged out if check fails
+    }
 
-    // If all successful
+    // 5. SUCCESS: Open the App (ConnectivityBanner will handle showing "Offline" status)
     if (mounted) {
       setState(() {
         _status = AppStatus.success;
