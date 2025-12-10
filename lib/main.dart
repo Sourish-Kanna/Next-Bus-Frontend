@@ -76,16 +76,26 @@ class _AppInitializerState extends State<AppInitializer> {
     }
   }
 
-    /// Runs all initialization logic and updates the state.
+  /// Runs all initialization logic and updates the state.
   Future<void> _initializeApp() async {
-    // Set state to loading
+    
+    // Set state to loading when retrying
     if (mounted) {
       setState(() {
         _status = AppStatus.loading;
       });
     }
 
-    // 1. OFFLINE CHECK (Modified: Don't block, just warn)
+    // if (mounted) {
+    //   setState(() {
+    //     _status = AppStatus.error;
+    //     _errorTitle = "Test Error Screen";
+    //     _errorMessage = "This is a forced error to verify the new Material 3 design.\n\n(It works!)";
+    //   });
+    //   return; // Stop the rest of the app from loading
+    // }
+
+    // 1. OFFLINE CHECK (Non-blocking for cached data access)
     final connectivityResult = await Connectivity().checkConnectivity();
     bool isOffline = connectivityResult.contains(ConnectivityResult.none);
 
@@ -120,17 +130,21 @@ class _AppInitializerState extends State<AppInitializer> {
         await Firebase.initializeApp(options: Config.firebaseOptions);
         AppLogger.onlyLocal("Firebase initialized successfully.");
       } else {
-        AppLogger.onlyLocal("Firebase was already initialized.");
+        AppLogger.onlyLocal("Firebase was already initialized. Using existing instance.");
       }
 
       _analytics = FirebaseAnalytics.instance;
       _observer = FirebaseAnalyticsObserver(analytics: _analytics);
+
+      // Initialize Crashlytics right after Firebase
       final crashlytics = FirebaseCrashlytics.instance;
 
       if (!kIsWeb) {
+        // Crashlytics Error Handlers for non-web platforms
         FlutterError.onError = (errorDetails) {
           crashlytics.recordFlutterFatalError(errorDetails);
         };
+
         PlatformDispatcher.instance.onError = (error, stack) {
           crashlytics.recordError(error, stack, fatal: true);
           return true;
@@ -139,28 +153,25 @@ class _AppInitializerState extends State<AppInitializer> {
       AppLogger.initialize(crashlytics);
     } catch (e) {
       AppLogger.onlyLocal("Firebase Init Error: $e");
-      // Even if Firebase fails, we might still want to let the user see cached Bus Data
-      // But usually, if Firebase init fails, it's a config issue, not network.
-      // We will keep the error screen here ONLY for critical config failures.
       if (mounted) {
         setState(() {
           _status = AppStatus.error;
-          _errorTitle = "Initialization Failed";
-          _errorMessage = "Could not initialize core services.";
+          _errorTitle = "Failed to Initialize Firebase";
+          _errorMessage = "An error occurred while connecting to our services.";
         });
       }
       return;
     }
 
-    // 4. Get Auth State (FirebaseAuth works offline via cache)
+    // 4. Get Initial Auth State
     try {
       _initialUser = await FirebaseAuth.instance.authStateChanges().first;
     } catch (e) {
       AppLogger.onlyLocal("Auth Check Failed (likely offline): $e");
-      _initialUser = null; // Proceed as guest or logged out if check fails
+      _initialUser = null;
     }
 
-    // 5. SUCCESS: Open the App (ConnectivityBanner will handle showing "Offline" status)
+    // If all successful
     if (mounted) {
       setState(() {
         _status = AppStatus.success;
@@ -172,21 +183,30 @@ class _AppInitializerState extends State<AppInitializer> {
   Widget build(BuildContext context) {
     switch (_status) {
       case AppStatus.loading:
-        // Show a simple loading screen
-        return const MaterialApp(
+      // Updated to use Material 3 styling during the brief loading phase
+        return MaterialApp(
           debugShowCheckedModeBanner: false,
-          home: Scaffold(body: Center(child: CircularProgressIndicator())),
+          theme: ThemeData(
+            useMaterial3: true,
+            colorSchemeSeed: Colors.deepOrange, // Matches your fallbackColor
+          ),
+          home: const Scaffold(
+            body: Center(
+              child: CircularProgressIndicator(
+                strokeCap: StrokeCap.round, // M3 rounded ends
+              ),
+            ),
+          ),
         );
       case AppStatus.error:
-        // Show the error screen with a retry button
+      // Show the error screen with a retry button
         return ErrorScreen(
           title: _errorTitle,
           message: _errorMessage,
-          onRetry:
-              _initializeApp, // Pass the init function as the retry callback
+          onRetry: _initializeApp,
         );
       case AppStatus.success:
-        // Show the main app
+      // Show the main app
         return MultiProvider(
           providers: [
             ChangeNotifierProvider(create: (context) => AuthService()),

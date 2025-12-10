@@ -27,7 +27,6 @@ class _RouteSelectState extends State<RouteSelect> {
     }
   }
 
-  /// REUSABLE LOGIC: Matches your didChangeDependencies logic exactly
   void _resolveSelectedRoute(RouteProvider routeProvider) {
     if (routeProvider.availableRoutes.isNotEmpty) {
 
@@ -100,10 +99,16 @@ class _RouteSelectState extends State<RouteSelect> {
                     return ListTile(
                       title: Text("Route $routeItem"),
                       leading: Icon(
-                          Icons.directions_bus,
-                          color: isSelected ? Theme.of(context).primaryColor : Colors.grey
+                        Icons.directions_bus,
+                        // ✅ CHANGED: Uses Theme Scheme for both states
+                        color: isSelected
+                            ? Theme.of(context).colorScheme.primary
+                            : Theme.of(context).colorScheme.onSurfaceVariant,
                       ),
-                      tileColor: isSelected ? Theme.of(context).primaryColor.withValues(alpha: 0.1) : null,
+                      // ✅ CHANGED: Uses proper container color opacity
+                      tileColor: isSelected
+                          ? Theme.of(context).colorScheme.primaryContainer.withValues(alpha: 0.3)
+                          : null,
                       onTap: () {
                         AppLogger.info("Route selected and confirmed: $routeItem");
                         routeProvider.setRoute(routeItem);

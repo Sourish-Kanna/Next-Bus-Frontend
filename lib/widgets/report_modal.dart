@@ -66,6 +66,15 @@ class _ReportBusSheetState extends State<ReportBusSheet> {
     );
   }
 
+  ButtonStyle _xlButtonStyle(BuildContext context, {bool isError = false}) {
+    return FilledButton.styleFrom(
+      minimumSize: const Size(double.infinity, 56), // XL Height
+      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(28)), // Pill shape
+      backgroundColor: isError ? Theme.of(context).colorScheme.errorContainer : null,
+      foregroundColor: isError ? Theme.of(context).colorScheme.onErrorContainer : null,
+    );
+  }
+
   @override
   Widget build(BuildContext context) {
     return Padding(
@@ -86,26 +95,23 @@ class _ReportBusSheetState extends State<ReportBusSheet> {
 
           // --- BUTTON 1: Arrived Now ---
           FilledButton.icon(
-            onPressed: _isLoading
-                ? null // Disable button while loading
-                : () {
+            style: _xlButtonStyle(context), // <--- Apply XL Style
+            onPressed: _isLoading ? null : () {
               String formattedTime = DateFormat('h:mm a').format(DateTime.now());
               _submitReport(context, formattedTime);
             },
-            // Swap icon for spinner if loading
             icon: _isLoading
                 ? _buildSpinner(context, onPrimary: true)
                 : const Icon(Icons.directions_bus),
             label: Text(_isLoading ? "Sending..." : "Arrived Now",
-                style: const TextStyle(fontSize: 16)),
+                style: const TextStyle(fontSize: 18, fontWeight: FontWeight.bold)), // Larger Font
           ),
-          const SizedBox(height: 15),
+          const SizedBox(height: 16), // Increased spacing
 
-          // --- BUTTON 2: Report Time (Picker) ---
+          // --- BUTTON 2: Report Time ---
           FilledButton.tonalIcon(
-            onPressed: _isLoading
-                ? null
-                : () async {
+            style: _xlButtonStyle(context),
+            onPressed: _isLoading ? null : () async {
               final TimeOfDay? pickedTime = await showTimePicker(
                 context: context,
                 initialTime: TimeOfDay.now(),
@@ -121,31 +127,26 @@ class _ReportBusSheetState extends State<ReportBusSheet> {
                 _submitReport(context, formattedTime);
               }
             },
-            icon: _isLoading
-              ? _buildSpinner(context, onPrimary: true)
-            : const Icon(Icons.schedule),
-            label: const Text("Report Time", style: TextStyle(fontSize: 16)),
+            icon: const Icon(Icons.schedule),
+            label: const Text("Report Time", style: TextStyle(fontSize: 18, fontWeight: FontWeight.w500)),
           ),
-          const SizedBox(height: 15),
+          const SizedBox(height: 16), // Increased spacing
 
-          // --- BUTTON 3: Request New Routes ---
-          SizedBox(
-            width: double.infinity,
-            height: 55,
-            child: FilledButton.tonalIcon(
-              onPressed: _isLoading
-                  ? null
-                  : () {
-                if (!context.mounted) return;
-                CustomSnackBar.show(context, 'Will be added soon...');
-                Navigator.pop(context);
-              },
-              icon: _isLoading
-                  ? _buildSpinner(context, onPrimary: true)
-                  : const Icon(Icons.report_problem),
-              label: const Text("Request New Routes", style: TextStyle(fontSize: 16)),
-            ),
-          ),
+          // // --- BUTTON 3: Request New Routes ---
+          // FilledButton.tonalIcon(
+          //   style: _xlButtonStyle(context),
+          //   onPressed: _isLoading
+          //       ? null
+          //       : () {
+          //     if (!context.mounted) return;
+          //     CustomSnackBar.show(context, 'Feature will be added soon...');
+          //     Navigator.pop(context);
+          //   },
+          //   icon: _isLoading
+          //       ? _buildSpinner(context, onPrimary: true)
+          //       : const Icon(Icons.report_problem),
+          //   label: const Text("Request New Routes", style: TextStyle(fontSize: 16)),
+          // ),
         ],
       ),
     );

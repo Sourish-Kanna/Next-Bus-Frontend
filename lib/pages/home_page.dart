@@ -54,6 +54,7 @@ class HomePageState extends State<HomePage> {
     showModalBottomSheet(
       context: context,
       isScrollControlled: true,
+      showDragHandle: true, // <--- ADDED: Standard M3 Handle
       backgroundColor: Theme.of(context).colorScheme.surface,
       shape: const RoundedRectangleBorder(
         borderRadius: BorderRadius.vertical(top: Radius.circular(24)),
@@ -73,11 +74,27 @@ class HomePageState extends State<HomePage> {
     bool isGuest = userDetails.isGuest;
 
     return Scaffold(
-      appBar: AppBar(
-        backgroundColor: Theme.of(context).colorScheme.inversePrimary,
-        automaticallyImplyLeading: false,
-        title: Text("Route $route"),
-      ),
+        appBar: AppBar(
+          // 1. Restore Color: Matches your design screenshots (Blue/Green)
+          backgroundColor: Theme.of(context).colorScheme.inversePrimary,
+
+          automaticallyImplyLeading: false,
+          centerTitle: false, // 2. Left Align: Matches Figma/M3 guidelines
+
+          // 3. Bold Text: Matches the visual weight in your design
+          title: Text(
+            "Route $route",
+            style: const TextStyle(fontWeight: FontWeight.bold),
+          ),
+
+          // Optional: Add the 'Star' icon if you want to match Figma exactly
+          // actions: [
+          //   IconButton(
+          //     icon: const Icon(Icons.star_border),
+          //     onPressed: () {},
+          //   ),
+          // ],
+        ),
 
       // 2. WRAP BODY IN REFRESH INDICATOR
       body: RefreshIndicator(
@@ -87,9 +104,6 @@ class HomePageState extends State<HomePage> {
         child: Padding(
           padding: const EdgeInsets.symmetric(vertical: 13.0, horizontal: 10.0),
 
-          // NOTE: Ensure TimetableDisplay uses a Scrollable widget (like ListView)
-          // with 'physics: AlwaysScrollableScrollPhysics()' inside it.
-          // If TimetableDisplay is not scrollable, the Refresh gesture won't trigger.
           child: TimetableDisplay(route: route),
         ),
       ),

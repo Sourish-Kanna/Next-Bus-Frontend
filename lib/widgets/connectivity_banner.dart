@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:nextbus/providers/providers.dart';
 import 'package:provider/provider.dart';
+import 'package:nextbus/common.dart';
 
 class ConnectivityBanner extends StatelessWidget {
   const ConnectivityBanner({super.key});
@@ -9,74 +10,78 @@ class ConnectivityBanner extends StatelessWidget {
   Widget build(BuildContext context) {
     return Consumer<ConnectivityProvider>(
       builder: (context, connectivity, child) {
-        if (connectivity.isOnline) {
-          return const SizedBox.shrink(); // Takes 0 space when online
-        }
+        // 1. Wrap in AnimatedSize for smooth slide-in/slide-out effect
+        return AnimatedSize(
+          duration: const Duration(milliseconds: 300),
+          curve: Curves.easeInOut,
+          child: connectivity.isOnline
+              ? const SizedBox.shrink() // Height becomes 0 nicely
+              : Material(
+            color: Theme.of(context).colorScheme.errorContainer,
+            child: InkWell(
+              onTap: () async {
+                // 2. Visual Feedback (Clearer)
+                ScaffoldMessenger.of(context).hideCurrentSnackBar();
+                ScaffoldMessenger.of(context).showSnackBar(
+                  const SnackBar(
+                    content: Text('Checking connection...'),
+                    duration: Duration(seconds: 1),
+                  ),
+                );
 
-        return Material(
-          color: Theme.of(context).colorScheme.errorContainer,
-          child: InkWell(
-            onTap: () async {
-              // 1. Show immediate visual feedback
-              ScaffoldMessenger.of(context).hideCurrentSnackBar();
-              ScaffoldMessenger.of(context).showSnackBar(
-                const SnackBar(
-                  content: Text('Checking connection...'),
-                  duration: Duration(milliseconds: 500),
-                ),
-              );
+                // 3. Perform Check
+                bool isNowOnline = await connectivity.checkConnection();
 
-              // 2. Perform the actual check
-              bool isNowOnline = await connectivity.checkConnection();
-
-              // 3. Show result feedback if still mounted
-              if (context.mounted) {
-                if (isNowOnline) {
-                  ScaffoldMessenger.of(context).showSnackBar(
-                    SnackBar(
-                      content: const Text('Back online!'),
-                      backgroundColor: Colors.green,
-                      behavior: SnackBarBehavior.floating,
-                    ),
-                  );
-                } else {
-                  ScaffoldMessenger.of(context).showSnackBar(
-                    SnackBar(
-                      content: const Text('Still offline. Please check your settings.'),
-                      backgroundColor: Theme.of(context).colorScheme.error,
-                    ),
-                  );
+                // 4. Feedback
+                if (context.mounted) {
+                  if (isNowOnline) {
+                    CustomSnackBar.show(
+                      context,
+                      'Back online!',
+                      backgroundColor: Colors.green, // ✅ Success Color
+                      foregroundColor: Colors.white,
+                    );
+                  } else {
+                    CustomSnackBar.show(
+                      context,
+                      'Still offline. Please check settings.',
+                      backgroundColor: Theme.of(context).colorScheme.error, // ✅ Error Color
+                      foregroundColor: Theme.of(context).colorScheme.onError,
+                    );
+                  }
                 }
-              }
-            },
-            child: Container(
-              width: double.infinity,
-              padding: const EdgeInsets.symmetric(vertical: 8, horizontal: 16),
-              child: Row(
-                mainAxisAlignment: MainAxisAlignment.center,
-                children: [
-                  Icon(
-                    Icons.wifi_off_rounded,
-                    size: 16,
-                    color: Theme.of(context).colorScheme.onErrorContainer,
-                  ),
-                  const SizedBox(width: 8),
-                  Text(
-                    'No connection. Tap to retry.',
-                    style: TextStyle(
+              },
+              child: Container(
+                width: double.infinity,
+                // Increased padding for better touch target
+                padding: const EdgeInsets.symmetric(vertical: 12, horizontal: 16),
+                child: Row(
+                  mainAxisAlignment: MainAxisAlignment.center,
+                  children: [
+                    Icon(
+                      Icons.wifi_off_rounded,
+                      size: 20,
                       color: Theme.of(context).colorScheme.onErrorContainer,
-                      fontSize: 14,
-                      fontWeight: FontWeight.w600,
                     ),
-                    textAlign: TextAlign.center,
-                  ),
-                  const SizedBox(width: 8),
-                  Icon(
-                    Icons.refresh,
-                    size: 16,
-                    color: Theme.of(context).colorScheme.onErrorContainer,
-                  ),
-                ],
+                    const SizedBox(width: 12),
+                    Flexible(
+                      child: Text(
+                        'No connection. Tap to retry.',
+                        style: Theme.of(context).textTheme.labelLarge?.copyWith(
+                          color: Theme.of(context).colorScheme.onErrorContainer,
+                          fontWeight: FontWeight.bold,
+                        ),
+                        textAlign: TextAlign.center,
+                      ),
+                    ),
+                    const SizedBox(width: 12),
+                    Icon(
+                      Icons.refresh_rounded,
+                      size: 20,
+                      color: Theme.of(context).colorScheme.onErrorContainer,
+                    ),
+                  ],
+                ),
               ),
             ),
           ),

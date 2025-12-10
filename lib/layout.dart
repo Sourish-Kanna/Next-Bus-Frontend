@@ -1,9 +1,10 @@
 import 'package:flutter/material.dart';
-import 'package:nextbus/common.dart';
+import 'package:nextbus/common.dart' show AppLogger;
 import 'package:nextbus/constant.dart';
 import 'package:nextbus/providers/providers.dart' show UserDetails, NavigationProvider;
 import 'package:nextbus/widgets/widgets.dart' show ConnectivityBanner;
-import 'package:provider/provider.dart';
+import 'package:provider/provider.dart' show Provider;
+import 'package:shared_preferences/shared_preferences.dart' show SharedPreferences;
 
 // Define base destinations outside the widget to avoid recreation
 final List<NavigationItem> _baseDestinations = [
@@ -94,28 +95,30 @@ class _AppLayoutState extends State<AppLayout> {
     Provider.of<NavigationProvider>(context, listen: false).setIndex(index);
   }
 
-  void _showDisclaimerDialog() {
+  Future<void> _showDisclaimerDialog() async {
+    final prefs = await SharedPreferences.getInstance();
+    bool hasShown = prefs.getBool('hasShownDisclaimer') ?? false;
+
+    if (hasShown) return; // Stop here if they already saw it
+
+    if (!mounted) return;
+
     showDialog(
       context: context,
       barrierDismissible: false,
       builder: (BuildContext context) {
         return AlertDialog(
-          icon: Icon(
-            Icons.info_outline,
-            color: Theme.of(context).colorScheme.primary,
-          ),
-
+          icon: Icon(Icons.info_outline, color: Theme.of(context).colorScheme.primary),
           title: const Text("Data Notice"),
-
           content: const Text(
             "This application uses crowdsourced data which may not be fully verified. Please use with discretion.",
             textAlign: TextAlign.center,
           ),
-
           actions: [
-            TextButton(
-              onPressed: () {
-                Navigator.of(context).pop();
+            FilledButton( // Changed to FilledButton for emphasis
+              onPressed: () async {
+                await prefs.setBool('hasShownDisclaimer', true);
+                if (context.mounted) Navigator.of(context).pop();
               },
               child: const Text("I Understand"),
             ),

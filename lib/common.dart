@@ -5,17 +5,32 @@ import 'package:firebase_crashlytics/firebase_crashlytics.dart';
 
 /// A utility class for creating a custom SnackBar.
 class CustomSnackBar {
-  /// Shows a custom SnackBar.
-  static void show(BuildContext context, String text, {VoidCallback? onUndo}) {
+  /// Shows a custom SnackBar with optional colors.
+  static void show(
+      BuildContext context,
+      String text, {
+        VoidCallback? onUndo,
+        Color? backgroundColor,
+        Color? foregroundColor,
+      }) {
+    // 1. Clear existing snackbars to prevent stacking/delay
+    ScaffoldMessenger.of(context).removeCurrentSnackBar();
+
+    final colorScheme = Theme.of(context).colorScheme;
+
     ScaffoldMessenger.of(context).showSnackBar(
       SnackBar(
-        backgroundColor: Theme.of(context).colorScheme.inverseSurface,
+        // 2. Use passed color OR default to M3 Inverse Surface
+        backgroundColor: backgroundColor ?? colorScheme.inverseSurface,
         behavior: SnackBarBehavior.floating,
+
         content: Text(
           text,
           style: TextStyle(
             fontSize: 16,
-            color: Theme.of(context).colorScheme.onInverseSurface,
+            // 3. Ensure text contrasts with the background
+            color: foregroundColor ?? colorScheme.onInverseSurface,
+            fontWeight: FontWeight.w500,
           ),
         ),
         shape: RoundedRectangleBorder(
@@ -23,9 +38,11 @@ class CustomSnackBar {
         ),
         action: onUndo != null
             ? SnackBarAction(
-                label: "Undo",
-                onPressed: onUndo,
-              )
+          label: "Undo",
+          // Highlight action text (usually primary or inverse primary)
+          textColor: foregroundColor ?? colorScheme.inversePrimary,
+          onPressed: onUndo,
+        )
             : null,
         duration: const Duration(seconds: 3),
       ),
