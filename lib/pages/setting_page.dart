@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:nextbus/widgets/widgets.dart' show SettingsGroupCard, ThemeSettings;
-import 'package:nextbus/providers/providers.dart' show AuthService;
+import 'package:nextbus/providers/providers.dart' show AuthService, UserDetails;
 import 'package:provider/provider.dart';
 import 'package:nextbus/pages/pages.dart' show AuthScreen;
 import 'package:package_info_plus/package_info_plus.dart';
@@ -58,12 +58,17 @@ class SettingPage extends StatelessWidget {
   }
 
   Future<void> _logout(BuildContext context) async {
+    // 1. Clear local cache (Offline First logic)
+    // We use context.read which is cleaner for functions
+    await context.read<UserDetails>().clearUserData();
+    if (!context.mounted) return;
+    // 2. Sign out from Firebase
     await context.read<AuthService>().signOut();
     if (!context.mounted) return;
-
-    Navigator.pushReplacement(
-      context,
-      MaterialPageRoute(builder: (_) => const AuthScreen()),
+    // 3. Navigate to AuthScreen and REMOVE ALL BACK HISTORY
+    Navigator.of(context).pushAndRemoveUntil(
+      MaterialPageRoute(builder: (context) => const AuthScreen()),
+          (Route<dynamic> route) => false, // This predicate false = remove everything
     );
   }
 
