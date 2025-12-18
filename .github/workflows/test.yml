@@ -30,7 +30,6 @@ jobs:
 
       - name: 🔐 Decode Keystore
         run: |
-          # UPDATED: Output name changed to 'upload-keystore.jks' to match your config
           echo "${{ secrets.ANDROID_KEYSTORE_BASE64 }}" | base64 --decode > android/app/upload-keystore.jks
 
       - name: 🔥 Decode Firebase Config (Prod)
@@ -45,14 +44,34 @@ jobs:
           KEY_ALIAS: ${{ secrets.ANDROID_KEY_ALIAS }}
         run: >
           flutter build apk --split-per-abi --release
-          --build-name 1.0.${{ github.run_number }}
+          --build-name ${{ github.ref_name }}
           --build-number ${{ github.run_number }}
           --dart-define=API_LINK=${{ secrets.API_LINK }}
           --dart-define=ENVIRONMENT=prod
 
-      - name: 📦 Upload APKs for Testing
+      # Renames files using the Git Tag as version
+      - name: 🏷️ Rename APKs
+        run: |
+          cd build/app/outputs/flutter-apk/
+          
+          # Use the input from workflow_dispatch
+          VERSION="${{ github.ref_name }}"
+          
+          # Loop through split APKs (e.g., app-armeabi-v7a-release.apk)
+          for file in app-*-release.apk; do
+            # Extract Arch (remove 'app-' and '-release.apk')
+            ARCH="${file#app-}"
+            ARCH="${ARCH%-release.apk}"
+
+            # Rename to NextBus-v1.0.0-armeabi-v7a.apk
+            mv "$file" "NextBus-${VERSION}-${ARCH}.apk"
+          done
+          
+          ls -la
+
+      - name: 📦 Upload Release APKs
         uses: actions/upload-artifact@v4
         with:
-          name: test-release-apks
-          path: build/app/outputs/flutter-apk/*.apk
-          retention-days: 1
+          name: release-apks-${{ github.ref_name }}
+          path: build/app/outputs/flutter-apk/NextBus-*.apk
+          retention-days: 3
