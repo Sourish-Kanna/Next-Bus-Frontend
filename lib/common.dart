@@ -62,7 +62,7 @@ class AppLogger {
 
   static void onlyLocal(String message) {
     if (kDebugMode) {
-      debugPrint(message);
+      debugPrint("💻 [LOCAL] $message");
     }
   }
 

@@ -3,39 +3,30 @@ import 'package:nextbus/common.dart' show AppLogger;
 import 'package:nextbus/constant.dart';
 import 'package:nextbus/providers/providers.dart' show UserDetails, NavigationProvider;
 import 'package:nextbus/widgets/widgets.dart' show ConnectivityBanner;
-import 'package:provider/provider.dart' show Provider;
+import 'package:provider/provider.dart';
 import 'package:shared_preferences/shared_preferences.dart' show SharedPreferences;
 
-// Define base destinations outside the widget to avoid recreation
-final List<NavigationItem> _baseDestinations = [
-  NavigationItem(
-      destination: NavigationDestinations.home,
-      icon: Icons.home,
-      label: 'Home'),
-  NavigationItem(
-      destination: NavigationDestinations.route,
-      icon: Icons.route,
-      label: 'Route'),
-  NavigationItem(
-      destination: NavigationDestinations.settings,
-      icon: Icons.settings,
-      label: 'Settings'),
-];
-
+/// ------------------------------
+/// Navigation Item Model
+/// ------------------------------
 class NavigationItem {
   final NavigationDestinations destination;
   final IconData icon;
   final String label;
 
-  NavigationItem({
+  const NavigationItem({
     required this.destination,
     required this.icon,
     required this.label,
   });
 }
 
+/// ------------------------------
+/// App Layout
+/// ------------------------------
 class AppLayout extends StatefulWidget {
   const AppLayout({super.key});
+
   @override
   State<AppLayout> createState() => _AppLayoutState();
 }
@@ -43,91 +34,17 @@ class AppLayout extends StatefulWidget {
 class _AppLayoutState extends State<AppLayout> {
   bool _isInit = true; // Flag to ensure fetch only runs once
 
+  /// Fetch user data once
   @override
   void didChangeDependencies() {
     super.didChangeDependencies();
-
-    // Trigger the user details fetch only once when the widget initializes
     if (_isInit) {
-      // listen: false because we don't want to rebuild THIS function, just trigger the action
-      Provider.of<UserDetails>(context, listen: false).fetchUserDetails();
+      context.read<UserDetails>().fetchUserDetails();
       _isInit = false;
     }
   }
 
-  // Helper to generate the list dynamically based on Admin status
-  List<NavigationItem> _getDestinations(bool isAdmin) {
-    List<NavigationItem> destinations = List.from(_baseDestinations);
-
-    if (isAdmin) {
-      destinations.add(NavigationItem(
-          destination: NavigationDestinations.admin,
-          icon: Icons.admin_panel_settings,
-          label: 'Admin'
-      ));
-    }
-    return destinations;
-  }
-
-  Widget _getCurrentPage(int currentIndex, List<NavigationItem> destinations) {
-    // Safety check
-    if (currentIndex < 0 || currentIndex >= destinations.length) {
-      return const Center(child: Text("Error: Page index out of bounds"));
-    }
-
-    final destination = destinations[currentIndex].destination;
-
-    switch (destination) {
-      case NavigationDestinations.home:
-        return routesPage['home']!;
-      case NavigationDestinations.route:
-        return routesPage['route']!;
-      case NavigationDestinations.settings:
-        return routesPage['settings']!;
-      case NavigationDestinations.admin:
-        return routesPage["admin"]!;
-      default:
-        return const Center(child: Text("Page not found"));
-    }
-  }
-
-  void _onItemTapped(int index) {
-    Provider.of<NavigationProvider>(context, listen: false).setIndex(index);
-  }
-
-  Future<void> _showDisclaimerDialog() async {
-    final prefs = await SharedPreferences.getInstance();
-    bool hasShown = prefs.getBool('hasShownDisclaimer') ?? false;
-
-    if (hasShown) return; // Stop here if they already saw it
-
-    if (!mounted) return;
-
-    showDialog(
-      context: context,
-      barrierDismissible: false,
-      builder: (BuildContext context) {
-        return AlertDialog(
-          icon: Icon(Icons.info_outline, color: Theme.of(context).colorScheme.primary),
-          title: const Text("Data Notice"),
-          content: const Text(
-            "This application uses crowdsourced data which may not be fully verified. Please use with discretion.",
-            textAlign: TextAlign.center,
-          ),
-          actions: [
-            FilledButton( // Changed to FilledButton for emphasis
-              onPressed: () async {
-                await prefs.setBool('hasShownDisclaimer', true);
-                if (context.mounted) Navigator.of(context).pop();
-              },
-              child: const Text("I Understand"),
-            ),
-          ],
-        );
-      },
-    );
-  }
-
+  /// Disclaimer dialog (shown once)
   @override
   void initState() {
     super.initState();
@@ -136,100 +53,229 @@ class _AppLayoutState extends State<AppLayout> {
     });
   }
 
+  Future<void> _showDisclaimerDialog() async {
+    final prefs = await SharedPreferences.getInstance();
+    final shown = prefs.getBool('hasShownDisclaimer') ?? false;
+
+    if (shown || !mounted) return;
+
+    showDialog(
+      context: context,
+      barrierDismissible: false,
+      builder: (ctx) => AlertDialog(
+        icon: Icon(
+          Icons.info_outline,
+          color: Theme.of(ctx).colorScheme.primary,
+        ),
+        title: const Text('Data Notice'),
+        content: const Text(
+          'This application uses crowdsourced data which may not be fully verified. '
+          'Please use with discretion.',
+          textAlign: TextAlign.center,
+        ),
+        actions: [
+          FilledButton(
+            onPressed: () async {
+              await prefs.setBool('hasShownDisclaimer', true);
+              if (ctx.mounted) Navigator.of(ctx).pop();
+            },
+            child: const Text('I Understand'),
+          ),
+        ],
+      ),
+    );
+  }
+
+  /// ------------------------------
+  /// Destinations Builder
+  /// ------------------------------
+  List<NavigationItem> _buildDestinations(bool isAdmin) {
+    final items = <NavigationItem>[
+      const NavigationItem(
+        destination: NavigationDestinations.home,
+        icon: Icons.home,
+        label: 'Home',
+      ),
+      const NavigationItem(
+        destination: NavigationDestinations.route,
+        icon: Icons.route,
+        label: 'Route',
+      ),
+      const NavigationItem(
+        destination: NavigationDestinations.settings,
+        icon: Icons.settings,
+        label: 'Settings',
+      ),
+    ];
+
+    if (isAdmin) {
+      items.add(
+        const NavigationItem(
+          destination: NavigationDestinations.admin,
+          icon: Icons.admin_panel_settings,
+          label: 'Admin',
+        ),
+      );
+    }
+
+    return items;
+  }
+
+  /// ------------------------------
+  /// Page Resolver
+  /// ------------------------------
+  Widget _currentPage(NavigationDestinations destination) {
+    switch (destination) {
+      case NavigationDestinations.home:
+        return routesPage['home']!;
+      case NavigationDestinations.route:
+        return routesPage['route']!;
+      case NavigationDestinations.settings:
+        return routesPage['settings']!;
+      case NavigationDestinations.admin:
+        return routesPage['admin']!;
+      default:
+        return const Center(child: Text("Page not found"));
+    }
+  }
+
+  /// ------------------------------
+  /// Material 3 NavigationBar (Mobile)
+  /// ------------------------------
+  Widget? _navigationBar(
+    bool isMobile,
+    List<NavigationItem> destinations,
+    NavigationProvider nav,
+  ) {
+    if (!isMobile) return null;
+
+    final index = destinations.indexWhere(
+      (item) => item.destination == nav.current,
+    );
+
+    return NavigationBar(
+      selectedIndex: index < 0 ? 0 : index,
+      onDestinationSelected: (i) {
+        nav.navigateTo(destinations[i].destination);
+      },
+      destinations: destinations
+          .map(
+            (item) => NavigationDestination(
+              icon: Icon(item.icon),
+              label: item.label,
+            ),
+          )
+          .toList(),
+    );
+  }
+
+  /// ------------------------------
+  /// NavigationRail (Desktop)
+  /// ------------------------------
+  Widget _navigationRail(
+    BuildContext context,
+    List<NavigationItem> destinations,
+    NavigationProvider nav,
+  ) {
+    final index = destinations.indexWhere(
+      (item) => item.destination == nav.current,
+    );
+
+    return NavigationRail(
+      selectedIndex: index < 0 ? 0 : index,
+      onDestinationSelected: (i) {
+        nav.navigateTo(destinations[i].destination);
+      },
+      labelType: NavigationRailLabelType.all,
+      destinations: destinations
+          .map(
+            (item) => NavigationRailDestination(
+              icon: Icon(item.icon),
+              label: Text(item.label),
+            ),
+          )
+          .toList(),
+    );
+  }
+
+  /// ------------------------------
+  /// Build
+  /// ------------------------------
   @override
   Widget build(BuildContext context) {
-    // 1. Listen to UserDetails. If fetchUserDetails finishes, this rebuilds automatically.
-    final userDetails = Provider.of<UserDetails>(context);
+    final userDetails = context.watch<UserDetails>();
+    final nav = context.watch<NavigationProvider>();
 
-    // 2. Listen to NavigationProvider for tab switching
-    final navigationProvider = Provider.of<NavigationProvider>(context);
+    final destinations = _buildDestinations(userDetails.isAdmin);
 
-    // 3. Calculate derived state
-    final int currentIndex = navigationProvider.selectedIndex;
-    final List<NavigationItem> currentAppDestinations = _getDestinations(userDetails.isAdmin);
+    /// 🔥 Fix invalid navigation when Admin toggles dynamically
+    nav.resetIfInvalid(
+      destinations.map((e) => e.destination).toSet(),
+    );
 
     return LayoutBuilder(
       builder: (context, constraints) {
-        final bool isMobile = constraints.maxWidth < mobileBreakpoint;
+        final isMobile = constraints.maxWidth < mobileBreakpoint;
 
-        AppLogger.info('Current Destinations Count: ${currentAppDestinations.length}');
+        AppLogger.info(
+          'Destinations Count: ${destinations.length}',
+        );
 
         return Scaffold(
           body: isMobile
               ? Column(
-            children: [
-              // Pass the list so the helper knows which page corresponds to the index
-              Expanded(child: _getCurrentPage(currentIndex, currentAppDestinations)),
-              const SafeArea(
-                top: false,
-                child: ConnectivityBanner(),
-              )
-            ],
-          )
-              : Row(
-            children: [
-              _navigationRail(context, currentAppDestinations, currentIndex),
-              const VerticalDivider(thickness: 1, width: 1),
-              Expanded(
-                child: Column(
                   children: [
-                    Expanded(child: _getCurrentPage(currentIndex, currentAppDestinations)),
+                    Expanded(
+                      child: AnimatedSwitcher(
+                        duration: const Duration(milliseconds: 300),
+                        switchInCurve: Curves.easeOut,
+                        switchOutCurve: Curves.easeIn,
+                        child: KeyedSubtree(
+                          key: ValueKey(nav.current),
+                          child: _currentPage(nav.current),
+                        ),
+                      ),
+                    ),
                     const SafeArea(
                       top: false,
                       child: ConnectivityBanner(),
-                    )
+                    ),
+                  ],
+                )
+              : Row(
+                  children: [
+                    _navigationRail(context, destinations, nav),
+                    const VerticalDivider(width: 1),
+                    Expanded(
+                      child: Column(
+                        children: [
+                          Expanded(
+                            child: AnimatedSwitcher(
+                              duration: const Duration(milliseconds: 300),
+                              switchInCurve: Curves.easeOut,
+                              switchOutCurve: Curves.easeIn,
+                              child: KeyedSubtree(
+                                key: ValueKey(nav.current),
+                                child: _currentPage(nav.current),
+                              ),
+                            ),
+                          ),
+                          const SafeArea(
+                            top: false,
+                            child: ConnectivityBanner(),
+                          ),
+                        ],
+                      ),
+                    ),
                   ],
                 ),
-              ),
-            ],
+          bottomNavigationBar: _navigationBar(
+            isMobile,
+            destinations,
+            nav,
           ),
-          bottomNavigationBar: isMobile
-              ? _bottomNavigationBar(
-              isMobile, context, _onItemTapped, currentAppDestinations, currentIndex)
-              : null,
         );
       },
-    );
-  }
-
-  Widget _navigationRail(BuildContext context, List<NavigationItem> destinations, int currentIndex) {
-    return NavigationRail(
-      selectedIndex: currentIndex,
-      onDestinationSelected: _onItemTapped,
-      labelType: NavigationRailLabelType.all,
-      destinations: destinations
-          .map((item) =>
-          NavigationRailDestination(
-            icon: Icon(item.icon),
-            selectedIcon: Icon(item.icon,
-                color: Theme.of(context).colorScheme.primary),
-            label: Text(item.label),
-          ))
-          .toList(),
-    );
-  }
-
-  BottomNavigationBar? _bottomNavigationBar(
-      bool isMobile,
-      BuildContext context,
-      Function(int) onItemTapped,
-      List<NavigationItem> destinations,
-      int currentIndex) {
-
-    // Safety check: if current index is out of bounds (e.g., waiting for Admin tab), default to 0
-    final safeIndex = (currentIndex >= destinations.length) ? 0 : currentIndex;
-
-    return BottomNavigationBar(
-      items: destinations
-          .map((item) =>
-          BottomNavigationBarItem(
-            icon: Icon(item.icon),
-            label: item.label,
-          ))
-          .toList(),
-      currentIndex: safeIndex,
-      onTap: onItemTapped,
-      type: BottomNavigationBarType.fixed,
     );
   }
 }
