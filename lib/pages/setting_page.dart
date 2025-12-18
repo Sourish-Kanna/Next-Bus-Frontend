@@ -1,9 +1,11 @@
 import 'package:flutter/material.dart';
 import 'package:nextbus/widgets/widgets.dart' show SettingsGroupCard, ThemeSettings;
-import 'package:nextbus/providers/providers.dart' show AuthService, UserDetails;
+import 'package:nextbus/providers/providers.dart' show AuthService, UserDetails, ConnectivityProvider;
 import 'package:provider/provider.dart';
 import 'package:nextbus/pages/pages.dart' show AuthScreen;
 import 'package:package_info_plus/package_info_plus.dart';
+
+import '../common.dart';
 
 class SettingPage extends StatelessWidget {
   const SettingPage({super.key});
@@ -74,8 +76,9 @@ class SettingPage extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    // 1. Watch AuthService to get the current User
+
     final user = context.watch<AuthService>().user;
+    final isOnline = context.watch<ConnectivityProvider>().isOnline; //
 
     return Scaffold(
       appBar: AppBar(
@@ -135,14 +138,21 @@ class SettingPage extends StatelessWidget {
               SizedBox(
                 width: double.infinity,
                 child: ElevatedButton.icon(
-                  onPressed: () => _logout(context),
+                  onPressed: isOnline
+                      ? () => _logout(context)
+                      : () => CustomSnackBar.show(context, "You cannot logout while offline."),
                   style: ElevatedButton.styleFrom(
-                    backgroundColor: Theme.of(context).colorScheme.errorContainer,
-                    foregroundColor: Theme.of(context).colorScheme.onErrorContainer,
+                    // Grey out the button visually if offline
+                    backgroundColor: isOnline
+                        ? Theme.of(context).colorScheme.errorContainer
+                        : Theme.of(context).colorScheme.surfaceContainerHighest,
+                    foregroundColor: isOnline
+                        ? Theme.of(context).colorScheme.onErrorContainer
+                        : Theme.of(context).colorScheme.onSurfaceVariant,
                     padding: const EdgeInsets.symmetric(vertical: 12),
                   ),
-                  icon: const Icon(Icons.logout),
-                  label: const Text("Logout"),
+                  icon: isOnline ? const Icon(Icons.logout) : const Icon(Icons.wifi_off),
+                  label: Text(isOnline ? "Logout" : "Offline (Logout Disabled)"),
                 ),
               ),
             ],
