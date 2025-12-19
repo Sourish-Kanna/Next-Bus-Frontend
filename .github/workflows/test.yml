@@ -44,7 +44,6 @@ jobs:
           KEY_ALIAS: ${{ secrets.ANDROID_KEY_ALIAS }}
         run: >
           flutter build apk --split-per-abi --release
-          --build-name ${{ github.ref_name }}
           --build-number ${{ github.run_number }}
           --dart-define=API_LINK=${{ secrets.API_LINK }}
           --dart-define=ENVIRONMENT=prod

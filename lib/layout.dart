@@ -6,9 +6,7 @@ import 'package:nextbus/widgets/widgets.dart' show ConnectivityBanner;
 import 'package:provider/provider.dart';
 import 'package:shared_preferences/shared_preferences.dart' show SharedPreferences;
 
-/// ------------------------------
-/// Navigation Item Model
-/// ------------------------------
+// Navigation Item Model
 class NavigationItem {
   final NavigationDestinations destination;
   final IconData icon;
@@ -21,9 +19,7 @@ class NavigationItem {
   });
 }
 
-/// ------------------------------
-/// App Layout
-/// ------------------------------
+// App Layout
 class AppLayout extends StatefulWidget {
   const AppLayout({super.key});
 
@@ -34,7 +30,7 @@ class AppLayout extends StatefulWidget {
 class _AppLayoutState extends State<AppLayout> {
   bool _isInit = true; // Flag to ensure fetch only runs once
 
-  /// Fetch user data once
+  // Fetch user data once
   @override
   void didChangeDependencies() {
     super.didChangeDependencies();
@@ -44,7 +40,7 @@ class _AppLayoutState extends State<AppLayout> {
     }
   }
 
-  /// Disclaimer dialog (shown once)
+  // Disclaimer dialog (shown once)
   @override
   void initState() {
     super.initState();
@@ -86,9 +82,7 @@ class _AppLayoutState extends State<AppLayout> {
     );
   }
 
-  /// ------------------------------
-  /// Destinations Builder
-  /// ------------------------------
+  // Destinations Builder
   List<NavigationItem> _buildDestinations(bool isAdmin) {
     final items = <NavigationItem>[
       const NavigationItem(
@@ -121,9 +115,7 @@ class _AppLayoutState extends State<AppLayout> {
     return items;
   }
 
-  /// ------------------------------
-  /// Page Resolver
-  /// ------------------------------
+  // Page Resolver
   Widget _currentPage(NavigationDestinations destination) {
     switch (destination) {
       case NavigationDestinations.home:
@@ -139,14 +131,8 @@ class _AppLayoutState extends State<AppLayout> {
     }
   }
 
-  /// ------------------------------
-  /// Material 3 NavigationBar (Mobile)
-  /// ------------------------------
-  Widget? _navigationBar(
-    bool isMobile,
-    List<NavigationItem> destinations,
-    NavigationProvider nav,
-  ) {
+  // Material 3 NavigationBar (Mobile)
+  Widget? _navigationBar(bool isMobile, List<NavigationItem> destinations, NavigationProvider nav) {
     if (!isMobile) return null;
 
     final index = destinations.indexWhere(
@@ -169,14 +155,8 @@ class _AppLayoutState extends State<AppLayout> {
     );
   }
 
-  /// ------------------------------
-  /// NavigationRail (Desktop)
-  /// ------------------------------
-  Widget _navigationRail(
-    BuildContext context,
-    List<NavigationItem> destinations,
-    NavigationProvider nav,
-  ) {
+  // NavigationRail (Desktop)
+  Widget _navigationRail(BuildContext context, List<NavigationItem> destinations, NavigationProvider nav) {
     final index = destinations.indexWhere(
       (item) => item.destination == nav.current,
     );
@@ -198,9 +178,29 @@ class _AppLayoutState extends State<AppLayout> {
     );
   }
 
-  /// ------------------------------
-  /// Build
-  /// ------------------------------
+  // Animated Page
+  Widget _buildPage(NavigationDestinations current) {
+    return Column(
+      children: [
+        Expanded(
+          child: AnimatedSwitcher(
+            duration: const Duration(milliseconds: 300),
+            switchInCurve: Curves.easeOut,
+            switchOutCurve: Curves.easeIn,
+            child: KeyedSubtree(
+              key: ValueKey(current),
+              child: _currentPage(current),
+            ),
+          ),
+        ),
+        SafeArea(
+          top: false,
+          child: const ConnectivityBanner(key: ValueKey('connectivity')),
+        ),
+      ],
+    );
+  }
+
   @override
   Widget build(BuildContext context) {
     final userDetails = context.watch<UserDetails>();
@@ -208,7 +208,6 @@ class _AppLayoutState extends State<AppLayout> {
 
     final destinations = _buildDestinations(userDetails.isAdmin);
 
-    /// 🔥 Fix invalid navigation when Admin toggles dynamically
     nav.resetIfInvalid(
       destinations.map((e) => e.destination).toSet(),
     );
@@ -222,58 +221,14 @@ class _AppLayoutState extends State<AppLayout> {
         );
 
         return Scaffold(
-          body: isMobile
-              ? Column(
-                  children: [
-                    Expanded(
-                      child: AnimatedSwitcher(
-                        duration: const Duration(milliseconds: 300),
-                        switchInCurve: Curves.easeOut,
-                        switchOutCurve: Curves.easeIn,
-                        child: KeyedSubtree(
-                          key: ValueKey(nav.current),
-                          child: _currentPage(nav.current),
-                        ),
-                      ),
-                    ),
-                    const SafeArea(
-                      top: false,
-                      child: ConnectivityBanner(),
-                    ),
-                  ],
-                )
-              : Row(
-                  children: [
-                    _navigationRail(context, destinations, nav),
-                    const VerticalDivider(width: 1),
-                    Expanded(
-                      child: Column(
-                        children: [
-                          Expanded(
-                            child: AnimatedSwitcher(
-                              duration: const Duration(milliseconds: 300),
-                              switchInCurve: Curves.easeOut,
-                              switchOutCurve: Curves.easeIn,
-                              child: KeyedSubtree(
-                                key: ValueKey(nav.current),
-                                child: _currentPage(nav.current),
-                              ),
-                            ),
-                          ),
-                          const SafeArea(
-                            top: false,
-                            child: ConnectivityBanner(),
-                          ),
-                        ],
-                      ),
-                    ),
-                  ],
-                ),
-          bottomNavigationBar: _navigationBar(
-            isMobile,
-            destinations,
-            nav,
-          ),
+          body: isMobile ?
+          _buildPage(nav.current) :
+          Row(children: [
+            _navigationRail(context, destinations, nav),
+            const VerticalDivider(width: 1),
+            Expanded(child: _buildPage(nav.current))
+          ],),
+          bottomNavigationBar: _navigationBar(isMobile, destinations, nav),
         );
       },
     );
