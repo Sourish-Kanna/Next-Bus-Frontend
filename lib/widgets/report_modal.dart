@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:nextbus/providers/providers.dart' show RouteProvider, TimetableProvider;
-import 'package:provider/provider.dart' show Provider, ReadContext;
+import 'package:provider/provider.dart' show ReadContext;
 import 'package:intl/intl.dart' show DateFormat;
 import 'package:nextbus/common.dart' show AppLogger, CustomSnackBar;
 
