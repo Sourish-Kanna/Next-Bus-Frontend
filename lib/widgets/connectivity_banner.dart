@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
-import 'package:nextbus/providers/providers.dart';
-import 'package:provider/provider.dart';
-import 'package:nextbus/common.dart';
+import 'package:nextbus/providers/providers.dart' show ConnectivityProvider;
+import 'package:provider/provider.dart' show Consumer;
+import 'package:nextbus/common.dart' show CustomSnackBar;
 
 class ConnectivityBanner extends StatelessWidget {
   const ConnectivityBanner({super.key});
@@ -10,7 +10,7 @@ class ConnectivityBanner extends StatelessWidget {
   Widget build(BuildContext context) {
     return Consumer<ConnectivityProvider>(
       builder: (context, connectivity, child) {
-        // 1. Wrap in AnimatedSize for smooth slide-in/slide-out effect
+        // Wrap in AnimatedSize for smooth slide-in/slide-out effect
         return AnimatedSize(
           duration: const Duration(milliseconds: 300),
           curve: Curves.easeInOut,
@@ -20,7 +20,7 @@ class ConnectivityBanner extends StatelessWidget {
             color: Theme.of(context).colorScheme.errorContainer,
             child: InkWell(
               onTap: () async {
-                // 2. Visual Feedback (Clearer)
+                // Visual Feedback (Clearer)
                 ScaffoldMessenger.of(context).hideCurrentSnackBar();
                 ScaffoldMessenger.of(context).showSnackBar(
                   const SnackBar(
@@ -29,24 +29,24 @@ class ConnectivityBanner extends StatelessWidget {
                   ),
                 );
 
-                // 3. Perform Check
+                // Perform Check
                 bool isNowOnline = await connectivity.checkConnection();
 
-                // 4. Feedback
+                // Feedback
                 if (context.mounted) {
                   if (isNowOnline) {
                     CustomSnackBar.show(
                       context,
                       'Back online!',
-                      backgroundColor: Colors.green, // ✅ Success Color
-                      foregroundColor: Colors.white,
+                      // backgroundColor: Colors.green,
+                      // foregroundColor: Colors.white,
                     );
                   } else {
                     CustomSnackBar.show(
                       context,
                       'Still offline. Please check settings.',
-                      backgroundColor: Theme.of(context).colorScheme.error, // ✅ Error Color
-                      foregroundColor: Theme.of(context).colorScheme.onError,
+                      // backgroundColor: Theme.of(context).colorScheme.error,
+                      // foregroundColor: Theme.of(context).colorScheme.onError,
                     );
                   }
                 }

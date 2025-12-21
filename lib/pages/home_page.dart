@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:nextbus/widgets/widgets.dart' show TimetableDisplay, ReportBusSheet;
-import 'package:provider/provider.dart';
+import 'package:provider/provider.dart' show Provider;
 import 'package:nextbus/providers/providers.dart' show RouteProvider, TimetableProvider, UserDetails;
 
 class HomePage extends StatefulWidget {
@@ -41,7 +41,7 @@ class HomePageState extends State<HomePage> {
     }
   }
 
-  // 1. THE REFRESH FUNCTION
+  // THE REFRESH FUNCTION
   Future<void> _refreshData() async {
     final routeProvider = Provider.of<RouteProvider>(context, listen: false);
 
@@ -54,7 +54,7 @@ class HomePageState extends State<HomePage> {
     showModalBottomSheet(
       context: context,
       isScrollControlled: true,
-      showDragHandle: true, // <--- ADDED: Standard M3 Handle
+      showDragHandle: true,
       backgroundColor: Theme.of(context).colorScheme.surface,
       shape: const RoundedRectangleBorder(
         borderRadius: BorderRadius.vertical(top: Radius.circular(24)),
@@ -75,13 +75,9 @@ class HomePageState extends State<HomePage> {
 
     return Scaffold(
         appBar: AppBar(
-          // 1. Restore Color: Matches your design screenshots (Blue/Green)
           backgroundColor: Theme.of(context).colorScheme.inversePrimary,
-
           automaticallyImplyLeading: false,
-          centerTitle: false, // 2. Left Align: Matches Figma/M3 guidelines
-
-          // 3. Bold Text: Matches the visual weight in your design
+          centerTitle: false,
           title: Text(
             "Route $route",
             style: const TextStyle(fontWeight: FontWeight.bold),
@@ -96,14 +92,12 @@ class HomePageState extends State<HomePage> {
           // ],
         ),
 
-      // 2. WRAP BODY IN REFRESH INDICATOR
+      // WRAP BODY IN REFRESH INDICATOR
       body: RefreshIndicator(
         onRefresh: _refreshData,
-        // Optional: Offset determines how far down the spinner appears
         edgeOffset: 10.0,
         child: Padding(
           padding: const EdgeInsets.symmetric(vertical: 13.0, horizontal: 10.0),
-
           child: TimetableDisplay(route: route),
         ),
       ),

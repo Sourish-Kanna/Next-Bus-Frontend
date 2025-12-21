@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
-import 'package:nextbus/common.dart';
-import 'package:provider/provider.dart';
+import 'package:nextbus/common.dart' show AppLogger;
+import 'package:provider/provider.dart' show Consumer;
 import 'package:nextbus/providers/providers.dart' show TimetableProvider;
 
 class TimetableDisplay extends StatelessWidget {
@@ -9,7 +9,6 @@ class TimetableDisplay extends StatelessWidget {
 
   String secTomin(num sec) {
     final duration = Duration(seconds: sec.toInt());
-    // Get total minutes as a double
     double minutes = duration.inMinutes.toDouble() + (duration.inSeconds % 60) / 60.0;
     return minutes.toStringAsFixed(2);
   }
@@ -18,33 +17,30 @@ class TimetableDisplay extends StatelessWidget {
   Widget build(BuildContext context) {
     return Consumer<TimetableProvider>(
       builder: (context, timetableProvider, child) {
-        // 1. Loading State
+        // Loading State
         if (timetableProvider.isLoading) {
-          return const Center(child: CircularProgressIndicator());
+          return const Center(child: CircularProgressIndicator(
+            strokeCap: StrokeCap.round,
+          ));
         }
 
         final timetable = timetableProvider.timetables[route];
         AppLogger.info("Timetable for route $route");
 
-        // 2. Empty State (Updated to be Scrollable)
-        // We wrap the text in a ListView so the RefreshIndicator in HomePage
-        // can still catch the "pull down" gesture even when there is no data.
+        // Empty State (Updated to be Scrollable)
         if (timetable == null || timetable.isEmpty) {
           return ListView(
             physics: const AlwaysScrollableScrollPhysics(),
             children: [
-              SizedBox(
-                height: MediaQuery.of(context).size.height * 0.7, // Centers the text roughly
+              Center(
                 child: const Center(child: Text('No timetable data available.')),
               ),
             ],
           );
         }
 
-        // 3. Data State
+        // Data State
         return ListView.builder(
-          // CRITICAL: This ensures the list bounces and triggers refresh
-          // even if there are only 1 or 2 items.
           physics: const AlwaysScrollableScrollPhysics(),
           itemCount: timetable.length,
           itemBuilder: (context, index) {
