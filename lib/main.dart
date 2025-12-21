@@ -25,8 +25,7 @@ void main() async {
 
 enum AppStatus { loading, success, error }
 
-/// This widget will handle the async initialization and show the correct UI
-/// based on the state (loading, error, or success).
+// This widget will handle the async initialization and show the correct UI based on the state (loading, error, or success).
 class AppInitializer extends StatefulWidget {
   const AppInitializer({super.key});
 
@@ -50,33 +49,27 @@ class _AppInitializerState extends State<AppInitializer> {
     _initializeApp();
   }
 
-  /// Sends a non-blocking request to wake up the server.
-  /// We don't await this in the main init logic.
+  // Sends a non-blocking request to wake up the server.
   Future<void> _wakeUpServer() async {
     try {
       // Use your custom instance here, with a short timeout.
       final connection = InternetConnection.createInstance(
-        checkInterval: const Duration(seconds: 60), // Give it 60s to wake up
+        checkInterval: const Duration(seconds: 120), // Give it 120s to wake up
         customCheckOptions: [
           InternetCheckOption(
-            // UPDATED: Use Config.apiUrl to ping the correct server
             uri: Uri.parse(Config.apiUrl),
           ),
         ],
       );
 
-      // We 'await' it here, but this function itself is not
-      // awaited in _initializeApp, so it won't block startup.
       await connection.hasInternetAccess;
       AppLogger.onlyLocal("Server wake-up ping sent to ${Config.apiUrl}");
     } catch (e) {
-      // This is not a critical error, so we just log it.
-      // The server will just wake up on the first "real" API call.
       AppLogger.onlyLocal("Server wake-up ping failed or timed out: $e");
     }
   }
 
-  /// Runs all initialization logic and updates the state.
+  // Runs all initialization logic and updates the state.
   Future<void> _initializeApp() async {
     
     // Set state to loading when retrying
@@ -90,20 +83,18 @@ class _AppInitializerState extends State<AppInitializer> {
     //   setState(() {
     //     _status = AppStatus.error;
     //     _errorTitle = "Test Error Screen";
-    //     _errorMessage = "This is a forced error to verify the new Material 3 design.\n\n(It works!)";
+    //     _errorMessage = "This is a forced error to verify the new Material 3 design.";
     //   });
     //   return; // Stop the rest of the app from loading
     // }
 
-    // 1. OFFLINE CHECK (Non-blocking for cached data access)
+    // OFFLINE CHECK (Non-blocking for cached data access)
     final connectivityResult = await Connectivity().checkConnectivity();
     bool isOffline = connectivityResult.contains(ConnectivityResult.none);
 
     if (isOffline) {
       AppLogger.onlyLocal("No Internet Connection (Instant Check) - Starting in Offline Mode");
-      // We do NOT return here anymore. We let the app proceed to load cached data.
     } else {
-      // If we have connection types, check for actual data access
       final bool hasInternet = await InternetConnection().hasInternetAccess;
       if (!hasInternet) {
         AppLogger.onlyLocal("Connected to Router but No Internet Access - Starting in Offline Mode");
@@ -111,7 +102,7 @@ class _AppInitializerState extends State<AppInitializer> {
       }
     }
 
-    // 2. Wake up server (Only if we think we are online)
+    // Wake up server (Only if we think we are online)
     if (!isOffline) {
       _wakeUpServer();
     }
@@ -124,7 +115,7 @@ class _AppInitializerState extends State<AppInitializer> {
       ]);
     }
 
-    // 3. Set Up Firebase (Works offline due to local persistence)
+    // Set Up Firebase (Works offline due to local persistence)
     try {
       if (Firebase.apps.isEmpty) {
         await Firebase.initializeApp(options: Config.firebaseOptions);
@@ -163,7 +154,7 @@ class _AppInitializerState extends State<AppInitializer> {
       return;
     }
 
-    // 4. Get Initial Auth State
+    // Get Initial Auth State
     try {
       _initialUser = await FirebaseAuth.instance.authStateChanges().first;
     } catch (e) {
@@ -183,28 +174,40 @@ class _AppInitializerState extends State<AppInitializer> {
   Widget build(BuildContext context) {
     switch (_status) {
       case AppStatus.loading:
-      // Updated to use Material 3 styling during the brief loading phase
         return MaterialApp(
-          debugShowCheckedModeBanner: false,
           theme: ThemeData(
             useMaterial3: true,
-            colorSchemeSeed: Colors.deepOrange, // Matches your fallbackColor
+            colorSchemeSeed: Colors.deepOrange,
           ),
           home: const Scaffold(
             body: Center(
-              child: CircularProgressIndicator(
-                strokeCap: StrokeCap.round, // M3 rounded ends
+              child: Column(
+                mainAxisAlignment: MainAxisAlignment.center,
+                children: [
+                  CircularProgressIndicator(
+                    strokeCap: StrokeCap.round,
+                  ),
+                  SizedBox(height: 16),
+                  Text("Loading..."),
+                ],
               ),
             ),
           ),
         );
+
       case AppStatus.error:
-      // Show the error screen with a retry button
-        return ErrorScreen(
-          title: _errorTitle,
-          message: _errorMessage,
-          onRetry: _initializeApp,
+        return MaterialApp(
+          theme: ThemeData(
+            useMaterial3: true,
+            colorSchemeSeed: Colors.deepOrange,
+          ),
+          home: ErrorScreen(
+            title: _errorTitle,
+            message: _errorMessage,
+            onRetry: _initializeApp,
+          ),
         );
+
       case AppStatus.success:
       // Show the main app
         return MultiProvider(

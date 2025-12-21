@@ -1,4 +1,3 @@
-import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:nextbus/providers/providers.dart' show AuthService;
@@ -9,93 +8,110 @@ class AuthScreen extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    // Access the shared AuthService instance from the Provider
     final authService = context.read<AuthService>();
+    final theme = Theme.of(context);
 
     return Scaffold(
       body: Center(
         child: SingleChildScrollView(
-          padding: const EdgeInsets.symmetric(horizontal: 24.0),
+          padding: const EdgeInsets.symmetric(horizontal: 24),
           child: Column(
             mainAxisAlignment: MainAxisAlignment.center,
-            crossAxisAlignment: CrossAxisAlignment.stretch,
+            crossAxisAlignment: CrossAxisAlignment.center,
             children: [
-              // 1. APP LOGO
-              // Ensure 'assets/logo_new.png' is declared in pubspec.yaml
-              Image.asset(
-                'assets/logo_new.png',
-                height: 120,
-                width: 120,
+              // LOGO (Squircle)
+              Center(
+                child: Material(
+                  elevation: 3,
+                  color: theme.colorScheme.surface,
+                  shape: RoundedRectangleBorder(
+                    borderRadius: BorderRadius.circular(28),
+                  ),
+                  child: ClipRRect(
+                    borderRadius: BorderRadius.circular(28),
+                    child: Image.asset(
+                      'assets/logo_new.png',
+                      height: 120,
+                      width: 120,
+                      fit: BoxFit.cover,
+                      semanticLabel: 'Next Bus app logo',
+                    ),
+                  ),
+                ),
               ),
-              const SizedBox(height: 24),
 
-              // 2. APP TITLE
+              const SizedBox(height: 32),
+
+              // TITLE
               Text(
                 "Next Bus",
                 textAlign: TextAlign.center,
-                style: Theme.of(context).textTheme.displaySmall?.copyWith(
+                style: theme.textTheme.displaySmall?.copyWith(
                   fontWeight: FontWeight.bold,
-                  color: Theme.of(context).colorScheme.primary,
+                  color: theme.colorScheme.primary,
                 ),
               ),
+
               const SizedBox(height: 8),
+
               Text(
                 "Never miss your ride again",
                 textAlign: TextAlign.center,
-                style: Theme.of(context).textTheme.bodyLarge?.copyWith(
-                  color: Theme.of(context).colorScheme.onSurfaceVariant,
+                style: theme.textTheme.bodyLarge?.copyWith(
+                  color: theme.colorScheme.onSurfaceVariant,
                 ),
               ),
+
               const SizedBox(height: 48),
 
-              // 3. GOOGLE SIGN IN (Primary Action)
+              // GOOGLE SIGN IN (Primary)
               FilledButton.icon(
                 onPressed: () async {
-                  User? user = await authService.signInWithGoogle(context);
+                  final user = await authService.signInWithGoogle(context);
                   if (user != null && context.mounted) {
                     Navigator.pushReplacement(
                       context,
-                      MaterialPageRoute(builder: (context) => const AppLayout()),
+                      MaterialPageRoute(
+                        builder: (_) => const AppLayout(),
+                      ),
                     );
                   }
                 },
                 style: FilledButton.styleFrom(
-                  minimumSize: const Size(double.infinity, 56), // XL Height
+                  padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 16),
                   shape: RoundedRectangleBorder(
                     borderRadius: BorderRadius.circular(28),
                   ),
+                  textStyle: theme.textTheme.labelLarge,
                 ),
-                icon: const Icon(Icons.login), // Or use a Google Logo asset if you have one
-                label: const Text(
-                  "Sign in with Google",
-                  style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
-                ),
+                icon: const Icon(Icons.login, size: 24),
+                label: const Text("Sign in with Google"),
               ),
+
               const SizedBox(height: 16),
 
-              // 4. GUEST MODE (Secondary Action)
+              // GUEST MODE (Secondary)
               OutlinedButton.icon(
                 onPressed: () async {
-                  User? user = await authService.signInAsGuest(context);
+                  final user = await authService.signInAsGuest(context);
                   if (user != null && context.mounted) {
                     Navigator.pushReplacement(
                       context,
-                      MaterialPageRoute(builder: (context) => const AppLayout()),
+                      MaterialPageRoute(
+                        builder: (_) => const AppLayout(),
+                      ),
                     );
                   }
                 },
                 style: OutlinedButton.styleFrom(
-                  minimumSize: const Size(double.infinity, 56), // XL Height
-                  side: BorderSide(color: Theme.of(context).colorScheme.outline),
+                  padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 16),
                   shape: RoundedRectangleBorder(
                     borderRadius: BorderRadius.circular(28),
                   ),
+                  textStyle: theme.textTheme.labelLarge,
                 ),
-                icon: const Icon(Icons.person_outline),
-                label: const Text(
-                  "Continue as Guest",
-                  style: TextStyle(fontSize: 18),
-                ),
+                icon: const Icon(Icons.person_outline, size: 24),
+                label: const Text("Continue as Guest"),
               ),
             ],
           ),

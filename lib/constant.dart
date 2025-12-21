@@ -8,7 +8,7 @@ final List<Color> seedColorList = [
   Colors.green
 ];
 
-final double mobileBreakpoint = 600;
+final double mobileBreakpoint = 840;
 final fallbackColor = seedColorList[0];
 
 final Map<String, String> urls = {

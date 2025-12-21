@@ -1,8 +1,8 @@
 import 'package:flutter/material.dart';
-import 'package:nextbus/providers/providers.dart';
-import 'package:provider/provider.dart';
-import 'package:intl/intl.dart';
-import 'package:nextbus/common.dart';
+import 'package:nextbus/providers/providers.dart' show RouteProvider, TimetableProvider;
+import 'package:provider/provider.dart' show ReadContext;
+import 'package:intl/intl.dart' show DateFormat;
+import 'package:nextbus/common.dart' show AppLogger, CustomSnackBar;
 
 class ReportBusSheet extends StatefulWidget {
   const ReportBusSheet({super.key});
@@ -12,18 +12,17 @@ class ReportBusSheet extends StatefulWidget {
 }
 
 class _ReportBusSheetState extends State<ReportBusSheet> {
-  // 1. Loading State Variable
+  // Loading State Variable
   bool _isLoading = false;
 
   Future<void> _submitReport(BuildContext context, String timeStr) async {
-    // 2. Start Loading
     setState(() {
       _isLoading = true;
     });
 
     try {
-      final routeProvider = Provider.of<RouteProvider>(context, listen: false);
-      final timeProvider = Provider.of<TimetableProvider>(context, listen: false);
+      final routeProvider = context.read<RouteProvider>();
+      final timeProvider = context.read<TimetableProvider>();
 
       // TODO: Replace "test" with the actual Stop ID or Bus Status if needed
       await timeProvider.updateTime(routeProvider.route, "test", timeStr);
@@ -42,7 +41,6 @@ class _ReportBusSheetState extends State<ReportBusSheet> {
         Navigator.pop(context);
       }
     } finally {
-      // 3. Stop Loading (if the widget is still mounted and didn't pop)
       if (mounted) {
         setState(() {
           _isLoading = false;
@@ -53,25 +51,23 @@ class _ReportBusSheetState extends State<ReportBusSheet> {
 
   // Helper widget for the M3 Spinner
   Widget _buildSpinner(BuildContext context, {bool onPrimary = true}) {
-    return SizedBox(
-      height: 20,
-      width: 20,
-      child: CircularProgressIndicator(
-        strokeWidth: 2.5,
+    return CircularProgressIndicator(
         strokeCap: StrokeCap.round,
         color: onPrimary
             ? Theme.of(context).colorScheme.onPrimary
             : Theme.of(context).colorScheme.onSecondaryContainer,
-      ),
-    );
+      );
   }
 
   ButtonStyle _xlButtonStyle(BuildContext context, {bool isError = false}) {
+    final theme = Theme.of(context);
     return FilledButton.styleFrom(
-      minimumSize: const Size(double.infinity, 56), // XL Height
-      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(28)), // Pill shape
-      backgroundColor: isError ? Theme.of(context).colorScheme.errorContainer : null,
-      foregroundColor: isError ? Theme.of(context).colorScheme.onErrorContainer : null,
+      padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 16),
+      shape: RoundedRectangleBorder(
+        borderRadius: BorderRadius.circular(28),
+      ),
+      backgroundColor: isError ? theme.colorScheme.errorContainer : null,
+      foregroundColor: isError ? theme.colorScheme.onErrorContainer : null,
     );
   }
 
@@ -95,11 +91,11 @@ class _ReportBusSheetState extends State<ReportBusSheet> {
 
           // --- BUTTON 1: Arrived Now ---
           FilledButton.icon(
-            style: _xlButtonStyle(context), // <--- Apply XL Style
             onPressed: _isLoading ? null : () {
               String formattedTime = DateFormat('h:mm a').format(DateTime.now());
               _submitReport(context, formattedTime);
             },
+            style: _xlButtonStyle(context),
             icon: _isLoading
                 ? _buildSpinner(context, onPrimary: true)
                 : const Icon(Icons.directions_bus),

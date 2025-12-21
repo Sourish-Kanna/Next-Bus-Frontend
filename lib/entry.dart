@@ -49,7 +49,7 @@ class _NextBusAppState extends State<NextBusApp> {
             final ColorScheme lightColorScheme;
             ColorScheme darkColorScheme;
 
-            // Step 1: Generate the initial color schemes
+            // Generate the initial color schemes
             if (themeProvider.isDynamicColor &&
                 lightDynamic != null &&
                 darkDynamic != null) {
@@ -63,10 +63,8 @@ class _NextBusAppState extends State<NextBusApp> {
                 brightness: Brightness.dark,
               );
             }
-            // Step 2: Define the base theme
-            // final baseTheme = ThemeData();
 
-            // Step 3: Build the MaterialApp
+            // Build the MaterialApp
             return MaterialApp(
               title: 'Next Bus',
               theme: ThemeData(colorScheme: lightColorScheme),

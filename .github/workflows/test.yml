@@ -1,6 +1,5 @@
 name: 🧪 Manual Test Build
 
-# Trigger manually from the Actions tab
 on:
   workflow_dispatch:
 
@@ -9,69 +8,99 @@ permissions:
 
 jobs:
   test-android-release:
+    name: 📱 Android Test APK
     runs-on: ubuntu-latest
 
     steps:
       - name: 📥 Checkout repository
         uses: actions/checkout@v4
 
-#      # Recommended: Keep Java setup to prevent environment mismatch errors
-#      - name: ☕ Setup Java
-#        uses: actions/setup-java@v4
-#        with:
-#          distribution: 'temurin'
-#          java-version: '17'
+      - name: ☕ Setup Java
+        uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: 17
 
-      - name: 🐦 Install Flutter
+      - name: 🐦 Install Flutter (cached)
         uses: subosito/flutter-action@v2
         with:
           channel: stable
           cache: true
 
-      - name: 🔐 Decode Keystore
+      - name: 📦 Flutter Pub Get
+        run: flutter pub get
+
+      - name: ⚡ Restore Gradle Cache
+        id: gradle-cache
+        uses: actions/cache@v3
+        with:
+          path: |
+            ~/.gradle/caches
+            ~/.gradle/wrapper
+          key: ${{ runner.os }}-gradle-${{ hashFiles('android/**/build.gradle*', 'android/**/settings.gradle*', 'android/**/gradle-wrapper.properties') }}
+          restore-keys: |
+            ${{ runner.os }}-gradle-
+
+      - name: 📊 Gradle Cache Status
         run: |
-          echo "${{ secrets.ANDROID_KEYSTORE_BASE64 }}" | base64 --decode > android/app/upload-keystore.jks
+          echo "Gradle cache hit: ${{ steps.gradle-cache.outputs.cache-hit }}"
+
+      - name: 🔐 Decode Keystore
+        run: echo "${{ secrets.ANDROID_KEYSTORE_BASE64 }}" | base64 --decode > android/app/upload-keystore.jks
 
       - name: 🔥 Decode Firebase Config (Prod)
         run: |
           mkdir -p android/app/src/release
           echo "${{ secrets.FIREBASE_JSON_RELEASE }}" | base64 --decode > android/app/src/release/google-services.json
 
-      - name: 📱 Build Signed APK (Prod)
+      - name: 📱 Build Signed APK (TEST - Release-like)
         env:
           KEYSTORE_PASSWORD: ${{ secrets.ANDROID_KEYSTORE_PASSWORD }}
           KEY_PASSWORD: ${{ secrets.ANDROID_KEY_PASSWORD }}
           KEY_ALIAS: ${{ secrets.ANDROID_KEY_ALIAS }}
+          GRADLE_OPTS: >
+            -Xmx4G
+            -Dorg.gradle.daemon=false
+            -Dfile.encoding=UTF-8
         run: >
           flutter build apk --split-per-abi --release
-          --build-name ${{ github.ref_name }}
           --build-number ${{ github.run_number }}
           --dart-define=API_LINK=${{ secrets.API_LINK }}
           --dart-define=ENVIRONMENT=prod
 
-      # Renames files using the Git Tag as version
-      - name: 🏷️ Rename APKs
+      - name: ✏️ Rename APKs (same as Release)
         run: |
-          cd build/app/outputs/flutter-apk/
-          
-          # Use the input from workflow_dispatch
-          VERSION="${{ github.ref_name }}"
-          
-          # Loop through split APKs (e.g., app-armeabi-v7a-release.apk)
-          for file in app-*-release.apk; do
-            # Extract Arch (remove 'app-' and '-release.apk')
-            ARCH="${file#app-}"
-            ARCH="${ARCH%-release.apk}"
+          BUILD_VERSION="${{ github.run_number }}"
 
-            # Rename to NextBus-v1.0.0-armeabi-v7a.apk
-            mv "$file" "NextBus-${VERSION}-${ARCH}.apk"
-          done
-          
-          ls -la
+          # 64-bit
+          OLD_64="build/app/outputs/flutter-apk/app-arm64-v8a-release.apk"
+          NEW_64="build/app/outputs/flutter-apk/Next-Bus-Test-${BUILD_VERSION}-arm64.apk"
 
-      - name: 📦 Upload Release APKs
+          if [ -f "$OLD_64" ]; then
+            mv "$OLD_64" "$NEW_64"
+          fi
+
+          # 32-bit
+          OLD_32="build/app/outputs/flutter-apk/app-armeabi-v7a-release.apk"
+          NEW_32="build/app/outputs/flutter-apk/Next-Bus-Test-${BUILD_VERSION}-arm32.apk"
+
+          if [ -f "$OLD_32" ]; then
+            mv "$OLD_32" "$NEW_32"
+          fi
+          
+          # Android Emulator
+          OLD_X64="build/app/outputs/flutter-apk/app-x86_64-release.apk"
+          NEW_X64="build/app/outputs/flutter-apk/Next-Bus-Test-${BUILD_VERSION}-x86_64.apk"
+
+          if [ -f "$OLD_X64" ]; then
+            mv "$OLD_X64" "$NEW_X64"
+          fi
+
+          ls -la build/app/outputs/flutter-apk/
+
+      - name: 📦 Upload Test APKs
         uses: actions/upload-artifact@v4
         with:
-          name: release-apks-${{ github.ref_name }}
-          path: build/app/outputs/flutter-apk/NextBus-*.apk
+          name: test-apks-${{ github.run_number }}
+          path: build/app/outputs/flutter-apk/Next-Bus-Test-*.apk
           retention-days: 3
