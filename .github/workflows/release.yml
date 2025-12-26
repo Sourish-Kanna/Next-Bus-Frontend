@@ -204,6 +204,7 @@ jobs:
           flutter build web --release
           --dart-define=API_LINK=${{ secrets.API_LINK }}
           --dart-define=ENVIRONMENT=prod
+          --build-name ${{ needs.setup.outputs.build_name }}
 
       - name: 🔥 Deploy to Firebase Hosting (cached)
         uses: FirebaseExtended/action-hosting-deploy@v0
