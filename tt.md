@@ -54,7 +54,7 @@ Commutes often happen in network dead zones.
 
 | Home Screen | Offline Sync | Dark Mode | Admin Panel |
 | :---: | :---: | :---: | :---: |
-| ![Home](docs/screenshots/home.png) | ![Offline](docs/screenshots/offline.png) | ![Dark](docs/screenshots/dark.png) | ![Admin](docs/screenshots/admin.png) |
+| ![Home](docs/screenshots/dark.jpg) | ![Offline](docs/screenshots/dark.jpg) | ![Dark](docs/screenshots/dark.jpg) | ![Admin](docs/screenshots/dark.jpg) |
 
 ---
 
