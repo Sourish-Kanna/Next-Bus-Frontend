@@ -216,9 +216,9 @@ class _AppLayoutState extends State<AppLayout> {
       builder: (context, constraints) {
         final isMobile = constraints.maxWidth < mobileBreakpoint;
 
-        AppLogger.info(
-          'Destinations Count: ${destinations.length}',
-        );
+        // AppLogger.info(
+        //   'Destinations Count: ${destinations.length}',
+        // );
 
         return Scaffold(
           body: isMobile ?

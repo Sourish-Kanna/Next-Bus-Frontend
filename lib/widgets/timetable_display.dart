@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
-import 'package:nextbus/common.dart' show AppLogger;
+import 'package:intl/intl.dart';
+import 'package:nextbus/common.dart';
 import 'package:provider/provider.dart' show Consumer;
 import 'package:nextbus/providers/providers.dart' show TimetableProvider;
 
@@ -7,68 +8,78 @@ class TimetableDisplay extends StatelessWidget {
   final String route;
   const TimetableDisplay({super.key, required this.route});
 
-  // Helper to format delay and return a status color
-  (String, Color) _getDelayInfo(num seconds) {
+  // Keep your exact delay logic
+  (String, Color) _getDelayInfo(num seconds, bool departed, ColorScheme colors) {
+    if (departed) return ("Departed", colors.outline);
+
     double minutes = seconds / 60.0;
     if (seconds <= 0) return ("On Time", Colors.green.shade700);
     if (seconds < 180) return ("${minutes.toStringAsFixed(1)}m late", Colors.orange.shade700);
     return ("${minutes.toStringAsFixed(1)}m late", Colors.red.shade700);
   }
 
+  bool _isPast(String timeStr) {
+    try {
+      final now = DateTime.now();
+      final arrivalTime = DateFormat("h:mm a").parse(timeStr);
+      final fullArrival = DateTime(now.year, now.month, now.day, arrivalTime.hour, arrivalTime.minute);
+      return fullArrival.isBefore(now);
+    } catch (e) {
+      AppLogger.error('Error parsing time',e);
+      return false;
+    }
+  }
+
   @override
   Widget build(BuildContext context) {
+    final colors = Theme.of(context).colorScheme;
+    final String currentTimeStr = DateFormat('h:mm a').format(DateTime.now());
+
     return Consumer<TimetableProvider>(
       builder: (context, timetableProvider, child) {
         if (timetableProvider.isLoading) {
-          return const Center(child: CircularProgressIndicator(strokeWidth: 3));
+          return const Center(child: CircularProgressIndicator());
         }
 
-        final timetable = timetableProvider.timetables[route];
+        final timetable = timetableProvider.timetables[route] ?? [];
 
-        if (timetable == null || timetable.isEmpty) {
-          return Center(
-            child: Column(
-              mainAxisAlignment: MainAxisAlignment.center,
-              children: [
-                Icon(Icons.bus_alert, size: 64, color: Colors.grey.shade300),
-                const SizedBox(height: 16),
-                const Text('No timetable data available',
-                    style: TextStyle(color: Colors.grey, fontSize: 16)),
-              ],
-            ),
-          );
+        if (timetable.isEmpty) {
+          return const Center(child: Text('No timetable data available.'));
         }
+
+        int nowDividerIndex = timetable.indexWhere((entry) => !_isPast(entry['time']));
 
         return ListView.builder(
           padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 20),
-          itemCount: timetable.length,
+          itemCount: timetable.length + (nowDividerIndex != -1 ? 1 : 0),
           itemBuilder: (context, index) {
-            final entry = timetable[index];
-            final (delayText, delayColor) = _getDelayInfo(entry['delay'] as num);
-            final bool isLast = index == timetable.length - 1;
+            if (nowDividerIndex != -1 && index == nowDividerIndex) {
+              return _buildNowDivider(currentTimeStr, colors);
+            }
+
+            final actualIndex = (nowDividerIndex != -1 && index > nowDividerIndex) ? index - 1 : index;
+            final entry = timetable[actualIndex];
+            final bool departed = _isPast(entry['time']);
+            final (delayText, delayColor) = _getDelayInfo(entry['delay'] as num, departed, colors);
+            final bool isLast = actualIndex == timetable.length - 1;
 
             return IntrinsicHeight(
               child: Row(
                 children: [
-                  // --- Timeline Indicator Column ---
+                  // --- Timeline Indicator ---
                   Column(
                     children: [
                       Container(
-                        width: 14,
-                        height: 14,
+                        width: 12,
+                        height: 12,
                         decoration: BoxDecoration(
-                          color: Theme.of(context).primaryColor,
+                          color: departed ? colors.outlineVariant : colors.primary,
                           shape: BoxShape.circle,
-                          border: Border.all(color: Colors.white, width: 2),
-                          boxShadow: [BoxShadow(blurRadius: 4, color: Colors.black12)],
                         ),
                       ),
                       if (!isLast)
                         Expanded(
-                          child: Container(
-                            width: 2,
-                            color: Colors.grey.shade300,
-                          ),
+                          child: Container(width: 2, color: colors.surfaceVariant),
                         ),
                     ],
                   ),
@@ -77,64 +88,60 @@ class TimetableDisplay extends StatelessWidget {
                   // --- Content Card ---
                   Expanded(
                     child: Padding(
-                      padding: const EdgeInsets.only(bottom: 20),
+                      padding: const EdgeInsets.only(bottom: 16),
                       child: Container(
+                        padding: const EdgeInsets.all(20),
                         decoration: BoxDecoration(
-                          color: Colors.white,
-                          borderRadius: BorderRadius.circular(12),
-                          boxShadow: [
-                            BoxShadow(
-                              color: Colors.black.withOpacity(0.05),
-                              blurRadius: 10,
-                              offset: const Offset(0, 4),
-                            ),
-                          ],
+                          // Use PrimaryContainer for active, SurfaceVariant for departed
+                          color: departed
+                              ? colors.surfaceVariant.withOpacity(0.3)
+                              : colors.primaryContainer.withOpacity(0.7),
+                          borderRadius: BorderRadius.circular(24),
                         ),
-                        child: ClipRRect(
-                          borderRadius: BorderRadius.circular(12),
-                          child: Container(
-                            // border: Border(left: BorderSide(color: delayColor, width: 4)),
-                            padding: const EdgeInsets.all(16),
-                            child: Row(
-                              mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-                              children: [
-                                Expanded(
-                                  child: Column(
-                                    crossAxisAlignment: CrossAxisAlignment.start,
-                                    children: [
-                                      Text(
-                                        entry['stop'],
-                                        style: const TextStyle(
-                                          fontWeight: FontWeight.bold,
-                                          fontSize: 16,
-                                        ),
-                                      ),
-                                      const SizedBox(height: 4),
-                                      Text(
-                                        "Arrival: ${entry['time']}",
-                                        style: TextStyle(color: Colors.grey.shade600),
-                                      ),
-                                    ],
-                                  ),
-                                ),
-                                Container(
-                                  padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
-                                  decoration: BoxDecoration(
-                                    color: delayColor.withOpacity(0.1),
-                                    borderRadius: BorderRadius.circular(6),
-                                  ),
-                                  child: Text(
-                                    delayText,
+                        child: Row(
+                          children: [
+                            Expanded(
+                              child: Column(
+                                crossAxisAlignment: CrossAxisAlignment.start,
+                                children: [
+                                  Text(
+                                    entry['time'],
                                     style: TextStyle(
-                                      color: delayColor,
+                                      fontSize: 20,
                                       fontWeight: FontWeight.bold,
-                                      fontSize: 12,
+                                      color: departed ? colors.outline : colors.onPrimaryContainer,
                                     ),
                                   ),
-                                ),
-                              ],
+                                  const SizedBox(height: 4),
+                                  Text(
+                                    entry['stop'],
+                                    style: TextStyle(
+                                      color: departed ? colors.outline : colors.onSurfaceVariant,
+                                      fontSize: 14,
+                                    ),
+                                  ),
+                                ],
+                              ),
                             ),
-                          ),
+
+                            // Status Chip
+                            Container(
+                              padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 6),
+                              decoration: BoxDecoration(
+                                color: departed ? Colors.transparent : delayColor.withOpacity(0.12),
+                                borderRadius: BorderRadius.circular(16),
+                                border: Border.all(color: delayColor.withOpacity(0.2)),
+                              ),
+                              child: Text(
+                                delayText,
+                                style: TextStyle(
+                                  color: delayColor,
+                                  fontWeight: FontWeight.bold,
+                                  fontSize: 12,
+                                ),
+                              ),
+                            ),
+                          ],
                         ),
                       ),
                     ),
@@ -145,6 +152,30 @@ class TimetableDisplay extends StatelessWidget {
           },
         );
       },
+    );
+  }
+
+  Widget _buildNowDivider(String time, ColorScheme colors) {
+    return Padding(
+      padding: const EdgeInsets.symmetric(vertical: 20),
+      child: Row(
+        children: [
+          Expanded(child: Divider(color: colors.outlineVariant, thickness: 1)),
+          Padding(
+            padding: const EdgeInsets.symmetric(horizontal: 12),
+            child: Text(
+              "NOW • $time",
+              style: TextStyle(
+                color: colors.outline,
+                fontWeight: FontWeight.bold,
+                fontSize: 11,
+                letterSpacing: 0.8,
+              ),
+            ),
+          ),
+          Expanded(child: Divider(color: colors.outlineVariant, thickness: 1)),
+        ],
+      ),
     );
   }
 }
