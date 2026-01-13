@@ -1,60 +1,70 @@
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
-import 'package:nextbus/common.dart';
 import 'package:provider/provider.dart' show Consumer, Provider;
-import 'package:nextbus/providers/providers.dart' show TimetableProvider;
+import 'package:nextbus/providers/providers.dart' show TimetableProvider, RouteProvider;
+import 'package:scroll_to_index/scroll_to_index.dart';
 
 class TimetableDisplay extends StatefulWidget {
   final String route;
   const TimetableDisplay({super.key, required this.route});
-
   @override
-  State<TimetableDisplay> createState() => _TimetableDisplayState();
+  State<TimetableDisplay> createState() => TimetableDisplayState();
 }
 
-class _TimetableDisplayState extends State<TimetableDisplay> {
-  late ScrollController _scrollController;
+class TimetableDisplayState extends State<TimetableDisplay> with AutomaticKeepAliveClientMixin {
+  late AutoScrollController _autoController;
+  final double _itemHeight = 110.0;
+  bool _hasInitialScrolled = false;
+
+  @override
+  bool get wantKeepAlive => true;
 
   @override
   void initState() {
     super.initState();
-    _scrollController = ScrollController();
+    _autoController = AutoScrollController();
 
-    // Executes after the build method to ensure the list is rendered before scrolling
+    // Auto-scroll on initial load
     WidgetsBinding.instance.addPostFrameCallback((_) {
-      _autoScrollToNow();
+      if (!_hasInitialScrolled) {
+        scrollToNow();
+        _hasInitialScrolled = true;
+      }
     });
   }
 
   @override
   void dispose() {
-    _scrollController.dispose();
+    _autoController.dispose();
     super.dispose();
   }
 
-  void _autoScrollToNow() {
+  // Scroll logic
+  void scrollToNow() {
     final timetableProvider = Provider.of<TimetableProvider>(context, listen: false);
     final timetable = timetableProvider.timetables[widget.route] ?? [];
+    int nowIndex = timetable.indexWhere((entry) => !_isPast(entry['time'])) - 1 ;
 
-    int nowIndex = timetable.indexWhere((entry) => !_isPast(entry['time']));
-
-    if (nowIndex != -1 && _scrollController.hasClients) {
-      // 116.0 is the approximate height of one card including padding
-      double offset = nowIndex * 100;
-      _scrollController.animateTo(
-        offset,
-        duration: const Duration(milliseconds: 800),
-        curve: Curves.fastOutSlowIn,
-      );
+    if (nowIndex != -1) {
+      _autoController.scrollToIndex(nowIndex, preferPosition: AutoScrollPosition.begin);
     }
   }
 
-  (String, Color) _getDelayInfo(num seconds, bool departed, ColorScheme colors) {
-    if (departed) return ("Departed", colors.outline);
-    double minutes = seconds / 60.0;
-    if (seconds <= 0) return ("On Time", Colors.green.shade700);
-    if (seconds < 180) return ("${minutes.toStringAsFixed(1)}m late", Colors.orange.shade700);
-    return ("${minutes.toStringAsFixed(1)}m late", Colors.red.shade700);
+  void scrollToStart() {
+    _autoController.animateTo(
+      0,
+      duration: const Duration(milliseconds: 500),
+      curve: Curves.easeInOut,
+    );
+  }
+
+  // THE REFRESH FUNCTION
+  Future<void> _refreshData() async {
+    final routeProvider = Provider.of<RouteProvider>(context, listen: false);
+
+    // Force a re-fetch of the timetable for the current route
+    await Provider.of<TimetableProvider>(context, listen: false)
+        .fetchTimetable(routeProvider.route);
   }
 
   bool _isPast(String timeStr) {
@@ -68,55 +78,86 @@ class _TimetableDisplayState extends State<TimetableDisplay> {
     }
   }
 
+  (String, Color) _getDelayInfo(num seconds, bool departed, ColorScheme colors) {
+    if (departed) return ("Departed", colors.outline);
+    double minutes = seconds / 60.0;
+    if (seconds <= 0) return ("On Time", Colors.green.shade700);
+    if (seconds < 180) return ("${minutes.toStringAsFixed(1)}m late", Colors.orange.shade700);
+    return ("${minutes.toStringAsFixed(1)}m late", Colors.red.shade700);
+  }
+
+  void resetScrollFlag() {
+    _hasInitialScrolled = false;
+  }
+
   @override
   Widget build(BuildContext context) {
+    super.build(context);
     final colors = Theme.of(context).colorScheme;
     final String currentTimeStr = DateFormat('h:mm a').format(DateTime.now());
 
     return Consumer<TimetableProvider>(
       builder: (context, timetableProvider, child) {
-        if (timetableProvider.isLoading) {
-          return const Center(child: CircularProgressIndicator());
-        }
+        if (timetableProvider.isLoading) return const Center(child: CircularProgressIndicator());
 
         final timetable = timetableProvider.timetables[widget.route] ?? [];
-        if (timetable.isEmpty) return const Center(child: Text('No timetable available.'));
+        if (timetable.isEmpty) return const Center(child: Text('No timetable data available.'));
 
         int nowDividerIndex = timetable.indexWhere((entry) => !_isPast(entry['time']));
 
-        return ListView.builder(
-          controller: _scrollController,
-          padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 20),
-          itemCount: timetable.length + (nowDividerIndex != -1 ? 1 : 0),
-          itemBuilder: (context, index) {
-            if (nowDividerIndex != -1 && index == nowDividerIndex) {
-              return _buildNowDivider(currentTimeStr, colors);
-            }
-
-            final actualIndex = (nowDividerIndex != -1 && index > nowDividerIndex) ? index - 1 : index;
-            final entry = timetable[actualIndex];
-            final bool departed = _isPast(entry['time']);
-            final (delayText, delayColor) = _getDelayInfo(entry['delay'] as num, departed, colors);
-            final bool isLast = actualIndex == timetable.length - 1;
-
-            return IntrinsicHeight(
-              child: Row(
-                children: [
-                  _buildTimelineIndicator(departed, isLast, colors),
-                  const SizedBox(width: 16),
-                  Expanded(
-                    child: _buildContentCard(entry, departed, delayText, delayColor, colors),
-                  ),
-                ],
+        return Stack(
+          children: [
+            RefreshIndicator(
+              onRefresh: () {
+                _refreshData;
+                scrollToNow();
+                return Future.delayed(const Duration(seconds: 1));
+              },
+              child: ListView.builder(
+                controller: _autoController,
+                physics: const AlwaysScrollableScrollPhysics(),
+                padding: const EdgeInsets.only(bottom: 80), // Space for FAB
+                itemCount: timetable.length + (nowDividerIndex != -1 ? 1 : 0),
+                itemBuilder: (context, index) {
+                  return AutoScrollTag(
+                    key: ValueKey(index),
+                    controller: _autoController,
+                    index: index,
+                    child: _buildItem(index, nowDividerIndex, timetable, currentTimeStr, colors),
+                  );
+                },
               ),
-            );
-          },
+            ),
+          ],
         );
       },
     );
   }
 
-  Widget _buildTimelineIndicator(bool departed, bool isLast, ColorScheme colors) {
+  Widget _buildItem(int index, int nowDividerIndex, List timetable, String currentTimeStr, ColorScheme colors) {
+    if (nowDividerIndex != -1 && index == nowDividerIndex) {
+      return _buildNowDivider(currentTimeStr, colors);
+    }
+
+    final actualIndex = (nowDividerIndex != -1 && index > nowDividerIndex) ? index - 1 : index;
+    final entry = timetable[actualIndex];
+    final bool departed = _isPast(entry['time']);
+    final (delayText, delayColor) = _getDelayInfo(entry['delay'] as num, departed, colors);
+    final bool isLast = actualIndex == timetable.length - 1;
+
+    return SizedBox(
+      height: _itemHeight,
+      child: Row(
+        children: [
+          _buildTimeline(departed, isLast, colors),
+          const SizedBox(width: 16),
+          Expanded(child: _buildCard(entry, departed, delayText, delayColor, colors)),
+        ],
+      ),
+    );
+  }
+
+  Widget _buildTimeline(bool departed, bool isLast, ColorScheme colors) {
     return Column(
       children: [
         Container(
@@ -131,13 +172,13 @@ class _TimetableDisplayState extends State<TimetableDisplay> {
     );
   }
 
-  Widget _buildContentCard(dynamic entry, bool departed, String delayText, Color delayColor, ColorScheme colors) {
+  Widget _buildCard(dynamic entry, bool departed, String delayText, Color delayColor, ColorScheme colors) {
     return Padding(
       padding: const EdgeInsets.only(bottom: 16),
       child: Container(
-        padding: const EdgeInsets.all(20),
+        padding: const EdgeInsets.symmetric(horizontal: 20),
         decoration: BoxDecoration(
-          color: departed ? colors.surfaceVariant.withOpacity(0.3) : colors.primaryContainer.withOpacity(0.7),
+          color: departed ? colors.surfaceContainerHighest.withValues(alpha: 0.3,) : colors.primaryContainer.withValues(alpha:0.7),
           borderRadius: BorderRadius.circular(24),
         ),
         child: Row(
@@ -145,10 +186,20 @@ class _TimetableDisplayState extends State<TimetableDisplay> {
             Expanded(
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
+                mainAxisAlignment: MainAxisAlignment.center,
                 children: [
                   Text(entry['time'], style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold, color: departed ? colors.outline : colors.onPrimaryContainer)),
-                  const SizedBox(height: 4),
-                  Text(entry['stop'], style: TextStyle(color: departed ? colors.outline : colors.onSurfaceVariant, fontSize: 14)),
+                  const SizedBox(height: 2),
+                  Tooltip(
+                    message: entry['stop'],
+                    triggerMode: TooltipTriggerMode.longPress,
+                    child: Text(
+                      entry['stop'],
+                      maxLines: 1,
+                      overflow: TextOverflow.ellipsis,
+                      style: TextStyle(color: departed ? colors.outline : colors.onSurfaceVariant, fontSize: 13),
+                    ),
+                  ),
                 ],
               ),
             ),
@@ -159,7 +210,7 @@ class _TimetableDisplayState extends State<TimetableDisplay> {
                 borderRadius: BorderRadius.circular(16),
                 border: Border.all(color: delayColor.withOpacity(0.2)),
               ),
-              child: Text(delayText, style: TextStyle(color: delayColor, fontWeight: FontWeight.bold, fontSize: 12)),
+              child: Text(delayText, style: TextStyle(color: delayColor, fontWeight: FontWeight.bold, fontSize: 11)),
             ),
           ],
         ),
@@ -168,8 +219,8 @@ class _TimetableDisplayState extends State<TimetableDisplay> {
   }
 
   Widget _buildNowDivider(String time, ColorScheme colors) {
-    return Padding(
-      padding: const EdgeInsets.symmetric(vertical: 20),
+    return SizedBox(
+      height: 60,
       child: Row(
         children: [
           Expanded(child: Divider(color: colors.outlineVariant, thickness: 1)),

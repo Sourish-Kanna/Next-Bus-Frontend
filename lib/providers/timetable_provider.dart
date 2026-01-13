@@ -106,22 +106,37 @@ class TimetableProvider with ChangeNotifier {
       // 1. Try to send to API directly
       var response = await _apiService.put(urls['updateTime']!, data: data);
 
-      if (response.statusCode == 200 && response.data != null && response.data is Map<String, dynamic>) {
+      if (response.statusCode == 200) {
         _handleSuccessfulUpdate(routeName);
         return {'success': true, 'data': response.data['data']};
-      } else {
-        return {'success': false, 'message': response.data['detail'] ?? 'Failed to update time'};
       }
 
-    } catch (e) {
-      // 2. [New] If Network Fails, Save to Offline Queue
-      AppLogger.warn("Network failed ($e). Saving report offline.");
+      // Handle Rate Limiting (429)
+      if (response.statusCode == 429) {
+        return {
+          'success': false,
+          'message': 'Rate limit exceeded (429). Please wait.'
+        };
+      }
 
+      return {
+        'success': false,
+        'message': response.data['detail'] ?? 'Failed to update time'
+      };
+
+    } catch (e) {
+      // If the error is a Dio/Network error, handle offline mode
+      // If it's a 429 inside the catch block (depending on your ApiService setup):
+      if (e.toString().contains('429')) {
+        return {'success': false, 'message': 'Too many reports. Please wait (429).'};
+      }
+
+      AppLogger.warn("Network failed. Saving report offline.");
       await _queueOfflineReport(data);
 
       return {
         'success': true,
-        'message': 'No internet. Saved offline and will sync automatically.',
+        'message': 'Saved offline.',
         'isOffline': true
       };
     }

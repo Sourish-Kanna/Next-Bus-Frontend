@@ -16,36 +16,48 @@ class _ReportBusSheetState extends State<ReportBusSheet> {
   bool _isLoading = false;
 
   Future<void> _submitReport(BuildContext context, String timeStr) async {
-    setState(() {
-      _isLoading = true;
-    });
+    setState(() => _isLoading = true);
 
     try {
       final routeProvider = context.read<RouteProvider>();
       final timeProvider = context.read<TimetableProvider>();
 
-      // TODO: Replace "test" with the actual Stop ID or Bus Status if needed
-      await timeProvider.updateTime(routeProvider.route, "Thane Station", timeStr);
+      final result = await timeProvider.updateTime(
+          routeProvider.route,
+          "Thane Station",
+          timeStr
+      );
 
       AppLogger.info('Reported: Route ${routeProvider.route} at $timeStr');
       if (!context.mounted) return;
 
-      Navigator.pop(context);
-      CustomSnackBar.showSuccess(context, 'Reported: Route ${routeProvider.route} at $timeStr');
+      if (result['success'] == true) {
+        // CASE: Saved Offline
+        if (result['isOffline'] == true) {
+          CustomSnackBar.showInfo(context, 'Offline: Report saved and will sync later.');
+        } else {
+          // CASE: Successful API call
+          CustomSnackBar.showSuccess(context, 'Reported: Route ${routeProvider.route} at $timeStr');
+        }
+        Navigator.pop(context);
+      } else {
+        // CASE: Server Error (including 429)
+        String errorMsg = result['message'] ?? 'Unknown error';
+
+        if (errorMsg.contains('429')) {
+          CustomSnackBar.showError(context, 'Too many requests. Please wait a moment.');
+        } else {
+          CustomSnackBar.showError(context, errorMsg);
+        }
+      }
 
     } catch (e) {
       // Handle errors gracefully (optional)
       if (context.mounted) {
-        CustomSnackBar.showError(context, 'Failed to report: $e');
-        AppLogger.error('Failed to report', e);
-        Navigator.pop(context);
+        CustomSnackBar.showError(context, 'An unexpected error occurred.');
       }
     } finally {
-      if (mounted) {
-        setState(() {
-          _isLoading = false;
-        });
-      }
+      if (mounted) setState(() => _isLoading = false);
     }
   }
 
