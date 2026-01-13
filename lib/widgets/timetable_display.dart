@@ -7,54 +7,139 @@ class TimetableDisplay extends StatelessWidget {
   final String route;
   const TimetableDisplay({super.key, required this.route});
 
-  String secTomin(num sec) {
-    final duration = Duration(seconds: sec.toInt());
-    double minutes = duration.inMinutes.toDouble() + (duration.inSeconds % 60) / 60.0;
-    return minutes.toStringAsFixed(2);
+  // Helper to format delay and return a status color
+  (String, Color) _getDelayInfo(num seconds) {
+    double minutes = seconds / 60.0;
+    if (seconds <= 0) return ("On Time", Colors.green.shade700);
+    if (seconds < 180) return ("${minutes.toStringAsFixed(1)}m late", Colors.orange.shade700);
+    return ("${minutes.toStringAsFixed(1)}m late", Colors.red.shade700);
   }
 
   @override
   Widget build(BuildContext context) {
     return Consumer<TimetableProvider>(
       builder: (context, timetableProvider, child) {
-        // Loading State
         if (timetableProvider.isLoading) {
-          return const Center(child: CircularProgressIndicator(
-            strokeCap: StrokeCap.round,
-          ));
+          return const Center(child: CircularProgressIndicator(strokeWidth: 3));
         }
 
         final timetable = timetableProvider.timetables[route];
-        AppLogger.info("Timetable for route $route");
 
-        // Empty State (Updated to be Scrollable)
         if (timetable == null || timetable.isEmpty) {
-          return ListView(
-            physics: const AlwaysScrollableScrollPhysics(),
-            children: [
-              Center(
-                child: const Center(child: Text('No timetable data available.')),
-              ),
-            ],
+          return Center(
+            child: Column(
+              mainAxisAlignment: MainAxisAlignment.center,
+              children: [
+                Icon(Icons.bus_alert, size: 64, color: Colors.grey.shade300),
+                const SizedBox(height: 16),
+                const Text('No timetable data available',
+                    style: TextStyle(color: Colors.grey, fontSize: 16)),
+              ],
+            ),
           );
         }
 
-        // Data State
         return ListView.builder(
-          physics: const AlwaysScrollableScrollPhysics(),
+          padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 20),
           itemCount: timetable.length,
           itemBuilder: (context, index) {
             final entry = timetable[index];
-            final stopName = entry['stop'];
-            final timing = entry['time'];
-            final delay = "${secTomin(entry['delay'] as num)} mins";
+            final (delayText, delayColor) = _getDelayInfo(entry['delay'] as num);
+            final bool isLast = index == timetable.length - 1;
 
-            return Card(
-              margin: const EdgeInsets.symmetric(vertical: 8, horizontal: 4),
-              child: ListTile(
-                subtitle: Text(stopName),
-                title: Text('Arrival: $timing', style: const TextStyle(fontWeight: FontWeight.bold)),
-                trailing: Text('Delay: $delay'),
+            return IntrinsicHeight(
+              child: Row(
+                children: [
+                  // --- Timeline Indicator Column ---
+                  Column(
+                    children: [
+                      Container(
+                        width: 14,
+                        height: 14,
+                        decoration: BoxDecoration(
+                          color: Theme.of(context).primaryColor,
+                          shape: BoxShape.circle,
+                          border: Border.all(color: Colors.white, width: 2),
+                          boxShadow: [BoxShadow(blurRadius: 4, color: Colors.black12)],
+                        ),
+                      ),
+                      if (!isLast)
+                        Expanded(
+                          child: Container(
+                            width: 2,
+                            color: Colors.grey.shade300,
+                          ),
+                        ),
+                    ],
+                  ),
+                  const SizedBox(width: 16),
+
+                  // --- Content Card ---
+                  Expanded(
+                    child: Padding(
+                      padding: const EdgeInsets.only(bottom: 20),
+                      child: Container(
+                        decoration: BoxDecoration(
+                          color: Colors.white,
+                          borderRadius: BorderRadius.circular(12),
+                          boxShadow: [
+                            BoxShadow(
+                              color: Colors.black.withOpacity(0.05),
+                              blurRadius: 10,
+                              offset: const Offset(0, 4),
+                            ),
+                          ],
+                        ),
+                        child: ClipRRect(
+                          borderRadius: BorderRadius.circular(12),
+                          child: Container(
+                            // border: Border(left: BorderSide(color: delayColor, width: 4)),
+                            padding: const EdgeInsets.all(16),
+                            child: Row(
+                              mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                              children: [
+                                Expanded(
+                                  child: Column(
+                                    crossAxisAlignment: CrossAxisAlignment.start,
+                                    children: [
+                                      Text(
+                                        entry['stop'],
+                                        style: const TextStyle(
+                                          fontWeight: FontWeight.bold,
+                                          fontSize: 16,
+                                        ),
+                                      ),
+                                      const SizedBox(height: 4),
+                                      Text(
+                                        "Arrival: ${entry['time']}",
+                                        style: TextStyle(color: Colors.grey.shade600),
+                                      ),
+                                    ],
+                                  ),
+                                ),
+                                Container(
+                                  padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
+                                  decoration: BoxDecoration(
+                                    color: delayColor.withOpacity(0.1),
+                                    borderRadius: BorderRadius.circular(6),
+                                  ),
+                                  child: Text(
+                                    delayText,
+                                    style: TextStyle(
+                                      color: delayColor,
+                                      fontWeight: FontWeight.bold,
+                                      fontSize: 12,
+                                    ),
+                                  ),
+                                ),
+                              ],
+                            ),
+                          ),
+                        ),
+                      ),
+                    ),
+                  ),
+                ],
               ),
             );
           },

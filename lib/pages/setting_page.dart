@@ -113,12 +113,13 @@ class SettingPage extends StatelessWidget {
     final isOnline = context.watch<ConnectivityProvider>().isOnline;
     final String initials = user?.displayName?.trim().isNotEmpty ?? false
         ? user!.displayName!.trim().split(' ').map((e) => e[0]).take(2).join().toUpperCase()
-        : "U";
+        : "GU";
 
     return Scaffold(
       appBar: AppBar(
         automaticallyImplyLeading: false,
-        title: const Text("Settings"),
+        backgroundColor: Theme.of(context).colorScheme.inversePrimary,
+        title: const Text("Settings",style: TextStyle(fontWeight: FontWeight.bold),),
       ),
       body: ListView(
         padding: const EdgeInsets.symmetric(horizontal: 16.0, vertical: 8.0),

@@ -25,18 +25,18 @@ class _ReportBusSheetState extends State<ReportBusSheet> {
       final timeProvider = context.read<TimetableProvider>();
 
       // TODO: Replace "test" with the actual Stop ID or Bus Status if needed
-      await timeProvider.updateTime(routeProvider.route, "test", timeStr);
+      await timeProvider.updateTime(routeProvider.route, "Thane Station", timeStr);
 
       AppLogger.info('Reported: Route ${routeProvider.route} at $timeStr');
       if (!context.mounted) return;
 
       Navigator.pop(context);
-      CustomSnackBar.show(context, 'Reported: Route ${routeProvider.route} at $timeStr');
+      CustomSnackBar.showSuccess(context, 'Reported: Route ${routeProvider.route} at $timeStr');
 
     } catch (e) {
       // Handle errors gracefully (optional)
       if (context.mounted) {
-        CustomSnackBar.show(context, 'Failed to report: $e');
+        CustomSnackBar.showError(context, 'Failed to report: $e');
         AppLogger.error('Failed to report', e);
         Navigator.pop(context);
       }
@@ -96,9 +96,7 @@ class _ReportBusSheetState extends State<ReportBusSheet> {
               _submitReport(context, formattedTime);
             },
             style: _xlButtonStyle(context),
-            icon: _isLoading
-                ? _buildSpinner(context, onPrimary: true)
-                : const Icon(Icons.directions_bus),
+            icon: _isLoading ? null : const Icon(Icons.directions_bus),
             label: Text(_isLoading ? "Sending..." : "Arrived Now",
                 style: const TextStyle(fontSize: 18, fontWeight: FontWeight.bold)), // Larger Font
           ),
@@ -123,26 +121,11 @@ class _ReportBusSheetState extends State<ReportBusSheet> {
                 _submitReport(context, formattedTime);
               }
             },
-            icon: const Icon(Icons.schedule),
-            label: const Text("Report Time", style: TextStyle(fontSize: 18, fontWeight: FontWeight.w500)),
+            icon: _isLoading ? null : const Icon(Icons.schedule),
+            label:_isLoading?  _buildSpinner(context, onPrimary: true) : Text( "Report Time", style: TextStyle(fontSize: 18, fontWeight: FontWeight.w500)),
           ),
           const SizedBox(height: 16), // Increased spacing
 
-          // // --- BUTTON 3: Request New Routes ---
-          // FilledButton.tonalIcon(
-          //   style: _xlButtonStyle(context),
-          //   onPressed: _isLoading
-          //       ? null
-          //       : () {
-          //     if (!context.mounted) return;
-          //     CustomSnackBar.show(context, 'Feature will be added soon...');
-          //     Navigator.pop(context);
-          //   },
-          //   icon: _isLoading
-          //       ? _buildSpinner(context, onPrimary: true)
-          //       : const Icon(Icons.report_problem),
-          //   label: const Text("Request New Routes", style: TextStyle(fontSize: 16)),
-          // ),
         ],
       ),
     );

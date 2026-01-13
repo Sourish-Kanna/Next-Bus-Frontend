@@ -21,12 +21,11 @@ class ConnectivityBanner extends StatelessWidget {
             child: InkWell(
               onTap: () async {
                 // Visual Feedback (Clearer)
-                ScaffoldMessenger.of(context).hideCurrentSnackBar();
-                ScaffoldMessenger.of(context).showSnackBar(
-                  const SnackBar(
-                    content: Text('Checking connection...'),
-                    duration: Duration(seconds: 1),
-                  ),
+                CustomSnackBar.show(
+                  context,
+                  'Checking connection...',
+                  // backgroundColor: Colors.green,
+                  // foregroundColor: Colors.white,
                 );
 
                 // Perform Check
@@ -35,14 +34,14 @@ class ConnectivityBanner extends StatelessWidget {
                 // Feedback
                 if (context.mounted) {
                   if (isNowOnline) {
-                    CustomSnackBar.show(
+                    CustomSnackBar.showSuccess(
                       context,
                       'Back online!',
                       // backgroundColor: Colors.green,
                       // foregroundColor: Colors.white,
                     );
                   } else {
-                    CustomSnackBar.show(
+                    CustomSnackBar.showInfo(
                       context,
                       'Still offline. Please check settings.',
                       // backgroundColor: Theme.of(context).colorScheme.error,

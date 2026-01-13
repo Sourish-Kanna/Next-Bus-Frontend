@@ -77,10 +77,19 @@ class HomePageState extends State<HomePage> {
         appBar: AppBar(
           backgroundColor: Theme.of(context).colorScheme.inversePrimary,
           automaticallyImplyLeading: false,
-          centerTitle: false,
-          title: Text(
-            "Route $route",
-            style: const TextStyle(fontWeight: FontWeight.bold),
+          title: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            // spacing: 4.0,
+            children: [
+              Text(
+                "TMT $route",
+                style: const TextStyle(fontWeight: FontWeight.bold),
+              ),
+              Text(
+                "From Thane Station to Tikujiniwadi",
+                style: const TextStyle(fontSize: 16),
+              ),
+            ],
           ),
 
           // Optional: Add the 'Star' icon if you want to match Figma exactly

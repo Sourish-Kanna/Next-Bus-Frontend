@@ -68,7 +68,13 @@ class _RouteSelectState extends State<RouteSelect> {
     AppLogger.info('RouteSelect build — selectedRoute: $selectedRoute');
 
     return Scaffold(
-      appBar: AppBar(title: const Text('Select a Route')),
+      appBar: AppBar(
+          title: const Text(
+            'Select a Route',
+            style: TextStyle(fontWeight: FontWeight.bold),
+          ),
+        backgroundColor: Theme.of(context).colorScheme.inversePrimary,
+      ),
       body: _isLoading
           ? const Center(child: CircularProgressIndicator())
           : Padding(
