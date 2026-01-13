@@ -8,7 +8,8 @@ class SettingsGroupCard extends StatelessWidget {
   final IconData icon;
   final List<Widget> children;
 
-  const SettingsGroupCard({super.key,
+  const SettingsGroupCard({
+    super.key,
     required this.title,
     required this.icon,
     required this.children,
@@ -33,16 +34,25 @@ class SettingsGroupCard extends StatelessWidget {
           children: [
             Row(
               children: [
-                Icon(icon, color: Theme.of(context).colorScheme.primary),
-                const SizedBox(width: 12),
-                // Expressive typography for the main title
+                Container(
+                  padding: const EdgeInsets.all(8),
+                  decoration: BoxDecoration(
+                    color: Theme.of(context).colorScheme.primaryContainer.withValues(alpha: 0.5),
+                    borderRadius: BorderRadius.circular(12),
+                  ),
+                  child: Icon(icon, color: Theme.of(context).colorScheme.primary),
+                ),
+                const SizedBox(width: 16),
                 Text(
                   title,
-                  style: Theme.of(context).textTheme.headlineSmall,
+                  style: Theme.of(context).textTheme.headlineSmall?.copyWith(
+                    // fontWeight: FontWeight.bold,
+                    color: Theme.of(context).colorScheme.onSurface,
+                  ),
                 ),
               ],
             ),
-            const SizedBox(height: 12),
+            const SizedBox(height: 16),
             ...children,
           ],
         ),
@@ -56,9 +66,9 @@ class ThemeSettings extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return Column(
+    return const Column(
       crossAxisAlignment: CrossAxisAlignment.start,
-      children: const [
+      children: [
         ThemeModeSelector(),
         Divider(height: 32),
         MaterialYouSettings(),
@@ -79,29 +89,33 @@ class ThemeModeSelector extends StatelessWidget {
       children: [
         // Using a more prominent text style
         Text('Theme Mode', style: Theme.of(context).textTheme.titleLarge),
-        const SizedBox(height: 16.0),
-        SegmentedButton<ThemeMode>(
-          segments: const <ButtonSegment<ThemeMode>>[
-            ButtonSegment<ThemeMode>(
-              value: ThemeMode.system,
-              label: Text('System'),
-              icon: Icon(Icons.brightness_auto_rounded),
-            ),
-            ButtonSegment<ThemeMode>(
-              value: ThemeMode.light,
-              label: Text('Light'),
-              icon: Icon(Icons.light_mode_rounded),
-            ),
-            ButtonSegment<ThemeMode>(
-              value: ThemeMode.dark,
-              label: Text('Dark'),
-              icon: Icon(Icons.dark_mode_rounded),
-            ),
-          ],
-          selected: {themeProvider.themeMode},
-          onSelectionChanged: (Set<ThemeMode> newSelection) {
-            themeProvider.setThemeMode(newSelection.first);
-          },
+        const SizedBox(height: 12.0),
+        SizedBox(
+          width: double.infinity,
+          child: SegmentedButton<ThemeMode>(
+            showSelectedIcon: false,
+            segments: const <ButtonSegment<ThemeMode>>[
+              ButtonSegment<ThemeMode>(
+                value: ThemeMode.system,
+                label: Text('System'),
+                icon: Icon(Icons.settings_suggest_rounded),
+              ),
+              ButtonSegment<ThemeMode>(
+                value: ThemeMode.light,
+                label: Text('Light'),
+                icon: Icon(Icons.light_mode_rounded),
+              ),
+              ButtonSegment<ThemeMode>(
+                value: ThemeMode.dark,
+                label: Text('Dark'),
+                icon: Icon(Icons.dark_mode_rounded),
+              ),
+            ],
+            selected: {themeProvider.themeMode},
+            onSelectionChanged: (Set<ThemeMode> newSelection) {
+              themeProvider.setThemeMode(newSelection.first);
+            },
+          ),
         ),
       ],
     );
@@ -117,73 +131,55 @@ class MaterialYouSettings extends StatelessWidget {
 
     return LayoutBuilder(
       builder: (context, constraints) {
-        // 1. Determine device type based on available width
         final bool isMobile = constraints.maxWidth < mobileBreakpoint;
-
-        // 2. Define responsive sizes
-        final double boxSize = isMobile ? 50.0 : 72.0;
-        final double iconSize = isMobile ? 28.0 : 36.0;
-        final double spacing = isMobile ? 12.0 : 20.0;
-
-        // 3. Define responsive shape (Squircle)
-        // Adjusting radius slightly for larger boxes keeps the shape consistent
-        final squircleRadius = BorderRadius.circular(isMobile ? 14.0 : 18.0);
+        final double boxSize = isMobile ? 48.0 : 64.0;
+        final double iconSize = isMobile ? 24.0 : 32.0;
+        final double spacing = isMobile ? 10.0 : 16.0;
+        final squircleRadius = BorderRadius.circular(isMobile ? 12.0 : 16.0);
 
         return Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
             Text('Color Scheme', style: Theme.of(context).textTheme.titleLarge),
-            const SizedBox(height: 4.0),
             SwitchListTile(
               title: const Text('Use Dynamic Color'),
               subtitle: const Text('Android 12+'),
               value: themeProvider.isDynamicColor,
-              onChanged: (value) {
-                themeProvider.setDynamicColor(value);
-              },
-              secondary: const Icon(Icons.color_lens_outlined),
-              contentPadding: const EdgeInsets.symmetric(horizontal: 4),
+              onChanged: (value) => themeProvider.setDynamicColor(value),
+              secondary: const Icon(Icons.palette_rounded),
+              contentPadding: EdgeInsets.zero,
             ),
             if (!themeProvider.isDynamicColor) ...[
-              const SizedBox(height: 16),
-              Padding(
-                padding: const EdgeInsets.only(left: 4.0, bottom: 16.0),
-                child: Text(
-                  'Choose a Seed Color:',
-                  style: Theme.of(context).textTheme.bodyLarge,
-                ),
-              ),
+              const SizedBox(height: 8),
               Wrap(
                 spacing: spacing,
                 runSpacing: spacing,
                 children: seedColorList.map((color) {
                   final isSelected = themeProvider.selectedSeedColor == color;
+
                   return InkWell(
                     onTap: () => themeProvider.setSelectedSeedColor(color),
                     borderRadius: squircleRadius,
-                    child: Container(
-                      // 4. Apply dynamic sizes here
+                    child: AnimatedContainer(
+                      duration: const Duration(milliseconds: 200),
                       width: boxSize,
                       height: boxSize,
                       decoration: BoxDecoration(
                         color: color,
                         borderRadius: squircleRadius,
-                        shape: BoxShape.rectangle,
-                        border: isSelected
-                            ? Border.all(
-                          color: Theme.of(context).colorScheme.primary,
-                          width: isMobile ? 3.5 : 4.5, // Thicker border on desktop
-                        )
-                            : Border.all(
-                          color: Theme.of(context).colorScheme.outline,
-                        ),
+                        border: isSelected && !themeProvider.isDynamicColor
+                            ? Border.all(color: color, width: 2)
+                            : null,
+                        boxShadow: isSelected && !themeProvider.isDynamicColor
+                            ? [BoxShadow(color: color.withValues(alpha: 0.4), blurRadius: 8, spreadRadius: 2)]
+                            : [],
                       ),
                       child: isSelected
                           ? Center(
                         child: Icon(
                           Icons.check,
-                          color: Theme.of(context).colorScheme.onPrimaryContainer,
-                          size: iconSize, // Scaled icon
+                          color: Theme.of(context).colorScheme.onPrimary,
+                          size: iconSize,
                         ),
                       )
                           : null,

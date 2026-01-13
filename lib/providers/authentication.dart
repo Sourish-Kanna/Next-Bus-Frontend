@@ -71,6 +71,12 @@ class AuthService with ChangeNotifier {
 
       return null;
     } catch (e) {
+      if (context.mounted) {
+        CustomSnackBar.showError(
+            context,
+            "Sign-in failed. Please check your internet or configuration."
+        );
+      }
       AppLogger.error("Google Sign-In Error", e);
       return null;
     }
@@ -95,6 +101,12 @@ class AuthService with ChangeNotifier {
 
       return user;
     } catch (e) {
+      if (context.mounted) {
+        CustomSnackBar.showError(
+            context,
+            "Sign-in failed. Please check your internet or configuration."
+        );
+      }
       AppLogger.error("Guest Login Error", e);
       return null;
     }
