@@ -1,5 +1,4 @@
 import 'package:flutter/material.dart';
-import 'package:nextbus/common.dart' show AppLogger;
 import 'package:nextbus/constant.dart';
 import 'package:nextbus/providers/providers.dart' show UserDetails, NavigationProvider;
 import 'package:nextbus/widgets/widgets.dart' show ConnectivityBanner;

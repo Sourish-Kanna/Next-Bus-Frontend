@@ -314,7 +314,7 @@ ${DateTime.now().toIso8601String()}
 
     return Scaffold(
       appBar: AppBar(
-        title: const Text("Admin Dashboard",style: const TextStyle(fontWeight: FontWeight.bold),),
+        title: const Text("Admin Dashboard",style: TextStyle(fontWeight: FontWeight.bold),),
         backgroundColor: Theme.of(context).colorScheme.inversePrimary,
 
       ),

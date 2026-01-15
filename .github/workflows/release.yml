@@ -57,7 +57,7 @@ jobs:
         run: |
             flutter --version
             java -version
-            ./android/gradlew --version
+#            ./android/gradlew --version
         
 
   # --------------------------------------
@@ -116,10 +116,6 @@ jobs:
           restore-keys: |
             ${{ runner.os }}-gradle-
 
-      - name: 📊 Gradle Cache Status
-        run: |
-          echo "Gradle cache hit: ${{ steps.gradle-cache.outputs.cache-hit }}"
-
       - name: 🔐 Decode Keystore
         run: echo "${{ secrets.ANDROID_KEYSTORE_BASE64 }}" | base64 --decode > android/app/upload-keystore.jks
 
@@ -149,7 +145,7 @@ jobs:
         run: |
           BUILD_NAME="${{ needs.setup.outputs.build_name }}"
           
-          # 64-bit APK (Best for modern phones)
+          # 64-bit APK
           OLD_NAME_64="build/app/outputs/flutter-apk/app-arm64-v8a-release.apk"
           NEW_NAME_64="build/app/outputs/flutter-apk/Next-Bus-${BUILD_NAME}-arm64.apk"
           
@@ -160,7 +156,7 @@ jobs:
              echo "⚠️ 64-bit APK not found!"
           fi
           
-          # 32-bit APK (Legacy support)
+          # 32-bit APK
           OLD_NAME_32="build/app/outputs/flutter-apk/app-armeabi-v7a-release.apk"
           NEW_NAME_32="build/app/outputs/flutter-apk/Next-Bus-${BUILD_NAME}-arm32.apk"
 
