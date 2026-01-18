@@ -50,16 +50,8 @@ class TimetableDisplayState extends State<TimetableDisplay> with AutomaticKeepAl
     }
   }
 
-  void scrollToStart() {
-    _autoController.animateTo(
-      0,
-      duration: const Duration(milliseconds: 500),
-      curve: Curves.easeInOut,
-    );
-  }
-
   // THE REFRESH FUNCTION
-  Future<void> _refreshData() async {
+  Future<void> refreshData() async {
     final routeProvider = Provider.of<RouteProvider>(context, listen: false);
 
     // Force a re-fetch of the timetable for the current route
@@ -109,7 +101,7 @@ class TimetableDisplayState extends State<TimetableDisplay> with AutomaticKeepAl
           children: [
             RefreshIndicator(
               onRefresh: () {
-                _refreshData;
+                refreshData;
                 scrollToNow();
                 return Future.delayed(const Duration(seconds: 1));
               },
@@ -189,26 +181,26 @@ class TimetableDisplayState extends State<TimetableDisplay> with AutomaticKeepAl
                 mainAxisAlignment: MainAxisAlignment.center,
                 children: [
                   Text(entry['time'], style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold, color: departed ? colors.outline : colors.onPrimaryContainer)),
-                  const SizedBox(height: 2),
-                  Tooltip(
-                    message: entry['stop'],
-                    triggerMode: TooltipTriggerMode.longPress,
-                    child: Text(
-                      entry['stop'],
-                      maxLines: 1,
-                      overflow: TextOverflow.ellipsis,
-                      style: TextStyle(color: departed ? colors.outline : colors.onSurfaceVariant, fontSize: 13),
-                    ),
-                  ),
+                  // const SizedBox(height: 2),
+                  // Tooltip(
+                  //   message: entry['stop'],
+                  //   triggerMode: TooltipTriggerMode.longPress,
+                  //   child: Text(
+                  //     entry['stop'],
+                  //     maxLines: 1,
+                  //     overflow: TextOverflow.ellipsis,
+                  //     style: TextStyle(color: departed ? colors.outline : colors.onSurfaceVariant, fontSize: 13),
+                  //   ),
+                  // ),
                 ],
               ),
             ),
             Container(
               padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 6),
               decoration: BoxDecoration(
-                color: departed ? Colors.transparent : delayColor.withOpacity(0.12),
+                color: departed ? Colors.transparent : delayColor.withValues(alpha: 0.12),
                 borderRadius: BorderRadius.circular(16),
-                border: Border.all(color: delayColor.withOpacity(0.2)),
+                border: Border.all(color: delayColor.withValues(alpha: 0.2)),
               ),
               child: Text(delayText, style: TextStyle(color: delayColor, fontWeight: FontWeight.bold, fontSize: 11)),
             ),

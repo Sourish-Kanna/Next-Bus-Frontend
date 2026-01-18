@@ -94,28 +94,22 @@ class HomePageState extends State<HomePage> {
         mainAxisAlignment: MainAxisAlignment.end,
         crossAxisAlignment: CrossAxisAlignment.end,
         children: [
-          FloatingActionButton.extended(
-            onPressed: () =>_timetableKey.currentState?.scrollToStart(),
-            label: const Text("Top"),
-            icon: const Icon(Icons.arrow_upward_rounded),
-          ),
-
-          const SizedBox(height: 12),
-
-          FloatingActionButton.extended(
-            onPressed: () =>_timetableKey.currentState?.scrollToNow(),
-            label: const Text("Current"),
-            icon: const Icon(Icons.my_location),
+          FloatingActionButton(
+            onPressed: () {
+              _timetableKey.currentState?.refreshData();
+              _timetableKey.currentState?.scrollToNow();
+              },
+            backgroundColor: Theme.of(context).colorScheme.tertiaryContainer,
+            child: const Icon(Icons.refresh),
           ),
 
           const SizedBox(height: 12),
 
           if (!isGuest)
-            FloatingActionButton.extended(
+            FloatingActionButton(
               onPressed: () => _showReportModal(context),
               backgroundColor: Theme.of(context).colorScheme.tertiaryContainer,
-              icon: const Icon(Icons.add),
-              label: const Text("Report Time"),
+              child: const Icon(Icons.add),
             ),
         ],
       ),
