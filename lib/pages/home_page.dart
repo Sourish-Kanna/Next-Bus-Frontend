@@ -81,15 +81,11 @@ class HomePageState extends State<HomePage> {
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
             Text("TMT $route", style: const TextStyle(fontWeight: FontWeight.bold)),
-            const Text("From Thane Station to Tikujiniwadi", style: TextStyle(fontSize: 16)),
+            const Text("From Thane Station to Tikuji-ni-wadi", style: TextStyle(fontSize: 16)),
           ],
         ),
       ),
-      body: Padding(
-        padding: const EdgeInsets.symmetric(vertical: 8.0, horizontal: 10.0),
-        child: TimetableDisplay(key: _timetableKey,
-            route: route),
-      ),
+      body: TimetableDisplay(key: _timetableKey, route: route),
       floatingActionButton: Column(
         mainAxisAlignment: MainAxisAlignment.end,
         crossAxisAlignment: CrossAxisAlignment.end,

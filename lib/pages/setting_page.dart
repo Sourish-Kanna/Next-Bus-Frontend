@@ -114,6 +114,8 @@ class SettingPage extends StatelessWidget {
     final String initials = user?.displayName?.trim().isNotEmpty ?? false
         ? user!.displayName!.trim().split(' ').map((e) => e[0]).take(2).join().toUpperCase()
         : "GU";
+    final accessLevel = context.watch<UserDetails>().accessLevel;
+
 
     return Scaffold(
       appBar: AppBar(
@@ -162,7 +164,7 @@ class SettingPage extends StatelessWidget {
                     style: const TextStyle(fontWeight: FontWeight.w600),
                   ),
                   subtitle: Text(
-                    user.email ?? "Signed in anonymously",
+                    "${user.email ?? "Signed in as Guest"} ($accessLevel)",
                     maxLines: 1,
                     overflow: TextOverflow.ellipsis,
                   ),

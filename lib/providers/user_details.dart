@@ -13,6 +13,7 @@ class UserDetails with ChangeNotifier {
   bool get isAdmin => _isAdmin;
   bool get isLoggedIn => _isLoggedIn;
   bool get isGuest => _isGuest;
+  String get accessLevel => _isGuest ? "Guest" : isAdmin ? "Admin" : "User";
 
   /// Main function to get user data.
   /// Strategy: Load Cache (Instant) -> Fetch API (Background) -> Update Cache
