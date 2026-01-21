@@ -198,6 +198,7 @@ jobs:
       - name: 🕸️ Build Web
         run: >
           flutter build web --release
+          --wasm
           --dart-define=API_LINK=${{ secrets.API_LINK }}
           --dart-define=ENVIRONMENT=prod
           --build-name ${{ needs.setup.outputs.build_name }}
