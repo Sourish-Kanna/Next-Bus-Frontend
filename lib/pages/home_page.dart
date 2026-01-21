@@ -85,7 +85,9 @@ class HomePageState extends State<HomePage> {
           ],
         ),
       ),
-      body: TimetableDisplay(key: _timetableKey, route: route),
+      body: Padding(
+        padding: const EdgeInsets.symmetric(horizontal: 16.0),
+        child: TimetableDisplay(key: _timetableKey, route: route),),
       floatingActionButton: Column(
         mainAxisAlignment: MainAxisAlignment.end,
         crossAxisAlignment: CrossAxisAlignment.end,
