@@ -8,11 +8,10 @@
 [build]
   # Tell Netlify where Flutter's web output is.
   publish = "build/web"
-  
-  command = "flutter build web --dart-define=ENVIRONMENT=dev --dart-define=API_LINK=$API_LINK"
+  command = "bash build.sh"
 
 # --- Flutter Plugin ---
-[[plugins]]
-package = "netlify-plugin-flutter"
-  [plugins.inputs]
-  channel = "stable"
+#[[plugins]]
+#package = "netlify-plugin-flutter"
+#  [plugins.inputs]
+#  channel = "stable"

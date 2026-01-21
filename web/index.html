@@ -1,19 +1,6 @@
 <!DOCTYPE html>
-<html>
+<html lang="en">
 <head>
-  <!--
-    If you are serving your web app in a path other than the root, change the
-    href value below to reflect the base path you are serving from.
-
-    The path provided below has to start and end with a slash "/" in order for
-    it to work correctly.
-
-    For more details:
-    * https://developer.mozilla.org/en-US/docs/Web/HTML/Element/base
-
-    This is a placeholder for base href that will be replaced by the value of
-    the `--base-href` argument provided to `flutter build`.
-  -->
   <base href="$FLUTTER_BASE_HREF">
 
   <meta charset="UTF-8">
@@ -34,8 +21,95 @@
 
   <title>Next Bus</title>
   <link rel="manifest" href="manifest.json">
+    <style>
+        body {
+          margin: 0;
+          background: #ffffff;
+          font-family: 'Roboto', -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Helvetica Neue', Arial, sans-serif;
+        }
+
+        @media (prefers-color-scheme: dark) {
+          body {
+            background: #000000;
+          }
+        }
+
+        #loading {
+          height: 100vh;
+          display: flex;
+          justify-content: center;
+          flex-direction: column;
+          gap: 12px;
+          align-items: center;
+          background: inherit;
+          opacity: 1;
+          transform: scale(1);
+          transition: opacity 400ms ease-out, transform 400ms ease-out;
+        }
+
+        #loading.fade-out {
+          opacity: 0;
+          transform: scale(0.96);
+          pointer-events: none;
+        }
+
+        #loading h1 {
+          margin: 0;
+          font-size: 18px;
+          font-weight: 500;
+          color: #000000;
+          letter-spacing: 0.15px;
+        }
+
+        @media (prefers-color-scheme: dark) {
+          #loading h1 {
+            color: #ffffff;
+          }
+        }
+
+        .pulse-animation {
+            width: 120px;
+            height: 120px;
+            border-radius: 20px;
+            box-sizing: border-box;
+            animation: pulse 1.5s infinite ease-in-out;
+          }
+
+        @keyframes pulse {
+          0% {
+            transform: scale(1);
+            opacity: 1;
+          }
+          50% {
+            transform: scale(1.1);
+            opacity: 0.7;
+          }
+          100% {
+            transform: scale(1);
+            opacity: 1;
+          }
+        }
+    </style>
 </head>
 <body>
-  <script src="flutter_bootstrap.js" async></script>
+<div id="loading">
+    <img src="icons/Icon-192.png" alt="Loading..." class="pulse-animation">
+    <h1>Loading...</h1>
+</div>
+<script>
+    window.addEventListener('flutter-first-frame', function () {
+      const loader = document.getElementById('loading');
+      if (!loader) return;
+
+      // trigger fade-out
+      loader.classList.add('fade-out');
+
+      // remove after animation completes
+      setTimeout(() => {
+        loader.remove();
+      }, 400); // must match CSS transition duration
+    });
+</script>
+<script src="flutter_bootstrap.js" async></script>
 </body>
 </html>
