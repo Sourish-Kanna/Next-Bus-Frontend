@@ -101,7 +101,7 @@ class TimetableDisplayState extends State<TimetableDisplay> with AutomaticKeepAl
           children: [
             RefreshIndicator(
               onRefresh: () {
-                refreshData;
+                refreshData();
                 scrollToNow();
                 return Future.delayed(const Duration(seconds: 1));
               },
