@@ -1,9 +1,13 @@
 import 'package:flutter/material.dart';
 import 'package:nextbus/widgets/widgets.dart' show SettingsGroupCard, ThemeSettings;
-import 'package:nextbus/providers/providers.dart' show AuthService;
-import 'package:provider/provider.dart';
+import 'package:nextbus/providers/providers.dart' show AuthService, UserDetails, ConnectivityProvider, NavigationProvider;
+import 'package:provider/provider.dart' show ReadContext, WatchContext;
 import 'package:nextbus/pages/pages.dart' show AuthScreen;
-import 'package:package_info_plus/package_info_plus.dart';
+import 'package:package_info_plus/package_info_plus.dart' show PackageInfo;
+import 'package:cached_network_image/cached_network_image.dart' show CachedNetworkImageProvider;
+import 'package:shared_preferences/shared_preferences.dart';
+
+import '../common.dart';
 
 class SettingPage extends StatelessWidget {
   const SettingPage({super.key});
@@ -13,7 +17,7 @@ class SettingPage extends StatelessWidget {
       context: context,
       builder: (BuildContext context) {
         return AlertDialog(
-          icon: Icon(Icons.commute, color: Theme.of(context).colorScheme.primary),
+          icon: Icon(Icons.auto_awesome_rounded, color: Theme.of(context).colorScheme.primary),
           title: const Text("The Story"),
           content: const SingleChildScrollView(
             child: Text(
@@ -39,7 +43,7 @@ class SettingPage extends StatelessWidget {
       context: context,
       builder: (BuildContext context) {
         return AlertDialog(
-          icon: Icon(Icons.security, color: Theme.of(context).colorScheme.primary),
+          icon: Icon(Icons.gpp_maybe_rounded, color: Theme.of(context).colorScheme.primary),
           title: const Text("Data Authenticity"),
           content: const SingleChildScrollView(
             child: Text(
@@ -57,25 +61,67 @@ class SettingPage extends StatelessWidget {
     );
   }
 
+  void _confirmLogout(BuildContext context) {
+    showDialog(
+      context: context,
+      builder: (context) => AlertDialog(
+        title: const Text("Logout?"),
+        content: const Text("You will need internet to sign back in."),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.pop(context),
+            child: const Text("Cancel"),
+          ),
+          FilledButton.tonal(
+            onPressed: () {
+              _logout(context);
+            },
+            style: FilledButton.styleFrom(
+              backgroundColor: Theme.of(context).colorScheme.errorContainer,
+              foregroundColor: Theme.of(context).colorScheme.onErrorContainer,
+          ),
+            child: const Text("Logout"),
+          ),
+        ],
+      ),
+    );
+  }
+
   Future<void> _logout(BuildContext context) async {
+    // 1. Clear local cache (Offline First logic)
+    // We use context.read which is cleaner for functions
+    await context.read<UserDetails>().clearUserData();
+    if (!context.mounted) return;
+    await context.read<NavigationProvider>().clearNavigationCache();
+    final prefs = await SharedPreferences.getInstance();
+    await prefs.clear();
+    if (!context.mounted) return;
+    // 2. Sign out from Firebase
     await context.read<AuthService>().signOut();
     if (!context.mounted) return;
-
-    Navigator.pushReplacement(
-      context,
-      MaterialPageRoute(builder: (_) => const AuthScreen()),
+    // 3. Navigate to AuthScreen and REMOVE ALL BACK HISTORY
+    Navigator.of(context).pushAndRemoveUntil(
+      MaterialPageRoute(builder: (context) => const AuthScreen()),
+          (Route<dynamic> route) => false, // This predicate false = remove everything
     );
   }
 
   @override
   Widget build(BuildContext context) {
-    // 1. Watch AuthService to get the current User
+
     final user = context.watch<AuthService>().user;
+    final isOnline = context.watch<ConnectivityProvider>().isOnline;
+    final String initials = user?.displayName?.trim().isNotEmpty ?? false
+        ? user!.displayName!.trim().split(' ').map((e) => e[0]).take(2).join().toUpperCase()
+        : "GU";
+    final accessLevel = context.watch<UserDetails>().accessLevel;
+
 
     return Scaffold(
       appBar: AppBar(
         automaticallyImplyLeading: false,
-        title: const Text("Settings"),
+        backgroundColor: Theme.of(context).colorScheme.inversePrimary,
+        title: const Text("Settings",style: TextStyle(fontWeight: FontWeight.bold),),
       ),
       body: ListView(
         padding: const EdgeInsets.symmetric(horizontal: 16.0, vertical: 8.0),
@@ -83,7 +129,7 @@ class SettingPage extends StatelessWidget {
           // --- APPEARANCE ---
           const SettingsGroupCard(
             title: 'Appearance',
-            icon: Icons.palette_outlined,
+            icon: Icons.dark_mode_rounded,
             children: [ThemeSettings()],
           ),
           const SizedBox(height: 16),
@@ -91,7 +137,7 @@ class SettingPage extends StatelessWidget {
           // --- ACCOUNT (With Profile) ---
           SettingsGroupCard(
             title: 'Account',
-            icon: Icons.person_outline_rounded,
+            icon: Icons.manage_accounts_rounded,
             children: [
               // 2. Display User Info if logged in
               if (user != null) ...[
@@ -101,11 +147,11 @@ class SettingPage extends StatelessWidget {
                     radius: 24,
                     backgroundColor: Theme.of(context).colorScheme.primaryContainer,
                     backgroundImage: user.photoURL != null
-                        ? NetworkImage(user.photoURL!)
+                        ? CachedNetworkImageProvider(user.photoURL!)
                         : null,
                     child: user.photoURL == null
                         ? Text(
-                      (user.displayName ?? "U")[0].toUpperCase(),
+                      initials,
                       style: TextStyle(
                         color: Theme.of(context).colorScheme.onPrimaryContainer,
                         fontWeight: FontWeight.bold,
@@ -118,26 +164,33 @@ class SettingPage extends StatelessWidget {
                     style: const TextStyle(fontWeight: FontWeight.w600),
                   ),
                   subtitle: Text(
-                    user.email ?? "Signed in anonymously",
+                    "${user.email ?? "Signed in as Guest"} ($accessLevel)",
                     maxLines: 1,
                     overflow: TextOverflow.ellipsis,
                   ),
                 ),
-                const Divider(height: 24), // Separator
+                // const Divider(height: 24), // Separator
               ],
 
               // Logout Button
               SizedBox(
                 width: double.infinity,
                 child: ElevatedButton.icon(
-                  onPressed: () => _logout(context),
+                  onPressed: isOnline
+                      ? () => _confirmLogout(context)
+                      : () => CustomSnackBar.showError(context, "You cannot logout while offline."),
                   style: ElevatedButton.styleFrom(
-                    backgroundColor: Theme.of(context).colorScheme.errorContainer,
-                    foregroundColor: Theme.of(context).colorScheme.onErrorContainer,
+                    // Grey out the button visually if offline
+                    backgroundColor: isOnline
+                        ? Theme.of(context).colorScheme.errorContainer
+                        : Theme.of(context).colorScheme.surfaceContainerHighest,
+                    foregroundColor: isOnline
+                        ? Theme.of(context).colorScheme.onErrorContainer
+                        : Theme.of(context).colorScheme.onSurfaceVariant,
                     padding: const EdgeInsets.symmetric(vertical: 12),
                   ),
-                  icon: const Icon(Icons.logout),
-                  label: const Text("Logout"),
+                  icon: isOnline ? const Icon(Icons.logout) : const Icon(Icons.wifi_off),
+                  label: Text(isOnline ? "Logout" : "Offline (Logout Disabled)"),
                 ),
               ),
             ],
@@ -147,10 +200,10 @@ class SettingPage extends StatelessWidget {
           // --- ABOUT ---
           SettingsGroupCard(
             title: 'About',
-            icon: Icons.info_outline_rounded,
+            icon: Icons.auto_awesome_rounded,
             children: [
               ListTile(
-                leading: const Icon(Icons.history_edu),
+                leading: const Icon(Icons.psychology),
                 title: const Text("Why I Built This"),
                 subtitle: const Text("The commuter's story"),
                 trailing: const Icon(Icons.arrow_forward_ios, size: 16),

@@ -5,49 +5,85 @@ import 'package:firebase_crashlytics/firebase_crashlytics.dart';
 
 /// A utility class for creating a custom SnackBar.
 class CustomSnackBar {
-  /// Shows a custom SnackBar with optional colors.
+  /// Base method for showing a SnackBar
   static void show(
       BuildContext context,
       String text, {
         VoidCallback? onUndo,
         Color? backgroundColor,
         Color? foregroundColor,
+        IconData? icon,
       }) {
-    // 1. Clear existing snackbars to prevent stacking/delay
     ScaffoldMessenger.of(context).removeCurrentSnackBar();
 
     final colorScheme = Theme.of(context).colorScheme;
+    final bg = backgroundColor ?? colorScheme.inverseSurface;
+    final fg = foregroundColor ?? colorScheme.onInverseSurface;
 
     ScaffoldMessenger.of(context).showSnackBar(
       SnackBar(
-        // 2. Use passed color OR default to M3 Inverse Surface
-        backgroundColor: backgroundColor ?? colorScheme.inverseSurface,
+        backgroundColor: bg,
         behavior: SnackBarBehavior.floating,
-
-        content: Text(
-          text,
-          style: TextStyle(
-            fontSize: 16,
-            // 3. Ensure text contrasts with the background
-            color: foregroundColor ?? colorScheme.onInverseSurface,
-            fontWeight: FontWeight.w500,
-          ),
-        ),
-        shape: RoundedRectangleBorder(
-          borderRadius: BorderRadius.circular(20.0),
+        margin: const EdgeInsets.all(16),
+        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16.0)),
+        content: Row(
+          children: [
+            if (icon != null) ...[
+              Icon(icon, color: fg, size: 20),
+              const SizedBox(width: 12),
+            ],
+            Expanded(
+              child: Text(
+                text,
+                style: TextStyle(color: fg, fontWeight: FontWeight.w500),
+              ),
+            ),
+          ],
         ),
         action: onUndo != null
             ? SnackBarAction(
-          label: "Undo",
-          // Highlight action text (usually primary or inverse primary)
-          textColor: foregroundColor ?? colorScheme.inversePrimary,
+          label: "UNDO",
+          textColor: colorScheme.inversePrimary,
           onPressed: onUndo,
         )
             : null,
-        duration: const Duration(seconds: 3),
       ),
     );
     HapticFeedback.lightImpact();
+  }
+
+  /// Shortcut for Error/Warning messages
+  static void showError(BuildContext context, String text) {
+    final colorScheme = Theme.of(context).colorScheme;
+    show(
+      context,
+      text,
+      backgroundColor: colorScheme.error,
+      foregroundColor: colorScheme.onError,
+      icon: Icons.error_outline_rounded,
+    );
+    HapticFeedback.heavyImpact(); // Stronger feedback for errors
+  }
+
+  /// Shortcut for Success messages
+  static void showSuccess(BuildContext context, String text) {
+    show(
+      context,
+      text,
+      // Using a custom green if your theme doesn't have a success color
+      backgroundColor: Colors.green[700],
+      foregroundColor: Colors.white,
+      icon: Icons.check_circle_outline_rounded,
+    );
+  }
+
+  /// Shortcut for Info/General messages (uses default M3 Inverse Surface)
+  static void showInfo(BuildContext context, String text, {IconData? icon}) {
+    show(
+      context,
+      text,
+      icon: icon ?? Icons.info_outline_rounded,
+    );
   }
 }
 

@@ -44,4 +44,11 @@ class NavigationProvider extends ChangeNotifier {
       navigateTo(NavigationDestinations.home);
     }
   }
+
+  Future<void> clearNavigationCache() async {
+    final prefs = await SharedPreferences.getInstance();
+    await prefs.remove(_prefsKey);
+    _current = NavigationDestinations.home;
+    notifyListeners();
+  }
 }

@@ -1,23 +1,46 @@
 import 'package:flutter/material.dart';
 import 'package:dynamic_color/dynamic_color.dart' show ColorSchemeHarmonization, DynamicColorBuilder;
-import 'package:provider/provider.dart' show Consumer;
+import 'package:nextbus/common.dart' show AppLogger;
+import 'package:provider/provider.dart' show Consumer, Provider;
 import 'package:firebase_auth/firebase_auth.dart' show FirebaseAuth, User;
 import 'package:firebase_analytics/firebase_analytics.dart' show FirebaseAnalyticsObserver;
 
-import 'package:nextbus/providers/providers.dart' show ThemeProvider;
+import 'package:nextbus/providers/providers.dart' show ThemeProvider, ConnectivityProvider, TimetableProvider;
 import 'package:nextbus/pages/pages.dart' show AuthScreen;
 import 'package:nextbus/layout.dart' show AppLayout;
 import 'package:nextbus/constant.dart' show fallbackColor;
 
-class NextBusApp extends StatelessWidget {
+class NextBusApp extends StatefulWidget {
   final FirebaseAnalyticsObserver observer;
-  final User? initialUser; // Accept the initial user
+  final User? initialUser;
 
   const NextBusApp({
     super.key,
     required this.observer,
-    required this.initialUser, // Add to constructor
+    required this.initialUser,
   });
+
+  @override
+  State<NextBusApp> createState() => _NextBusAppState();
+}
+
+class _NextBusAppState extends State<NextBusApp> {
+
+  @override
+  void initState() {
+    super.initState();
+
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      final connProvider = Provider.of<ConnectivityProvider>(context, listen: false);
+
+      connProvider.addListener(() {
+        if (connProvider.isOnline) {
+          AppLogger.info("Back Online! Triggering sync...");
+          Provider.of<TimetableProvider>(context, listen: false).syncPendingReports();
+        }
+      });
+    });
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -28,7 +51,7 @@ class NextBusApp extends StatelessWidget {
             final ColorScheme lightColorScheme;
             ColorScheme darkColorScheme;
 
-            // Step 1: Generate the initial color schemes
+            // Generate the initial color schemes
             if (themeProvider.isDynamicColor &&
                 lightDynamic != null &&
                 darkDynamic != null) {
@@ -42,31 +65,25 @@ class NextBusApp extends StatelessWidget {
                 brightness: Brightness.dark,
               );
             }
-            // Step 2: Define the base theme
-            // final baseTheme = ThemeData();
 
-            // Step 3: Build the MaterialApp
+            // Build the MaterialApp
             return MaterialApp(
               title: 'Next Bus',
               theme: ThemeData(colorScheme: lightColorScheme),
               darkTheme: ThemeData(colorScheme: darkColorScheme),
               themeMode: themeProvider.themeMode,
               navigatorObservers: [
-                observer,
+                widget.observer,
               ],
               home: StreamBuilder<User?>(
                 stream: FirebaseAuth.instance.authStateChanges(),
-                initialData: initialUser, // Use the pre-fetched user data
+                initialData: widget.initialUser,
                 builder: (context, snapshot) {
-                  // We no longer need the 'waiting' check, as initialData is provided.
                   final User? user = snapshot.data;
-
                   if (user != null) {
-                    // User is logged in
-                    return AppLayout();
+                    return AppLayout(); // User is logged in
                   } else {
-                    // User is not logged in
-                    return const AuthScreen();
+                    return const AuthScreen(); // User is not logged in
                   }
                 },
               ),

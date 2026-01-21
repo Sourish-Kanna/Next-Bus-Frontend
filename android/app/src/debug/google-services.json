@@ -7,42 +7,6 @@
   "client": [
     {
       "client_info": {
-        "mobilesdk_app_id": "1:525382805804:android:28e3c934fe059f64f52489",
-        "android_client_info": {
-          "package_name": "com.sourish.nextbus"
-        }
-      },
-      "oauth_client": [
-        {
-          "client_id": "525382805804-9sis1v5niq8b2hh27bqdsbnt1kh0v72e.apps.googleusercontent.com",
-          "client_type": 3
-        }
-      ],
-      "api_key": [
-        {
-          "current_key": "AIzaSyCT44nTDHTu26M7kjpJrRoZNW_ugvJjpsY"
-        }
-      ],
-      "services": {
-        "appinvite_service": {
-          "other_platform_oauth_client": [
-            {
-              "client_id": "525382805804-9sis1v5niq8b2hh27bqdsbnt1kh0v72e.apps.googleusercontent.com",
-              "client_type": 3
-            },
-            {
-              "client_id": "525382805804-keo6nkkucts1m15afvbj854srur8kluo.apps.googleusercontent.com",
-              "client_type": 2,
-              "ios_info": {
-                "bundle_id": "com.sourish.nextbus"
-              }
-            }
-          ]
-        }
-      }
-    },
-    {
-      "client_info": {
         "mobilesdk_app_id": "1:525382805804:android:71f9b3ebdb17dadef52489",
         "android_client_info": {
           "package_name": "com.sourish.nextbus.debug"
@@ -55,6 +19,14 @@
           "android_info": {
             "package_name": "com.sourish.nextbus.debug",
             "certificate_hash": "777b6fbd2ae439bf4040a0e2ca0c7ed35f90f1cc"
+          }
+        },
+        {
+          "client_id": "525382805804-htu88gfrfroovbu5j8er91bu215bj8g0.apps.googleusercontent.com",
+          "client_type": 1,
+          "android_info": {
+            "package_name": "com.sourish.nextbus.debug",
+            "certificate_hash": "fadf654d51ba09b4d591e899cebb6f917eacee97"
           }
         },
         {

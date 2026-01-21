@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
-import 'package:nextbus/widgets/widgets.dart' show TimetableDisplay, ReportBusSheet;
-import 'package:provider/provider.dart';
+import 'package:nextbus/widgets/widgets.dart' show TimetableDisplay, ReportBusSheet, TimetableDisplayState;
+import 'package:provider/provider.dart' show Provider;
 import 'package:nextbus/providers/providers.dart' show RouteProvider, TimetableProvider, UserDetails;
 
 class HomePage extends StatefulWidget {
@@ -13,21 +13,30 @@ class HomePage extends StatefulWidget {
 class HomePageState extends State<HomePage> {
   String? _currentRoute;
   bool _isUserDataFetched = false;
+  final GlobalKey<TimetableDisplayState> _timetableKey = GlobalKey<TimetableDisplayState>();
 
   @override
   void didChangeDependencies() {
     super.didChangeDependencies();
 
     final routeProvider = Provider.of<RouteProvider>(context);
+    final timetableProvider = Provider.of<TimetableProvider>(context); // Listen to data status
     final newRoute = routeProvider.route;
 
-    // Fetch timetable only if route changes
     if (newRoute != _currentRoute) {
+      _currentRoute = newRoute;
       Future.microtask(() {
         if (!mounted) return;
-        Provider.of<TimetableProvider>(context, listen: false)
-            .fetchTimetable(newRoute);
-        _currentRoute = newRoute;
+        Provider.of<TimetableProvider>(context, listen: false).fetchTimetable(newRoute);
+      });
+    }
+
+    // SCROLL LOGIC: If data is loaded and we haven't scrolled yet
+    if (!timetableProvider.isLoading && timetableProvider.timetables.containsKey(newRoute)) {
+      WidgetsBinding.instance.addPostFrameCallback((_) {
+        if (mounted) {
+          _timetableKey.currentState?.scrollToNow();
+        }
       });
     }
 
@@ -41,20 +50,11 @@ class HomePageState extends State<HomePage> {
     }
   }
 
-  // 1. THE REFRESH FUNCTION
-  Future<void> _refreshData() async {
-    final routeProvider = Provider.of<RouteProvider>(context, listen: false);
-
-    // Force a re-fetch of the timetable for the current route
-    await Provider.of<TimetableProvider>(context, listen: false)
-        .fetchTimetable(routeProvider.route);
-  }
-
   void _showReportModal(BuildContext context) {
     showModalBottomSheet(
       context: context,
       isScrollControlled: true,
-      showDragHandle: true, // <--- ADDED: Standard M3 Handle
+      showDragHandle: true,
       backgroundColor: Theme.of(context).colorScheme.surface,
       shape: const RoundedRectangleBorder(
         borderRadius: BorderRadius.vertical(top: Radius.circular(24)),
@@ -74,47 +74,40 @@ class HomePageState extends State<HomePage> {
     bool isGuest = userDetails.isGuest;
 
     return Scaffold(
-        appBar: AppBar(
-          // 1. Restore Color: Matches your design screenshots (Blue/Green)
-          backgroundColor: Theme.of(context).colorScheme.inversePrimary,
-
-          automaticallyImplyLeading: false,
-          centerTitle: false, // 2. Left Align: Matches Figma/M3 guidelines
-
-          // 3. Bold Text: Matches the visual weight in your design
-          title: Text(
-            "Route $route",
-            style: const TextStyle(fontWeight: FontWeight.bold),
-          ),
-
-          // Optional: Add the 'Star' icon if you want to match Figma exactly
-          // actions: [
-          //   IconButton(
-          //     icon: const Icon(Icons.star_border),
-          //     onPressed: () {},
-          //   ),
-          // ],
-        ),
-
-      // 2. WRAP BODY IN REFRESH INDICATOR
-      body: RefreshIndicator(
-        onRefresh: _refreshData,
-        // Optional: Offset determines how far down the spinner appears
-        edgeOffset: 10.0,
-        child: Padding(
-          padding: const EdgeInsets.symmetric(vertical: 13.0, horizontal: 10.0),
-
-          child: TimetableDisplay(route: route),
+      appBar: AppBar(
+        backgroundColor: Theme.of(context).colorScheme.inversePrimary,
+        automaticallyImplyLeading: false,
+        title: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Text("TMT $route", style: const TextStyle(fontWeight: FontWeight.bold)),
+            const Text("From Thane Station to Tikuji-ni-wadi", style: TextStyle(fontSize: 16)),
+          ],
         ),
       ),
+      body: TimetableDisplay(key: _timetableKey, route: route),
+      floatingActionButton: Column(
+        mainAxisAlignment: MainAxisAlignment.end,
+        crossAxisAlignment: CrossAxisAlignment.end,
+        children: [
+          FloatingActionButton(
+            onPressed: () {
+              _timetableKey.currentState?.refreshData();
+              _timetableKey.currentState?.scrollToNow();
+              },
+            backgroundColor: Theme.of(context).colorScheme.tertiaryContainer,
+            child: const Icon(Icons.refresh),
+          ),
 
-      floatingActionButton: isGuest
-          ? null
-          : FloatingActionButton(
-        onPressed: () => _showReportModal(context),
-        foregroundColor: Theme.of(context).colorScheme.onTertiaryContainer,
-        backgroundColor: Theme.of(context).colorScheme.tertiaryContainer,
-        child: const Icon(Icons.add),
+          const SizedBox(height: 12),
+
+          if (!isGuest)
+            FloatingActionButton(
+              onPressed: () => _showReportModal(context),
+              backgroundColor: Theme.of(context).colorScheme.tertiaryContainer,
+              child: const Icon(Icons.add),
+            ),
+        ],
       ),
     );
   }

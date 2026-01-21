@@ -1,21 +1,74 @@
 name: Build, Release, and Deploy
 
-# This workflow runs only when a new release is published
 on:
   release:
     types: [published]
 
-# --- Permissions Configuration ---
 permissions:
   contents: read
 
+# --------------------------------------
+# 🔥 PRE-CACHE JOB (runs once)
+# --------------------------------------
 jobs:
-  # This job runs first and defines common variables.
+  precache:
+    name: 🔥 Pre-cache Flutter & Gradle
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: 📥 Checkout
+        uses: actions/checkout@v4
+
+      - name: ☕ Setup Java
+        uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: 17
+
+      - name: 🐦 Install Flutter (cached)
+        uses: subosito/flutter-action@v2
+        with:
+          channel: stable
+          cache: true
+
+      - name: 📦 Flutter Pub Get (warm cache)
+        run: flutter pub get
+
+      - name: ⚡ Cache Gradle
+        id: gradle-cache
+        uses: actions/cache@v3
+        with:
+          path: |
+            ~/.gradle/caches
+            ~/.gradle/wrapper
+          key: ${{ runner.os }}-gradle-${{ hashFiles('android/**/build.gradle*', 'android/**/settings.gradle*', 'android/**/gradle-wrapper.properties') }}
+          restore-keys: |
+            ${{ runner.os }}-gradle-
+
+      - name: 📊 Gradle Cache Status
+        run: |
+          if [ "${{ steps.gradle-cache.outputs.cache-hit }}" = "true" ]; then
+            echo "✅ Gradle cache HIT"
+          else
+            echo "🆕 Gradle cache MISS (created)"
+          fi
+
+      - name: 🔍 Tool Versions
+        run: |
+            flutter --version
+            java -version
+#            ./android/gradlew --version
+        
+
+  # --------------------------------------
+  # 🔢 SETUP JOB
+  # --------------------------------------
   setup:
     runs-on: ubuntu-latest
     outputs:
       build_name: ${{ steps.vars.outputs.build_name }}
       build_number: ${{ steps.vars.outputs.build_number }}
+
     steps:
       - name: 🔢 Set build variables
         id: vars
@@ -25,47 +78,26 @@ jobs:
           echo "Using Build Name: ${{ github.event.release.tag_name }}"
           echo "Using Build Number: ${{ github.run_number }}"
 
+  # --------------------------------------
+  # 📱 ANDROID RELEASE
+  # --------------------------------------
   android-release:
-    needs: setup
+    needs: [setup, precache]
     runs-on: ubuntu-latest
-
-    # --- Permission to upload APKs to the Release page ---
     permissions:
       contents: write
 
     steps:
-      - name: 📥 Checkout repository at release tag
+      - name: 📥 Checkout release tag
         uses: actions/checkout@v4
         with:
           ref: ${{ needs.setup.outputs.build_name }}
 
-#      # IMPORTANT: Java setup is required for stable Android builds
-#      - name: ☕ Setup Java
-#        uses: actions/setup-java@v4
-#        with:
-#          distribution: 'temurin'
-#          java-version: '17'
-
-      - name: ⚡ Cache pub & dart tool
-        uses: actions/cache@v3
+      - name: ☕ Setup Java
+        uses: actions/setup-java@v4
         with:
-          path: |
-            ~/.pub-cache
-            .dart_tool
-          key: ${{ runner.os }}-pub-${{ hashFiles('pubspec.lock') }}
-
-      - name: ⚡ Cache Gradle
-        uses: actions/cache@v3
-        with:
-          path: |
-            ~/.gradle/caches
-            ~/.gradle/wrapper
-            ~/.gradle/notifications
-            ~/.gradle/daemon
-            android/.gradle
-          key: ${{ runner.os }}-gradle-${{ hashFiles('**/*.gradle*', '**/*.kts', 'gradle.properties') }}
-          restore-keys: |
-            ${{ runner.os }}-gradle-
+          distribution: temurin
+          java-version: 17
 
       - name: 🐦 Install Flutter
         uses: subosito/flutter-action@v2
@@ -73,26 +105,35 @@ jobs:
           channel: stable
           cache: true
 
-      # --- KEYSTORE & FIREBASE CONFIG ---
+      - name: ⚡ Restore Gradle Cache
+        id: gradle-cache
+        uses: actions/cache@v3
+        with:
+          path: |
+            ~/.gradle/caches
+            ~/.gradle/wrapper
+          key: ${{ runner.os }}-gradle-${{ hashFiles('android/**/build.gradle*', 'android/**/settings.gradle*', 'android/**/gradle-wrapper.properties') }}
+          restore-keys: |
+            ${{ runner.os }}-gradle-
 
       - name: 🔐 Decode Keystore
-        run: |
-          # Decodes to 'upload-keystore.jks' to match your local setup
-          echo "${{ secrets.ANDROID_KEYSTORE_BASE64 }}" | base64 --decode > android/app/upload-keystore.jks
+        run: echo "${{ secrets.ANDROID_KEYSTORE_BASE64 }}" | base64 --decode > android/app/upload-keystore.jks
 
-      - name: 🔥 Decode Firebase Config (Prod)
+      - name: 🔥 Decode Firebase Config
         run: |
-          # Creates the release directory and injects the Prod JSON
           mkdir -p android/app/src/release
           echo "${{ secrets.FIREBASE_JSON_RELEASE }}" | base64 --decode > android/app/src/release/google-services.json
 
-      # --- BUILD ---
-
-      - name: 📱 Build Signed APK
+      - name: 📱 Build Signed APK (Gradle Cache ON)
         env:
           KEYSTORE_PASSWORD: ${{ secrets.ANDROID_KEYSTORE_PASSWORD }}
           KEY_PASSWORD: ${{ secrets.ANDROID_KEY_PASSWORD }}
           KEY_ALIAS: ${{ secrets.ANDROID_KEY_ALIAS }}
+          GRADLE_OPTS: >
+            -Xmx4G
+            -Dorg.gradle.daemon=false
+            -Dfile.encoding=UTF-8
+            -Dorg.gradle.caching.debug=true
         run: >
           flutter build apk --split-per-abi --release
           --build-name ${{ needs.setup.outputs.build_name }}
@@ -104,7 +145,7 @@ jobs:
         run: |
           BUILD_NAME="${{ needs.setup.outputs.build_name }}"
           
-          # 64-bit APK (Best for modern phones)
+          # 64-bit APK
           OLD_NAME_64="build/app/outputs/flutter-apk/app-arm64-v8a-release.apk"
           NEW_NAME_64="build/app/outputs/flutter-apk/Next-Bus-${BUILD_NAME}-arm64.apk"
           
@@ -115,7 +156,7 @@ jobs:
              echo "⚠️ 64-bit APK not found!"
           fi
           
-          # 32-bit APK (Legacy support)
+          # 32-bit APK
           OLD_NAME_32="build/app/outputs/flutter-apk/app-armeabi-v7a-release.apk"
           NEW_NAME_32="build/app/outputs/flutter-apk/Next-Bus-${BUILD_NAME}-arm32.apk"
 
@@ -131,29 +172,22 @@ jobs:
         with:
           files: build/app/outputs/flutter-apk/Next-Bus-*.apk
 
+  # --------------------------------------
+  # 🌍 WEB DEPLOY (Firebase)
+  # --------------------------------------
   web-deploy:
-    needs: setup
+    needs: [setup, precache]
     runs-on: ubuntu-latest
-
-    # --- Permissions for Firebase Hosting Status Checks ---
     permissions:
       contents: read
       checks: write
       pull-requests: write
 
     steps:
-      - name: 📥 Checkout repository at release tag
+      - name: 📥 Checkout release tag
         uses: actions/checkout@v4
         with:
           ref: ${{ needs.setup.outputs.build_name }}
-
-      - name: ⚡ Cache pub & dart tool
-        uses: actions/cache@v3
-        with:
-          path: |
-            ~/.pub-cache
-            .dart_tool
-          key: ${{ runner.os }}-pub-${{ hashFiles('pubspec.lock') }}
 
       - name: 🐦 Install Flutter
         uses: subosito/flutter-action@v2
@@ -161,13 +195,14 @@ jobs:
           channel: stable
           cache: true
 
-      - name: 🕸️ Build Flutter Web
+      - name: 🕸️ Build Web
         run: >
           flutter build web --release
           --dart-define=API_LINK=${{ secrets.API_LINK }}
           --dart-define=ENVIRONMENT=prod
+          --build-name ${{ needs.setup.outputs.build_name }}
 
-      - name: 🔥 Deploy to Firebase Hosting (Live)
+      - name: 🔥 Deploy to Firebase Hosting (cached)
         uses: FirebaseExtended/action-hosting-deploy@v0
         with:
           repoToken: ${{ secrets.GITHUB_TOKEN }}

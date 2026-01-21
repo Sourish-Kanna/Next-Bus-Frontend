@@ -4,7 +4,7 @@ import 'package:nextbus/constant.dart';
 
 class ThemeProvider with ChangeNotifier {
   ThemeMode _themeMode = ThemeMode.system; // Default to system theme
-  Color? _selectedSeedColor = seedColorList[0]; // Default to the first seed color
+  Color? _selectedSeedColor = fallbackColor;
   bool _isDynamicColor = true; // Default to dynamic color
 
   static const String _themeModeKey = 'themeMode';

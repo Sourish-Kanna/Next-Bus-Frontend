@@ -54,7 +54,7 @@ class AdminPage extends StatelessWidget {
                   onPressed: () {
                     Navigator.pop(context);
                     routeProvider.setRoute(selectedRoute);
-                    CustomSnackBar.show(context, "Switched to Route $selectedRoute");
+                    CustomSnackBar.showInfo(context, "Switched to Route $selectedRoute");
                   },
                 ),
               ],
@@ -135,7 +135,7 @@ class AdminPage extends StatelessWidget {
 
                   if (context.mounted) {
                     Navigator.pop(context);
-                    CustomSnackBar.show(context, "Route ${routeNameController.text} Added!");
+                    CustomSnackBar.showSuccess(context, "Route ${routeNameController.text} Added!");
                   }
                 },
                 child: const Text("Create"),
@@ -202,7 +202,7 @@ class AdminPage extends StatelessWidget {
 
                   if (context.mounted) {
                     Navigator.pop(context);
-                    CustomSnackBar.show(context, "Updated $selectedRoute at $timeStr");
+                    CustomSnackBar.showSuccess(context, "Updated $selectedRoute at $timeStr");
                   }
                 },
                 child: const Text("Update"),
@@ -214,7 +214,6 @@ class AdminPage extends StatelessWidget {
     );
   }
 
-  // --- 4. DEBUG INFO (Dialog with Copy) ---
   // --- 4. ENHANCED DEBUG INFO ---
   Future<void> _showDebugDialog(BuildContext context) async {
     // 1. Fetch all providers
@@ -315,8 +314,9 @@ ${DateTime.now().toIso8601String()}
 
     return Scaffold(
       appBar: AppBar(
-        title: const Text("Admin Dashboard"),
-        centerTitle: false,
+        title: const Text("Admin Dashboard",style: TextStyle(fontWeight: FontWeight.bold),),
+        backgroundColor: Theme.of(context).colorScheme.inversePrimary,
+
       ),
       body: ListView(
         padding: const EdgeInsets.symmetric(horizontal: 16.0, vertical: 12.0),

@@ -1,8 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:nextbus/providers/providers.dart' show RouteProvider, NavigationProvider;
 import 'package:nextbus/common.dart' show AppLogger;
-import 'package:nextbus/constant.dart';
-import 'package:provider/provider.dart';
+import 'package:nextbus/constant.dart' show NavigationDestinations;
+import 'package:provider/provider.dart' show ReadContext, WatchContext;
 
 class RouteSelect extends StatefulWidget {
   const RouteSelect({super.key});
@@ -68,7 +68,13 @@ class _RouteSelectState extends State<RouteSelect> {
     AppLogger.info('RouteSelect build — selectedRoute: $selectedRoute');
 
     return Scaffold(
-      appBar: AppBar(title: const Text('Select a Route')),
+      appBar: AppBar(
+          title: const Text(
+            'Select a Route',
+            style: TextStyle(fontWeight: FontWeight.bold),
+          ),
+        backgroundColor: Theme.of(context).colorScheme.inversePrimary,
+      ),
       body: _isLoading
           ? const Center(child: CircularProgressIndicator())
           : Padding(
@@ -114,7 +120,7 @@ class _RouteSelectState extends State<RouteSelect> {
 
                               routeProvider.setRoute(routeItem);
 
-                              /// ✅ Navigate using enum-based navigation
+                              // ✅ Navigate using enum-based navigation
                               navProvider.navigateTo(
                                 NavigationDestinations.home,
                               );
