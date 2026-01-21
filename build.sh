@@ -28,6 +28,8 @@ echo "Building Flutter Web..."
 
 # Note: Ensure $API_LINK is set in your Netlify Environment Variables
 flutter build web --release \
+  --web-renderer auto \
+  --wasm \
   --dart-define=ENVIRONMENT=dev \
   --dart-define=API_LINK="$API_LINK"
 
