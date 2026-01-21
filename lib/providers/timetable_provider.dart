@@ -143,7 +143,7 @@ class TimetableProvider with ChangeNotifier {
   }
 
   // [New] Helper to clear cache after an update
-  void _handleSuccessfulUpdate(String routeName) async {
+  Future<void> _handleSuccessfulUpdate(String routeName) async {
     _timetables.remove(routeName);
     final prefs = await SharedPreferences.getInstance();
     await prefs.remove('timetable_$routeName');

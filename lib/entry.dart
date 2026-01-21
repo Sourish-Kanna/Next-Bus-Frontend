@@ -30,13 +30,15 @@ class _NextBusAppState extends State<NextBusApp> {
   void initState() {
     super.initState();
 
-    final connProvider = Provider.of<ConnectivityProvider>(context, listen: false);
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      final connProvider = Provider.of<ConnectivityProvider>(context, listen: false);
 
-    connProvider.addListener(() {
-      if (connProvider.isOnline) {
-        AppLogger.info("Back Online! Triggering sync...");
-        Provider.of<TimetableProvider>(context, listen: false).syncPendingReports();
-      }
+      connProvider.addListener(() {
+        if (connProvider.isOnline) {
+          AppLogger.info("Back Online! Triggering sync...");
+          Provider.of<TimetableProvider>(context, listen: false).syncPendingReports();
+        }
+      });
     });
   }
 
