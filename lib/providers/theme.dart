@@ -65,7 +65,7 @@ class ThemeProvider with ChangeNotifier {
       _selectedSeedColor = seedColorList[seedColorIndex];
     } else if (!_isDynamicColor && seedColorList.isNotEmpty) {
       // Fallback if saved index is invalid or no dynamic color
-      _selectedSeedColor = seedColorList[0];
+      _selectedSeedColor = fallbackColor;
     } else {
       _selectedSeedColor = null; // Dynamic color is active
     }
